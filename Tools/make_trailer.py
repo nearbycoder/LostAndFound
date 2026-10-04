@@ -559,29 +559,33 @@ def still(take_name, t, name, quality=95):
     return out
 
 
-def poster(src, out):
-    """The trailer's poster frame with a play button, for the README (GitHub won't play the MP4 inline)."""
-    im = Image.open(src).convert("RGBA")
-    shade = Image.new("RGBA", im.size, (0, 0, 0, 70))
-    im.alpha_composite(shade)
+def poster(src, logo, out):
+    """The README's trailer poster (GitHub won't play the MP4 inline): a frame of the game, darkened,
+    the title raised into the upper third, and a play button with a label beneath it."""
+    im = Image.open(src).convert("RGBA").resize((W, H), Image.LANCZOS)
+    im = Image.blend(im, Image.new("RGBA", (W, H), (8, 7, 6, 255)), 0.62)
+    vign = Image.new("L", (W, H), 0)
+    ImageDraw.Draw(vign).ellipse([-W * 0.25, -H * 0.35, W * 1.25, H * 1.35], fill=255)
+    vign = vign.filter(ImageFilter.GaussianBlur(160))
+    im = Image.composite(im, Image.new("RGBA", (W, H), (0, 0, 0, 255)), vign)
+    im.alpha_composite(Image.open(logo).convert("RGBA"), (0, -215))
     S = 4
-    r = 92
-    btn = Image.new("RGBA", (r * 2 * S + 40 * S, r * 2 * S + 40 * S), (0, 0, 0, 0))
+    r = 74
+    btn = Image.new("RGBA", ((r * 2 + 20) * S, (r * 2 + 20) * S), (0, 0, 0, 0))
     d = ImageDraw.Draw(btn)
     c = btn.width // 2
-    d.ellipse([c - r * S, c - r * S, c + r * S, c + r * S], fill=(20, 18, 16, 170), outline=CREAM + (255,), width=6 * S)
-    tri = [(c - 28 * S, c - 44 * S), (c - 28 * S, c + 44 * S), (c + 48 * S, c)]
-    d.polygon(tri, fill=CREAM + (255,))
+    d.ellipse([c - r * S, c - r * S, c + r * S, c + r * S], fill=(20, 18, 16, 190), outline=CREAM + (255,), width=5 * S)
+    d.polygon([(c - 22 * S, c - 36 * S), (c - 22 * S, c + 36 * S), (c + 40 * S, c)], fill=CREAM + (255,))
     btn = btn.resize((btn.width // S, btn.height // S), Image.LANCZOS)
-    im.alpha_composite(btn, ((im.width - btn.width) // 2, (im.height - btn.height) // 2))
+    cy = 668
+    im.alpha_composite(btn, ((W - btn.width) // 2, cy - btn.height // 2))
     f = font(F_TYPE, 34)
     label = "WATCH THE TRAILER"
     d = ImageDraw.Draw(im)
-    tw = text_w(f, label)
-    y = im.height // 2 + r + 34
-    d.text(((im.width - tw) // 2 + 2, y + 3), label, font=f, fill=(0, 0, 0, 200))
-    d.text(((im.width - tw) // 2, y), label, font=f, fill=CREAM)
-    im.convert("RGB").save(out, quality=88, optimize=True, progressive=True)
+    x, y = (W - text_w(f, label)) // 2, cy + r + 30
+    d.text((x + 2, y + 3), label, font=f, fill=(0, 0, 0, 220))
+    d.text((x, y), label, font=f, fill=CREAM)
+    im.convert("RGB").save(out, quality=90, optimize=True, progressive=True)
     print(f"  {out.relative_to(ROOT)}  {out.stat().st_size / 1e6:.2f} MB")
 
 
@@ -727,7 +731,7 @@ def systems(c):
     """The evening, and choices that carry."""
     d1, g = take("day1"), take("grey")
     S = []
-    S.append(clip("day1", d1.at("ledger 1") + 1.5, 4.7, [ov(c["ledger"])], label="the Day Ledger and the Gazette"))
+    S.append(clip("day1", d1.at("ledger 1") + 2.4, 4.0, [ov(c["ledger"])], label="the Day Ledger and the Gazette"))
     given = g.at("stamp 4.2")
     S.append(clip("grey", given + 2.8, 4.4, [ov(c["grey"])], label="Vell: forty-one years she waited"))
     S.append(clip("grey", g.at("arrive 4.5") + 3.1, 3.0, xf=0.35, label="Thomas: gone? to a gentleman in grey?"))
@@ -839,14 +843,16 @@ def teaser_loop():
 
 
 if __name__ == "__main__":
-    what = sys.argv[1:] or ["trailer", "stills", "teaser"]
+    what = sys.argv[1:] or ["trailer", "stills", "teaser"]   # or "poster" alone
     if "stills" in what:
         stills()
     if "teaser" in what:
         teaser_loop()
     if "trailer" in what:
-        out, starts, total = trailer()
-        # the README's poster: the title card, with a play button
+        trailer()
+    if "trailer" in what or "poster" in what:
+        # the README's poster: the "41 years" photograph after it has changed, under the title
+        d4 = take("day4")
         frame = WORK / "poster_src.png"
-        ffmpeg("-ss", f"{starts[5] + 2.4:.2f}", "-i", out, "-frames:v", 1, frame)
-        poster(frame, OUT / "trailer_poster.jpg")
+        ffmpeg("-ss", f"{d4.at('photos-begin') + 7.6:.2f}", "-i", d4.path, "-frames:v", 1, frame)
+        poster(frame, WORK / "logo.png", OUT / "trailer_poster.jpg")
