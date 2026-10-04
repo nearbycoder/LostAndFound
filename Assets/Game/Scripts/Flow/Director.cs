@@ -38,6 +38,8 @@ namespace LostAndFound
         /// <summary>Dialogue and notes advance by themselves (autopilot, recordings, headless tests).</summary>
         public static bool AutoAdvance => I != null && (I.Autopilot || I.autoAdvance);
         public bool autoAdvance;
+        /// <summary>Auto-advancing, but at a pace a viewer can read (recordings of the AutoPilot).</summary>
+        public static bool Cinematic;
         public bool autoRing;
 
         public static readonly Vector3 WindowSpot = new(0f, -0.3f, 1.6f);
@@ -607,8 +609,11 @@ namespace LostAndFound
         /// The ring has gone home. The music stops; one by one every photograph on the desk glows and
         /// becomes the world where Thomas made it to the platform.
         /// </summary>
+        public bool ChangingPhotos { get; private set; }
+
         IEnumerator PhotographsChange()
         {
+            ChangingPhotos = true;
             UIRoot.I.hint.Set(null);
             InteractionSystem.I.Blocked = true;
             CameraRig.I.allowTurn = false;
@@ -622,7 +627,13 @@ namespace LostAndFound
             foreach (var p in all)
             {
                 Vector3 at = p.photo != null ? p.photo.bounds.center : p.transform.position + Vector3.up * 0.07f;
-                Vector3 fromEye = Vector3.Lerp(at, CameraRig.I.eye, 0.42f) + Vector3.up * 0.03f;
+                // look square at the picture, from a little above, like leaning in to it
+                Vector3 toEye = CameraRig.I.eye - at;
+                toEye.y = 0f;
+                Vector3 face = p == Desk.I.props.polaroid
+                    ? (toEye.normalized * 0.55f + Vector3.up).normalized          // lying flat: lean over it
+                    : (-p.transform.forward * 0.85f + Vector3.up * 0.35f).normalized; // framed: square on, a little above
+                Vector3 fromEye = at + face * (p == Desk.I.props.polaroid ? 0.3f : 0.22f);
                 CameraRig.I.Focus(at, fromEye, 38f);
                 yield return new WaitForSeconds(1.1f);
                 yield return p.Change(PhotoTexture(p.photoId));
@@ -634,6 +645,7 @@ namespace LostAndFound
             InteractionSystem.I.Blocked = false;
             CameraRig.I.allowTurn = true;
             AudioDirector.Music("day" + Mathf.Clamp(Day, 1, 5), 4f);
+            ChangingPhotos = false;
         }
 
         public Texture2D PhotoTexture(string id)

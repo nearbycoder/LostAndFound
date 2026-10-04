@@ -198,20 +198,38 @@ namespace LostAndFound
             photo.sharedMaterial = mat;
         }
 
+        static readonly Color Glow = new(0.2f, 0.19f, 0.17f);
+
         public void SetPhoto(Texture2D tex)
         {
             if (mat == null) return;
-            mat.SetTexture("_BaseMap", tex != null ? tex : Texture2D.grayTexture);
+            var t = tex != null ? tex : Texture2D.grayTexture;
+            mat.SetTexture("_BaseMap", t);
+            // a faint glow of its own so a photograph reads even in the desk's shadows
+            mat.SetTexture("_EmissionMap", t);
+            MaterialLibrary.SetEmission(mat, Glow);
+        }
+
+        /// <summary>The direction the picture faces (towards whoever looks at it).</summary>
+        public Vector3 Facing
+        {
+            get
+            {
+                if (photo == null) return -transform.forward;
+                var mf = photo.GetComponent<MeshFilter>();
+                Vector3 n = mf != null && mf.sharedMesh != null && mf.sharedMesh.normals.Length > 0 ? mf.sharedMesh.normals[0] : Vector3.back;
+                return photo.transform.TransformDirection(n).normalized;
+            }
         }
 
         public System.Collections.IEnumerator Change(Texture2D to)
         {
             if (mat == null) yield break;
             AudioDirector.Play("photo_change", 0.8f, Random.Range(0.97f, 1.03f));
-            yield return Tween.Run(0.5f, k => MaterialLibrary.SetEmission(mat, new Color(1f, 0.85f, 0.6f) * k * 1.5f), Ease.InQuad);
+            yield return Tween.Run(0.5f, k => MaterialLibrary.SetEmission(mat, Color.Lerp(Glow, new Color(1f, 0.85f, 0.6f) * 1.5f, k)), Ease.InQuad);
             SetPhoto(to);
             StartCoroutine(Tween.Punch(transform, 0.08f, 0.4f));
-            yield return Tween.Run(1.2f, k => MaterialLibrary.SetEmission(mat, new Color(1f, 0.85f, 0.6f) * (1 - k) * 1.5f), Ease.OutQuad);
+            yield return Tween.Run(1.2f, k => MaterialLibrary.SetEmission(mat, Color.Lerp(new Color(1f, 0.85f, 0.6f) * 1.5f, Glow, k)), Ease.OutQuad);
         }
     }
 

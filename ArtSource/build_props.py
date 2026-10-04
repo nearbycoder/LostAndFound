@@ -226,7 +226,7 @@ def frame(name, w, h, border, frame_mat, oval=False):
         m.add(box((-w / 2 - border, 0.002, -d / 2), (w / 2 + border, h + 2 * border + 0.002, d / 2), bevel=0.004, segments=3), frame_mat, transform=T)
         m.add(box((-w / 2 - border * 0.4, border * 0.6 + 0.002, -d / 2 - 0.002), (w / 2 + border * 0.4, h + border * 1.4 + 0.002, -d / 2 + 0.001), bevel=0.002), BRASS_D, transform=T)
     # easel leg at the back
-    m.add(box((-0.008, 0.0, 0.01), (0.008, h * 0.8, 0.016)), WALNUT_D, transform=rotate_about((0, h * 0.8, 0.012), "X", 18) @ T)
+    m.add(box((-0.008, 0.0, 0.01), (0.008, h * 0.8, 0.016)), WALNUT_D, transform=rotate_about((0, h * 0.8, 0.012), "X", -18) @ T)
     obj = m.build()
     cy = (h / 2 + 0.01) if oval else (h / 2 + border + 0.002)
     q = photo_quad(m, (0, cy, -d / 2 - 0.0035), w * (0.92 if oval else 1), h * (0.92 if oval else 1), tilt=tilt, pivot=pivot, oval=oval)

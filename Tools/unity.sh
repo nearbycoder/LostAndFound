@@ -11,7 +11,9 @@
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
 #   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
-#   Tools/unity.sh autopilot [x]   play the whole week hands-free at x speed, screenshots in Screenshots/autopilot/
+#   Tools/unity.sh autopilot [speed] [day] [best|worst|wait]
+#                                  play the week hands-free, screenshots in Screenshots/autopilot/
+#   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #
 # On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
@@ -39,7 +41,16 @@ case "${1:-open}" in
   autopilot)   [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                exec timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
-                 -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
+                 -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
+  trailer)     [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
+               timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
+                 -lafDemo "$out/raw" -lafRecordOnly -lafRecordFrom 4.5 -lafSave "$out/raw/save.json" -lafNoVsync \
+                 -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -logFile "$PROJECT/Logs/trailer.log"
+               rate=$(grep -a -o '[0-9]* Hz x' "$PROJECT/Logs/trailer.log" | head -1 | cut -d' ' -f1)
+               ch=$(grep -a -o 'Hz x[0-9]' "$PROJECT/Logs/trailer.log" | head -1 | tail -c 2)
+               exec ffmpeg -y -loglevel error -i "$out/raw/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/raw/audio.f32" \
+                 -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart "$out/the_ring.mp4" ;;
   demo)        [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
                timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out/raw" \

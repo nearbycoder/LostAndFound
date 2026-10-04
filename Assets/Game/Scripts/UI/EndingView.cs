@@ -76,7 +76,7 @@ namespace LostAndFound
             while (!done)
             {
                 waited += Time.deltaTime;
-                if (Director.AutoAdvance && waited > 4f) done = true;
+                if (Director.AutoAdvance && waited > 8f) done = true;
                 yield return null;
             }
             yield return UIRoot.I.fader.FadeTo(1f, 1f);

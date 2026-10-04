@@ -351,6 +351,9 @@ namespace LostAndFound
             return found;
         }
 
+        /// <summary>Notice a detail of the held object as if the player had clicked it (filmed AutoPilot runs).</summary>
+        public void DiscoverForDemo(DetailDef d, Vector3 world) { if (Held != null) Discover(d, world); }
+
         void Discover(DetailDef d, Vector3 world)
         {
             if (Director.I == null || Director.I.IsDiscovered(Held.def, d)) return;

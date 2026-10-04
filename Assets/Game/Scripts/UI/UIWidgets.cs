@@ -106,10 +106,11 @@ namespace LostAndFound
                 crowded = true;
                 tailLeft = ox < head.x;
             }
-            panel.sizeDelta = new Vector2(crowded ? 560f : 700f, panel.sizeDelta.y);
+            panel.sizeDelta = new Vector2(crowded ? 490f : 700f, panel.sizeDelta.y);
             size = panel.sizeDelta;
+            float margin = crowded ? 14f : 30f;
             float x = tailLeft ? head.x + 170f : head.x - 170f - size.x;
-            x = Mathf.Clamp(x, 30f, w - size.x - 30f);
+            x = Mathf.Clamp(x, margin, w - size.x - margin);
             float y = Mathf.Clamp(head.y + size.y * 0.55f, size.y + 40f, h - 24f);
             target = new Vector2(x, y);
             tail.enabled = true;
@@ -138,7 +139,7 @@ namespace LostAndFound
             advance = false;
             more.enabled = false;
             who?.SetTalking(true);
-            float cps = (Director.AutoAdvance ? 160f : 52f) * Settings.TextSpeed * (voice != null ? Mathf.Lerp(0.85f, 1.2f, voice.speed - 0.5f) : 1f);
+            float cps = (Director.AutoAdvance && !Director.Cinematic ? 160f : 52f) * Settings.TextSpeed * (voice != null ? Mathf.Lerp(0.85f, 1.2f, voice.speed - 0.5f) : 1f);
             float acc = 0f;
             int shownChars = 0, sinceVoice = 0;
             while (shownChars < total)
@@ -171,7 +172,7 @@ namespace LostAndFound
             while (!advance)
             {
                 t += Time.deltaTime;
-                if (Director.AutoAdvance && t > 0.45f) advance = true;
+                if (Director.AutoAdvance && t > (Director.Cinematic ? 1.0f + total * 0.03f : 0.45f)) advance = true;
                 more.rectTransform.anchoredPosition = new Vector2(-24f, 18f + Mathf.Abs(Mathf.Sin(t * 4f)) * 6f);
                 yield return null;
             }
@@ -575,7 +576,7 @@ namespace LostAndFound
                 t += Time.deltaTime;
                 bool click = InputX.LeftDown || InputX.KeyDown(Key.Space) || InputX.KeyDown(Key.Enter);
                 if (click && t > 0.35f && !UIRoot.ModalOpen) dismissed = true;
-                if (Director.AutoAdvance && t > 0.9f) dismissed = true;
+                if (Director.AutoAdvance && t > (Director.Cinematic ? 4.5f : 0.9f)) dismissed = true;
                 yield return null;
             }
             AudioDirector.Play("paper_fold", 0.5f);

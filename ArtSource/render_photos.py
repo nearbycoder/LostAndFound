@@ -182,7 +182,7 @@ def mum():
     for x in (-1.5, -0.5, 0.5, 1.5):
         solid("Pole", (x - 0.015, 0.0, -0.34), (x + 0.015, 1.05, -0.29), "8A6A4A", "wood")
     m = person("mum", -0.18, 0.35)
-    c = person("you_child", 0.24, 0.05, yaw=-6)
+    c = person("you_child", 0.22, 0.12, yaw=-6, scale=0.78, lift=0.12)
     g1 = person("agnes_1951", -0.6, 0.75, yaw=10)
     g2 = person("thomas_old", 0.64, 0.8, yaw=-12)
     tgt = (0.0, 1.3, 0.3)
@@ -249,8 +249,8 @@ def ending_nine40():
     person("you", 0.0, 0.95, lift=0.12)
     person("agnes_old", -0.35, 0.5, yaw=6)
     person("thomas_old", 0.35, 0.55, yaw=-6)
-    tgt = (0.0, 1.35, 1.2)
-    camera(tgt, (0.0, 1.8, -3.6), fov=44, w=840, h=890)
+    tgt = (0.0, 1.62, 1.3)
+    camera(tgt, (0.0, 1.7, -3.4), fov=38, w=840, h=890)
     studio(tgt)
     render("ending_nine40")
 
@@ -258,7 +258,7 @@ def ending_nine40():
 def ending_longwait():
     station_back(2.2, "C0B090", "3A4A3A")
     solid("Edge", (-6, 0.0, -1.2), (6, 0.03, -0.9), "E0D8C0")
-    sign("PLATFORM 9", (0.9, 2.5, 2.1), 0.26)
+    sign("PLATFORM 9", (0.75, 2.05, 2.1), 0.2)
     m = Model("Bench")
     m.add(box((-0.8, 0.42, 0.0), (0.8, 0.47, 0.4)), mat("wood", "5A3A24"))
     for k in range(4):

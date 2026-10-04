@@ -16,6 +16,8 @@ namespace LostAndFound
         public static bool Exists => true;
         static RectTransform panel;
         public static bool Showing => panel != null;
+        /// <summary>The top menu entry (recordings click it like a player would).</summary>
+        public static RectTransform FirstButton => panel != null ? panel.Find("Menu")?.GetChild(0) as RectTransform : null;
 
         /// <summary>Start a new week as if "Begin" had been clicked (tests, recordings).</summary>
         public static void Begin(Game g) => Start(g, g.NewWeek);

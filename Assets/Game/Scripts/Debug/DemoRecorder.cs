@@ -41,12 +41,21 @@ namespace LostAndFound
         RawImage cursorImage;
         CursorKind cursorKind = (CursorKind)(-1);
 
+        /// <summary>-lafRecordOnly: film whatever plays (the AutoPilot) instead of the scripted first case.
+        /// -lafRecordFrom &lt;caseId&gt; waits for that case; filming stops once the photographs have changed.</summary>
+        bool recordOnly;
+        string recordFrom;
+        bool rolling;
+
         void Awake()
         {
             dir = Game.Arg("-lafDemo");
             Directory.CreateDirectory(dir);
             Time.captureFramerate = Fps;
             Application.runInBackground = true;
+            recordOnly = Game.Arg("-lafRecordOnly") != null;
+            recordFrom = Game.Arg("-lafRecordFrom");
+            if (recordOnly) { Director.Cinematic = true; return; }
             InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
             mouse = InputSystem.AddDevice<Mouse>("DemoMouse");
             keyboard = InputSystem.AddDevice<Keyboard>("DemoKeyboard");
@@ -62,6 +71,8 @@ namespace LostAndFound
             StartFfmpeg();
             recording = true;
             StartCoroutine(Capture());
+            if (recordOnly) { StartCoroutine(Watch()); return; }
+            rolling = true;
             StartCoroutine(Advancer());
             StartCoroutine(Script());
         }
@@ -92,6 +103,13 @@ namespace LostAndFound
             while (recording)
             {
                 yield return eof;
+                int n0 = AudioRenderer.GetSampleCountForCaptureFrame();
+                if (!rolling)
+                {
+                    // not filming yet: keep the audio renderer drained so the take starts in sync
+                    if (n0 > 0) { using var skip = new NativeArray<float>(n0 * channels, Allocator.Temp); AudioRenderer.Render(skip); }
+                    continue;
+                }
                 ScreenCapture.CaptureScreenshotIntoRenderTexture(grab);
                 pending++;
                 AsyncGPUReadback.Request(grab, 0, TextureFormat.RGBA32, req =>
@@ -102,7 +120,7 @@ namespace LostAndFound
                     pipe.Write(data.ToArray(), 0, data.Length);
                     frames++;
                 });
-                int n = AudioRenderer.GetSampleCountForCaptureFrame();
+                int n = n0;
                 if (n > 0)
                 {
                     using var buf = new NativeArray<float>(n * channels, Allocator.Temp);
@@ -112,6 +130,20 @@ namespace LostAndFound
                     audioOut.Write(bytes, 0, bytes.Length);
                 }
             }
+        }
+
+        /// <summary>Record-only: roll from the chosen case until the photographs have changed (or the week ends).</summary>
+        IEnumerator Watch()
+        {
+            while (Director.I == null || Director.I.Current == null || (!string.IsNullOrEmpty(recordFrom) && Director.I.Current.id != recordFrom))
+                yield return null;
+            rolling = true;
+            Debug.Log($"[Demo] rolling from case {Director.I.Current.id}");
+            while (!Director.I.ChangingPhotos && !Director.I.Save.finished) yield return null;
+            while (Director.I.ChangingPhotos) yield return null;
+            yield return new WaitForSeconds(3f);
+            yield return UIRoot.I.fader.FadeTo(1f, 1.5f);
+            yield return Finish();
         }
 
         IEnumerator Finish()
@@ -146,6 +178,7 @@ namespace LostAndFound
 
         void LateUpdate()
         {
+            if (recordOnly) return;
             var k = CursorController.Shown;
             var (tex, hot) = CursorController.Image(k);
             if (k != cursorKind && tex != null)
@@ -163,6 +196,7 @@ namespace LostAndFound
         /// <summary>The mouse state the coroutines set up this frame is sent once, and read next frame.</summary>
         void Update()
         {
+            if (recordOnly) return;
             mouse.MakeCurrent();
             keyboard.MakeCurrent();
             var st = new MouseState { position = pos, delta = pos - lastSent }.WithButton(MouseButton.Left, leftHeld);
@@ -322,6 +356,21 @@ namespace LostAndFound
             yield return Frame();
             var director = Director.I;
             var desk = Desk.I;
+
+            // the title: a moment on it, then click "Begin"
+            yield return Until(() => TitleScreen.Showing, 10f);
+            if (TitleScreen.Showing)
+            {
+                yield return Hold(2.5f);
+                var begin = TitleScreen.FirstButton;
+                if (begin != null)
+                {
+                    yield return Glide(() => RectTransformUtility.WorldToScreenPoint(null, begin.position) + new Vector2(-begin.rect.width * 0.35f, 0f), 1.0f);
+                    yield return Hold(0.6f);
+                    yield return Click();
+                }
+                else TitleScreen.Begin(Game.I);
+            }
 
             // the morning: day card, Gus, Agnes's note, the first rule
             yield return Until(() => director.CanRing, 90f);
