@@ -631,13 +631,23 @@ namespace LostAndFound
                 Vector3 toEye = CameraRig.I.eye - at;
                 toEye.y = 0f;
                 Vector3 face = p == Desk.I.props.polaroid
-                    ? (toEye.normalized * 0.55f + Vector3.up).normalized          // lying flat: lean over it
+                    ? (-p.transform.forward * 0.55f + Vector3.up).normalized      // lying flat: lean over it from its bottom edge
                     : (-p.transform.forward * 0.8f + Vector3.up * 0.55f).normalized;  // framed: from above, clear of pens and cups
                 Vector3 fromEye = at + face * (p == Desk.I.props.polaroid ? 0.3f : 0.24f);
                 CameraRig.I.Focus(at, fromEye, 38f);
+                // nothing on the desk may stand between the close-up and the picture
+                var hidden = new List<Renderer>();
+                var sight = new Ray(fromEye, (at - fromEye).normalized);
+                float reach = Vector3.Distance(fromEye, at) - 0.02f;
+                foreach (var r in Desk.I.props.GetComponentsInChildren<Renderer>())
+                    if (r.enabled && r.bounds.size.magnitude < 0.5f && !r.transform.IsChildOf(p.transform)
+                        && !r.transform.IsChildOf(Desk.I.booth) && !r.transform.IsChildOf(Desk.I.concourse)
+                        && r.bounds.IntersectRay(sight, out float hit) && hit < reach)
+                    { r.enabled = false; hidden.Add(r); }
                 yield return new WaitForSeconds(1.1f);
                 yield return p.Change(PhotoTexture(p.photoId));
                 yield return new WaitForSeconds(0.6f);
+                foreach (var r in hidden) if (r != null) r.enabled = true;
             }
             foreach (var it in Desk.I.items.Values) if (it != null) it.ApplyStory(State);
             CameraRig.I.ClearFocus();

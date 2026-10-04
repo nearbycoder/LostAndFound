@@ -230,7 +230,8 @@ namespace LostAndFound
         {
             yield return Glide(() => AimPoint(target), duration);
             for (int i = 0; i < 20 && InteractionSystem.I.Hovered != target; i++) { pos = AimPoint(target); yield return Frame(); }
-            if (InteractionSystem.I.Hovered != target) Debug.LogWarning($"[Demo] not hovering {target.name}, hovering {InteractionSystem.I.Hovered?.name}");
+            if (InteractionSystem.I.Hovered != target)
+                Debug.LogWarning($"[Demo] not hovering {target.name}, hovering {InteractionSystem.I.Hovered?.name}; {InteractionSystem.I.debugState}; modal={UIRoot.ModalOpen} over={UiUnderPointer()}");
         }
 
         /// <summary>The visible point on an interactable nearest its bounds centre that a ray from the camera lands on.</summary>
@@ -252,6 +253,16 @@ namespace LostAndFound
                         if (d < bestD && PicksAt(s, target)) { bestD = d; best = s; }
                     }
             return best;
+        }
+
+        static string UiUnderPointer()
+        {
+            var es = UnityEngine.EventSystems.EventSystem.current;
+            if (es == null) return "no event system";
+            var data = new UnityEngine.EventSystems.PointerEventData(es) { position = Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero };
+            var hits = new System.Collections.Generic.List<UnityEngine.EventSystems.RaycastResult>();
+            es.RaycastAll(data, hits);
+            return string.Join(",", hits.Select(h => h.gameObject.name));
         }
 
         static bool PicksAt(Vector2 screen, Interactable target)
@@ -365,7 +376,8 @@ namespace LostAndFound
                 var begin = TitleScreen.FirstButton;
                 if (begin != null)
                 {
-                    yield return Glide(() => RectTransformUtility.WorldToScreenPoint(null, begin.position) + new Vector2(-begin.rect.width * 0.35f, 0f), 1.0f);
+                    // aim at the word itself: a little left of the button's centre (the label is left-aligned)
+                    yield return Glide(() => RectTransformUtility.WorldToScreenPoint(null, begin.TransformPoint(begin.rect.center + new Vector2(-begin.rect.width * 0.4f, 0f))), 1.0f);
                     yield return Hold(0.6f);
                     yield return Click();
                 }
@@ -380,7 +392,10 @@ namespace LostAndFound
             yield return GlideTo(desk.props.bell, 1.1f);
             yield return Hold(0.35f);
             yield return Click();
+            yield return Hold(0.3f);
+            if (director.CanRing) { Debug.LogWarning("[Demo] bell click missed; ringing directly"); desk.props.bell.Ring(); }
             yield return Until(() => director.CanUseStamps, 60f);
+            if (director.Current == null) { Debug.LogError("[Demo] no case started"); yield return Finish(); yield break; }
             yield return Hold(0.6f);
 
             // read the slip

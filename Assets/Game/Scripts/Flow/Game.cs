@@ -173,6 +173,7 @@ namespace LostAndFound
 
         public void BeginWeek(int day)
         {
+            Debug.Log($"[Game] begin week at day {day} (frame {Time.frameCount})");
             Director.I.Init(Db, Save);
             Director.I.StartDay(day);
         }

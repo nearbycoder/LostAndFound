@@ -24,6 +24,7 @@ namespace LostAndFound
 
         public static void Show(Game g)
         {
+            Debug.Log($"[Title] show (frame {Time.frameCount})");
             if (panel != null) Object.Destroy(panel.gameObject);
             UIRoot.I.PushModal();
             AudioDirector.Music("title", 2f);
@@ -149,6 +150,7 @@ namespace LostAndFound
             group.interactable = false;
             AudioDirector.Play("stamp_thump", 0.5f);
             yield return UIRoot.I.fader.FadeTo(1f, 0.8f);
+            Debug.Log($"[Title] dismissed (frame {Time.frameCount})");
             Object.Destroy(panel.gameObject);
             panel = null;
             UIRoot.I.PopModal();

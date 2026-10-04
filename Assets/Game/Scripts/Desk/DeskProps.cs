@@ -124,7 +124,7 @@ namespace LostAndFound
             {
                 ("Frame_Tall", new Vector3(-0.74f, 0.76f, 0.58f), 62f, "staff1921"),
                 ("Frame_Wide", new Vector3(-0.50f, 0.76f, 0.92f), 18f, "retirement"),
-                ("Frame_Small", new Vector3(0.14f, 0.76f, 0.91f), -8f, "mum"),
+                ("Frame_Small", new Vector3(0.16f, 0.76f, 0.855f), -8f, "mum"),   // clear of the counter tray
                 ("Frame_Oval", new Vector3(0.74f, 0.76f, 0.56f), -60f, "platform9"),
             };
             foreach (var f in frames)
@@ -196,6 +196,7 @@ namespace LostAndFound
             }
             mat = MaterialLibrary.Make(Color.white, null, 0.35f);
             photo.sharedMaterial = mat;
+            photo.receiveShadows = false;   // the lamp threw the calendar's shadow straight across one picture
         }
 
         static readonly Color Glow = new(0.2f, 0.19f, 0.17f);
