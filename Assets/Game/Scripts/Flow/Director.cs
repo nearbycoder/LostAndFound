@@ -632,8 +632,8 @@ namespace LostAndFound
                 toEye.y = 0f;
                 Vector3 face = p == Desk.I.props.polaroid
                     ? (toEye.normalized * 0.55f + Vector3.up).normalized          // lying flat: lean over it
-                    : (-p.transform.forward * 0.85f + Vector3.up * 0.35f).normalized; // framed: square on, a little above
-                Vector3 fromEye = at + face * (p == Desk.I.props.polaroid ? 0.3f : 0.22f);
+                    : (-p.transform.forward * 0.8f + Vector3.up * 0.55f).normalized;  // framed: from above, clear of pens and cups
+                Vector3 fromEye = at + face * (p == Desk.I.props.polaroid ? 0.3f : 0.24f);
                 CameraRig.I.Focus(at, fromEye, 38f);
                 yield return new WaitForSeconds(1.1f);
                 yield return p.Change(PhotoTexture(p.photoId));

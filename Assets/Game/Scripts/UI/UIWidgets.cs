@@ -124,7 +124,14 @@ namespace LostAndFound
         public IEnumerator Say(string speaker, string richText, CommuterDef voice, Commuter who, bool wait = true, bool player = false)
         {
             PlaceFor(who, player);
-            if (!shown) { panel.anchoredPosition = target; yield return Show(); }
+            if (!shown)
+            {
+                // never flash the previous speaker's line while the bubble fades in
+                body.text = "";
+                nameLabel.text = speaker.ToUpperInvariant();
+                panel.anchoredPosition = target;
+                yield return Show();
+            }
             nameLabel.text = speaker.ToUpperInvariant();
             nameplate.color = player ? new Color(0.28f, 0.22f, 0.18f) : voice != null && voice.grey ? new Color(0.3f, 0.31f, 0.33f) : voice != null && voice.cold ? new Color(0.2f, 0.32f, 0.4f) : UiKit.Green;
             body.fontStyle = player ? FontStyles.Italic : FontStyles.Normal;

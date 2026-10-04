@@ -82,8 +82,9 @@ Everything is generated from source in this repository. Blender 4.5 is on `PATH`
 | Material, UI and item textures | `.venv/bin/python Tools/textures/gen_textures.py` and `gen_item_textures.py` |
 | Sound effects, voices, ambience; music | `.venv/bin/python Tools/audio/gen_sfx.py`; `gen_music.py` |
 | Linux build (also validates all content) | `Tools/unity.sh build-linux` → `Builds/Linux/LostAndFound.x86_64` |
-| Play the whole week hands-free, with screenshots | `Tools/unity.sh autopilot [speed] [startDay]` → `Screenshots/autopilot/`, result in `Logs/autopilot.log` |
+| Play the week hands-free, with screenshots | `Tools/unity.sh autopilot [speed] [startDay] [best\|worst\|wait]` → `Screenshots/autopilot/`, result in `Logs/autopilot.log` |
 | Record the first case to video | `Tools/unity.sh demo` → `Recordings/demo.mp4` |
+| Film the ring and the photographs changing | `Tools/unity.sh trailer` → `Recordings/the_ring.mp4` |
 | Performance smoke test | `Tools/unity.sh smoke 30` |
 
 Unity 6000.6.2f1 needs `libxml2.so.2`; `Tools/unity.sh` points the loader at a local copy in `.unity-libs/`.
@@ -91,7 +92,10 @@ Unity 6000.6.2f1 needs `libxml2.so.2`; `Tools/unity.sh` points the loader at a l
 ### Verification
 
 - **Content validation** (`Lost & Found ▸ Validate Content`, run by every build): the rules solver plays the whole week using only what's discoverable at the desk and checks that it derives each case's authored best verdict. Current result: 28 objects, 5 days, 25 cases (24 plus one alternate), 0 issues.
-- **AutoPilot** in the built player plays every case through the real desk systems (pick up, open, inspect, tray, stamp). Last run: 24 of 24 cases best, 0 errors, ending *The 9:40*.
+- **AutoPilot** in the built player plays every case through the real desk systems (pick up, open, inspect, tray, stamp), with screenshots of every case, ledger, the photograph sequence and the ending. Last runs, all with 0 errors:
+  - `best`: 24 of 24 cases best, ending *The 9:40*.
+  - `worst` (a wrong verdict wherever possible): 5 missing-item vignettes, Vell collects the watch, the ring and the key, ending *Grey Ninefold*.
+  - `wait` (Thomas refused the ring): Agnes claims it on Friday, ending *The Long Wait*.
 
 ## Status: what's done and what isn't
 
@@ -99,6 +103,7 @@ Done: the full week (24 cases plus an alternate, branching on earlier choices), 
 
 Known gaps and rough edges:
 - Characters are modelled from the waist up (they're always behind the counter); animation is procedural (breathing, blinking, talking, gestures), with no skeletal rigs.
-- Only the best-verdict path through the week is played automatically. Wrong-verdict branches (Vell getting items, the ring sealed, the *Long Wait* and *Grey Ninefold* endings) are validated as content but haven't been played start to finish.
+- The AutoPilot drives the desk systems directly. The real mouse-and-keyboard path is exercised by the demo recording and simulated-input tests of Monday's first case, not across all 24 cases; nobody has played the whole week by hand yet.
+- The photographs are rendered from the same upper-body character models, so every scene hides them below the waist behind a counter, barrier or bench.
 - The music and voices are synthesised: charming, but not studio quality.
 - No controller support and no localisation.
