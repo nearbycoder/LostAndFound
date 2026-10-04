@@ -205,7 +205,7 @@ namespace LostAndFound
             // step aside while you read the slip or turn away to the drawers
             bool away = ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
                         || (CameraRig.I != null && CameraRig.I.view != View.Counter && !Waiting);
-            if (shown) group.alpha = Mathf.MoveTowards(group.alpha, away ? 0.18f : 1f, Time.unscaledDeltaTime * 4f);
+            if (shown) group.alpha = Mathf.MoveTowards(group.alpha, away ? 0f : 1f, Time.unscaledDeltaTime * 5f);
         }
 
         void Update()

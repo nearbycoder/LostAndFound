@@ -104,6 +104,7 @@ namespace LostAndFound
             gameObject.AddComponent<Director>();
             if (Arg("-lafAutopilot") != null) gameObject.AddComponent<AutoPilot>();
             if (Arg("-lafSmoke") != null) gameObject.AddComponent<SmokeTest>();
+            if (Arg("-lafDemo") != null) gameObject.AddComponent<DemoRecorder>();
         }
 
         void Start()

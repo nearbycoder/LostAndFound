@@ -62,7 +62,7 @@ namespace LostAndFound
             header.alignment = TextAlignmentOptions.Top;
             header.rectTransform.sizeDelta = new Vector2(W - 0.016f, 0.05f);
             header.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            header.transform.localPosition = new Vector3(0f, 0.0009f, H / 2 - 0.03f);
+            header.transform.localPosition = new Vector3(0f, 0.0009f, H / 2 - 0.037f);   // below the printed border rule
             header.textWrappingMode = TextWrappingModes.Normal;
 
             body = Text.World(transform, "", Fonts.Hand, 0.012f, DeskMaterials.InkColor);
@@ -118,6 +118,28 @@ namespace LostAndFound
 
         public bool HasClue(string id) => clueLines.Exists(c => c.id == id);
 
+        /// <summary>World position a few letters into a finding's link, for scripted demos to point at.</summary>
+        public bool LinkPosition(string id, out Vector3 world)
+        {
+            world = default;
+            body.ForceMeshUpdate();
+            var ti = body.textInfo;
+            for (int i = 0; i < ti.linkCount; i++)
+            {
+                if (ti.linkInfo[i].GetLinkID() != id) continue;
+                int first = ti.linkInfo[i].linkTextfirstCharacterIndex;
+                int k = Mathf.Min(first + 6, first + ti.linkInfo[i].linkTextLength - 1);
+                var c = ti.characterInfo[k];
+                world = body.transform.TransformPoint((c.bottomLeft + c.topRight) * 0.5f);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>An invisible full-size handwritten glyph: gives a small typed label a full line height,
+        /// so the handwriting on the next line doesn't ride up into it.</summary>
+        const string Strut = "<alpha=#00>|<alpha=#FF>";
+
         void Redraw()
         {
             if (header == null) return;
@@ -131,12 +153,12 @@ namespace LostAndFound
             var sb = new StringBuilder();
             sb.Append("<font=\"SpecialElite\"><size=62%><color=#26222a>CLAIMANT:</color></size></font> ");
             sb.Append(string.Join(" & ", claimants));
-            sb.Append("\n<font=\"SpecialElite\"><size=62%><color=#26222a>THEY SAY:</color></size></font>\n");
+            sb.Append("\n<font=\"SpecialElite\"><size=62%><color=#26222a>THEY SAY:</color></size></font>").Append(Strut).Append('\n');
             if (claimLines.Count == 0) sb.Append("<color=#00000050>...</color>\n");
             foreach (var l in claimLines) sb.Append("— ").Append(l).Append('\n');
             sb.Append("<font=\"SpecialElite\"><size=62%><color=#26222a>I FOUND:</color></size></font>");
             if (clueLines.Count > 0) sb.Append(" <size=60%><color=#5a4a3a>(click to ask)</color></size>");
-            sb.Append('\n');
+            sb.Append(Strut).Append('\n');
             if (clueLines.Count == 0) sb.Append("<color=#00000050>(look closely at the item)</color>\n");
             for (int i = 0; i < clueLines.Count; i++)
             {

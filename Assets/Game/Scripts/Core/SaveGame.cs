@@ -38,7 +38,9 @@ namespace LostAndFound
         public List<string> discovered = new();   // "objectId.detailId"
         public bool tutorialDone;
 
-        public static string PathOnDisk => System.IO.Path.Combine(Application.persistentDataPath, "lostandfound_save.json");
+        /// <summary>-lafSave &lt;path&gt; points recordings and tests at a scratch save instead of the player's.</summary>
+        public static string PathOnDisk => !string.IsNullOrEmpty(Game.Arg("-lafSave")) ? Game.Arg("-lafSave")
+            : System.IO.Path.Combine(Application.persistentDataPath, "lostandfound_save.json");
 
         public static SaveGame Load()
         {

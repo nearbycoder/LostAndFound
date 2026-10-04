@@ -28,6 +28,7 @@ namespace LostAndFound
         public Stamp Carrying { get; private set; }
         public Camera cam;
         bool busy;
+        int pickFrame = -1;
         Vector3 lastPos;
         Vector3 tiltVel;
         Transform shadow;
@@ -38,6 +39,7 @@ namespace LostAndFound
         {
             if (busy || Carrying != null) return;
             Carrying = s;
+            pickFrame = Time.frameCount;
             InteractionSystem.I.ClearHover();
             InteractionSystem.I.Blocked = true;
             CameraRig.I.allowTurn = false;
@@ -58,7 +60,8 @@ namespace LostAndFound
 
         void Update()
         {
-            if (Carrying == null || busy) return;
+            // the click that picked the stamp up must not also count as a click to put it down
+            if (Carrying == null || busy || Time.frameCount == pickFrame) return;
             var mouse = Mouse.current;
             if (mouse == null) return;
             var tr = Carrying.transform;

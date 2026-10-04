@@ -11,6 +11,7 @@
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
 #   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
+#   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #
 # On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
 # so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
@@ -34,5 +35,14 @@ case "${1:-open}" in
                rm -rf "$PROJECT/Screenshots/smoke"
                exec timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
                  -lafSmoke "$PROJECT/Screenshots/smoke" -lafSeconds "${2:-30}" -lafNoVsync -logFile "$PROJECT/Logs/smoke.log" ;;
-  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]]" >&2; exit 2 ;;
+  demo)        [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
+               timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out/raw" \
+                 -lafSave "$out/raw/save.json" -lafNoVsync -screen-width 1920 -screen-height 1080 \
+                 -screen-fullscreen 0 -logFile "$PROJECT/Logs/demo.log"
+               rate=$(grep -a -o '[0-9]* Hz x' "$PROJECT/Logs/demo.log" | head -1 | cut -d' ' -f1)
+               ch=$(grep -a -o 'Hz x[0-9]' "$PROJECT/Logs/demo.log" | head -1 | tail -c 2)
+               exec ffmpeg -y -loglevel error -i "$out/raw/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/raw/audio.f32" \
+                 -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart "$out/demo.mp4" ;;
+  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]|demo]" >&2; exit 2 ;;
 esac

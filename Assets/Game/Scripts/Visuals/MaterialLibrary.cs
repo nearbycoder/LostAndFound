@@ -149,8 +149,10 @@ namespace LostAndFound
             }
             else
             {
+                // keep the template's keywords (the build only ships those shader variants);
+                // a null bump map falls back to the shader's flat default
                 m.SetTexture(BumpMap, null);
-                m.DisableKeyword("_NORMALMAP");
+                m.EnableKeyword("_NORMALMAP");
             }
             if (s.transparent) color.a = s.alpha;
             m.SetColor(BaseColor, color);
@@ -189,7 +191,7 @@ namespace LostAndFound
             m.SetFloat(Metallic, 0f);
             m.SetFloat(Smoothness, smoothness);
             m.SetTexture(BumpMap, null);
-            m.DisableKeyword("_NORMALMAP");
+            m.EnableKeyword("_NORMALMAP");   // see Create: stay on a shipped variant
             m.SetColor(EmissionColor, Color.black);
             m.EnableKeyword("_EMISSION");
             return m;

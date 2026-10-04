@@ -10,7 +10,11 @@ namespace LostAndFound
         static CursorKind wanted = CursorKind.Default;
         static bool wantedThisFrame;
         CursorKind current = (CursorKind)(-1);
-        readonly Dictionary<CursorKind, (Texture2D tex, Vector2 hot)> cursors = new();
+        static readonly Dictionary<CursorKind, (Texture2D tex, Vector2 hot)> cursors = new();
+
+        /// <summary>The cursor shown this frame (recordings draw it themselves: hardware cursors aren't captured).</summary>
+        public static CursorKind Shown { get; private set; }
+        public static (Texture2D tex, Vector2 hot) Image(CursorKind k) => cursors.TryGetValue(k, out var c) ? c : default;
 
         public static void Want(CursorKind kind)
         {
@@ -39,6 +43,7 @@ namespace LostAndFound
         {
             var k = wantedThisFrame ? wanted : CursorKind.Default;
             wantedThisFrame = false;
+            Shown = k;
             if (k == current) return;
             current = k;
             if (cursors.TryGetValue(k, out var c) && c.tex != null)
