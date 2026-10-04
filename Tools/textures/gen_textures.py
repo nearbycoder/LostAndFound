@@ -307,6 +307,23 @@ def paper_sprite(w, h, radius, name, rough=True, lines=None, seed=0):
     img.save(os.path.join(UI, name + ".png"))
 
 
+def tag_card():
+    """Luggage tag card: chamfered end with a reinforced hole and a printed margin rule. The text
+    is laid out in-game to the right of the hole (no ruled lines to fall out of step with it)."""
+    w, h = 440, 320
+    m = Image.new("L", (w, h), 0)
+    d = ImageDraw.Draw(m)
+    c = 62
+    d.polygon([(c, 0), (w, 0), (w, h), (c, h), (0, h - c), (0, c)], fill=255)
+    d.ellipse([20, h / 2 - 15, 50, h / 2 + 15], fill=0)
+    base = Image.fromarray(paper_base(w, h, (1, 1, 1), 0.2, seed=43)).convert("RGBA")
+    dd = ImageDraw.Draw(base)
+    dd.ellipse([14, h / 2 - 21, 56, h / 2 + 21], outline=(170, 130, 70, 255), width=5)
+    dd.line([(76, 18), (76, h - 18)], fill=(200, 150, 120, 255), width=1)
+    base.putalpha(m.filter(ImageFilter.GaussianBlur(0.7)))
+    base.save(os.path.join(UI, "tag_card.png"))
+
+
 def gen_ui():
     paper_sprite(128, 128, 18, "paper_card", seed=40)
     paper_sprite(128, 48, 12, "nameplate", rough=False, seed=41)
@@ -318,20 +335,7 @@ def gen_ui():
         d.line([(80, 60), (80, h - 60)], fill=(200, 120, 110, 255), width=2)
     paper_sprite(1500, 900, 30, "ledger_page", rough=True, lines=ledger_lines, seed=42)
 
-    # luggage tag card with a reinforced hole
-    w, h = 330, 250
-    m = Image.new("L", (w, h), 0)
-    d = ImageDraw.Draw(m)
-    c = 52
-    d.polygon([(c, 0), (w, 0), (w, h), (c, h), (0, h - c), (0, c)], fill=255)
-    d.ellipse([18, h / 2 - 14, 46, h / 2 + 14], fill=0)
-    base = Image.fromarray(paper_base(w, h, (1, 1, 1), 0.2, seed=43)).convert("RGBA")
-    dd = ImageDraw.Draw(base)
-    dd.ellipse([12, h / 2 - 20, 52, h / 2 + 20], outline=(170, 130, 70, 255), width=5)
-    for yv in range(80, h - 10, 40):
-        dd.line([(70, yv), (w - 16, yv)], fill=(180, 140, 100, 255), width=1)
-    base.putalpha(m.filter(ImageFilter.GaussianBlur(0.7)))
-    base.save(os.path.join(UI, "tag_card.png"))
+    tag_card()
 
     # note paper with a torn bottom edge and a bit of tape
     w, h = 520, 400

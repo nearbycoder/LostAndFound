@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.join(HERE, "lib"))
 sys.path.insert(0, HERE)
 import bpy  # noqa: E402
 import build_people as bp  # noqa: E402
-from laf import (V, Model, box, cyl, lathe, mat, text_mesh, reset_scene, args_after_dashes, UNITY_TO_BLENDER)  # noqa: E402
+from laf import (V, Model, box, cyl, lathe, mat, text_mesh, reset_scene, args_after_dashes, UNITY_TO_BLENDER, sphere, sweep)  # noqa: E402
 
 OUT = os.path.join(HERE, "_renders", "photos")
 FONT_SIGN = os.path.join(HERE, "fonts", "Limelight-Regular.ttf")
@@ -282,7 +282,66 @@ def ending_grey():
     render("ending_grey")
 
 
-SCENES = {f.__name__: f for f in (staff1921, retirement, mum, platform9, polaroid, ending_nine40, ending_longwait, ending_grey)}
+def dachshund(x=0.0, z=0.0, yaw=0.0):
+    """Biscuit: a smooth red dachshund, sculpted as one signed-distance surface."""
+    import numpy as np
+    import sdf
+    P = lambda *a: np.array(a, dtype=float)  # noqa: E731
+    body = sdf.capsule(P(-0.17, 0.2, 0), P(0.13, 0.21, 0), 0.082, 0.088)
+    chest = sdf.ellipsoid(P(0.15, 0.17, 0), (0.1, 0.1, 0.08))
+    belly = sdf.ellipsoid(P(-0.01, 0.15, 0), (0.17, 0.06, 0.068))
+    haunch = sdf.ellipsoid(P(-0.16, 0.17, 0), (0.08, 0.08, 0.075))
+    neck = sdf.capsule(P(0.18, 0.23, 0), P(0.25, 0.32, 0), 0.06, 0.048)
+    skull = sdf.ellipsoid(P(0.285, 0.355, 0), (0.068, 0.058, 0.054))
+    stop = sdf.ellipsoid(P(0.33, 0.36, 0), (0.04, 0.035, 0.04))
+    muzzle = sdf.capsule(P(0.33, 0.345, 0), P(0.415, 0.33, 0), 0.034, 0.022)
+    jaw = sdf.capsule(P(0.31, 0.315, 0), P(0.39, 0.31, 0), 0.028, 0.016)
+    legs = [sdf.capsule(P(lx, 0.15, lz), P(lx + 0.012, 0.03, lz), 0.03, 0.024) for lx in (0.14, -0.15) for lz in (-0.048, 0.048)]
+    paws = [sdf.ellipsoid(P(lx + 0.028, 0.019, lz), (0.038, 0.019, 0.026)) for lx in (0.14, -0.15) for lz in (-0.048, 0.048)]
+    tail = sdf.chain([P(-0.24, 0.22, 0), P(-0.31, 0.25, 0), P(-0.37, 0.3, 0)], [0.022, 0.015, 0.007])
+    ears = [sdf.ellipsoid(P(0.262, 0.305, sz * 0.058), (0.036, 0.068, 0.011), rot=(sz * 8.0, 0.0, -12.0)) for sz in (-1, 1)]
+    dog = sdf.union(body, chest, belly, haunch, neck, skull, stop, muzzle, jaw, *legs, *paws, tail, k=0.028)
+    dog = sdf.union(dog, *ears, k=0.006)
+    ear_region = sdf.union(*[sdf.ellipsoid(P(0.262, 0.3, sz * 0.06), (0.04, 0.075, 0.02), rot=(sz * 8.0, 0.0, -12.0)) for sz in (-1, 1)])
+    m = Model("Biscuit")
+    coat, ear = sdf.mesh(dog, (-0.42, 0.0, -0.12), (0.46, 0.43, 0.12), 0.0035, smooth=2, tris=30000, regions=[ear_region])
+    m.add(coat, mat("fur", "7A3A18"))
+    m.add(ear, mat("fur", "5A2810"))
+    m.add(sphere((0.434, 0.333, 0), 0.016, scale=(0.8, 0.85, 1.1)), mat("eye", "141010"))
+    for sz in (-1, 1):
+        m.add(sphere((0.343, 0.372, sz * 0.036), 0.011), mat("eye", "100A08"))
+        m.add(sphere((0.351, 0.376, sz * 0.04), 0.0028), mat("emit", "FFFFFF"))
+    # a red collar round the neck, with a brass tag
+    c = V(0.205, 0.265, 0.0)
+    pts = [(c.x + math.sin(a) * 0.012, c.y + math.cos(a) * 0.058, math.sin(a) * 0.058 * 1.05) for a in [i * math.pi / 12 for i in range(25)]]
+    m.add(sweep(pts, 0.008, segments=8, flat=0.5), mat("leather", "9A2020"))
+    m.add(cyl((0.215, 0.2, 0.0), 0.012, 0.003, axis="x", segments=16), mat("brass", "C9A15A"))
+    obj = m.build()
+    obj.location = to_b((x, 0.0, z))
+    obj.rotation_euler = (0, 0, math.radians(yaw))
+    return obj
+
+
+def dog():
+    """Walter's photo of Biscuit, on the back step of the bakery."""
+    solid("Ground", (-4, -0.02, -4), (4, 0.0, 6), "6A6A4A", "cloth")
+    solid("Step", (-1.2, 0.0, 0.25), (1.2, 0.12, 1.2), "8A8070")
+    solid("Wall", (-3, 0, 0.9), (3, 3, 1.0), "B8A890")
+    solid("Door", (0.35, 0.12, 0.88), (1.15, 2.2, 0.9), "4A3A2A", "wood")
+    for k in range(6):
+        solid("Brick", (-3, 0.35 + k * 0.32, 0.885), (3, 0.37 + k * 0.32, 0.89), "9A8A74")
+    dachshund(-0.02, 0.55, yaw=-40)
+    for o in bpy.context.scene.objects:
+        if o.name.startswith("Biscuit"):
+            o.location.z += 0.12 * 1.0   # sat on the step (Blender z is Unity y)
+    tgt = (0.05, 0.38, 0.55)
+    camera(tgt, (0.15, 0.62, -0.9), fov=34, w=800, h=600)
+    light("SUN", 3.5, (-2, 4, -2), tgt)
+    light("AREA", 120, (1.5, 1.2, -1.0), tgt, 2.0, (0.85, 0.9, 1.0))
+    render("dog")
+
+
+SCENES = {f.__name__: f for f in (staff1921, retirement, mum, platform9, polaroid, ending_nine40, ending_longwait, ending_grey, dog)}
 
 
 def main():

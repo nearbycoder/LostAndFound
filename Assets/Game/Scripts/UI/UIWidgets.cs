@@ -251,7 +251,7 @@ namespace LostAndFound
 
         public static TagCard Create(RectTransform root)
         {
-            var rt = UiKit.Rect("TagCard", root).Anchor(Vector2.zero, Vector2.zero, new Vector2(0f, 1f)).Place(Vector2.zero, new Vector2(330f, 250f));
+            var rt = UiKit.Rect("TagCard", root).Anchor(Vector2.zero, Vector2.zero, new Vector2(0f, 1f)).Place(Vector2.zero, new Vector2(440f, 320f));
             var t = rt.gameObject.AddComponent<TagCard>();
             t.panel = rt;
             t.group = UiKit.Group(rt.gameObject);
@@ -262,10 +262,14 @@ namespace LostAndFound
             sh.rectTransform.anchoredPosition = new Vector2(5f, -7f);
             var bg = UiKit.Image(rt, "Card", "tag_card", new Color(0.93f, 0.82f, 0.6f), 0f);
             bg.rectTransform.Fill();
-            t.text = UiKit.Label(rt, "Text", "", Fonts.Hand, 30f, UiKit.Ink, TextAlignmentOptions.TopLeft);
+            t.text = UiKit.Label(rt, "Text", "", Fonts.Hand, 32f, UiKit.Ink, TextAlignmentOptions.Left);
             t.text.rectTransform.Fill();
-            t.text.margin = new Vector4(30f, 58f, 22f, 14f);
-            t.text.lineSpacing = -14f;
+            t.text.margin = new Vector4(92f, 24f, 24f, 20f);   // to the right of the hole and its margin rule
+            t.text.lineSpacing = -10f;
+            t.text.paragraphSpacing = 4f;
+            t.text.enableAutoSizing = true;                    // long tags shrink to fit instead of spilling off the card
+            t.text.fontSizeMin = 18f;
+            t.text.fontSizeMax = 32f;
             return t;
         }
 

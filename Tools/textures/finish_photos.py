@@ -12,6 +12,7 @@ from PIL import Image, ImageDraw, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 RAW = os.path.join(ROOT, "ArtSource", "_renders", "photos")
 OUT = os.path.join(ROOT, "Assets", "Game", "Resources", "Photos")
+ITEMS = os.path.join(ROOT, "Assets", "Game", "Resources", "Textures", "Items")
 
 
 def rng_for(name):
@@ -119,6 +120,39 @@ def polaroid(name, out):
     save(card, out)
 
 
+def snapshot_with_caption(name, out, caption, size=(400, 300), border=16, cap_h=50):
+    """A small bordered snapshot with a handwritten caption under the picture (Walter's Biscuit)."""
+    from PIL import ImageFont
+    rng = rng_for(out)
+    w, h = size
+    a = load(name)
+    a = tone(a, (0.1, 0.075, 0.06), (0.98, 0.93, 0.83), contrast=1.15, lift=0.0)
+    a = vignette(a, 0.4)
+    a = grain(a, rng, 0.04)
+    iw, ih = w - 2 * border, h - 2 * border - cap_h
+    pic = to_img(a).filter(ImageFilter.GaussianBlur(0.6))
+    # crop to the picture's aspect, centred, then fit
+    pw, ph = pic.size
+    target = iw / ih
+    if pw / ph > target:
+        nw = int(ph * target)
+        pic = pic.crop(((pw - nw) // 2, 0, (pw + nw) // 2, ph))
+    else:
+        nh = int(pw / target)
+        pic = pic.crop((0, (ph - nh) // 2, pw, (ph + nh) // 2))
+    pic = pic.resize((iw, ih), Image.LANCZOS)
+    card = Image.new("RGB", (w, h), (238, 231, 216))
+    card.paste(pic, (border, border))
+    d = ImageDraw.Draw(card)
+    font = ImageFont.truetype(os.path.join(ROOT, "ArtSource", "fonts", "Caveat[wght].ttf"), 42)
+    tw = d.textlength(caption, font=font)
+    d.text(((w - tw) / 2, h - border - cap_h + 2), caption, font=font, fill=(40, 36, 64))
+    card = dust(card, rng, 4)   # a few specks, no scratches across so small a print
+    os.makedirs(ITEMS, exist_ok=True)
+    card.save(os.path.join(ITEMS, out + ".png"))
+    print("photo", out, card.size)
+
+
 def save(img, out):
     os.makedirs(OUT, exist_ok=True)
     img.save(os.path.join(OUT, out + ".png"))
@@ -135,6 +169,8 @@ def main():
     faded_colour("ending_nine40", "ending_nine40", warm=(1.1, 1.0, 0.82), sat=0.85, lift=0.06)
     faded_colour("ending_longwait", "ending_longwait", warm=(1.02, 0.98, 0.92), sat=0.6, lift=0.1, vig=0.6)
     faded_colour("ending_grey", "ending_grey", warm=(0.92, 0.95, 1.0), sat=0.0, lift=0.02, vig=0.7)
+    if os.path.exists(os.path.join(RAW, "dog.png")):
+        snapshot_with_caption("dog", "dog_photo", "Biscuit")
 
 
 if __name__ == "__main__":

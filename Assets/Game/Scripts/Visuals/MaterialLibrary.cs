@@ -23,7 +23,7 @@ namespace LostAndFound
         {
             ["wood"] = new Surface { metallic = 0f, smoothness = 0.46f, normal = 0.6f, tiling = 1f, tex = "wood" },
             ["darkwood"] = new Surface { metallic = 0f, smoothness = 0.5f, normal = 0.5f, tiling = 1f, tex = "wood" },
-            ["leather"] = new Surface { metallic = 0f, smoothness = 0.42f, normal = 0.7f, tiling = 2.5f, tex = "leather" },
+            ["leather"] = new Surface { metallic = 0f, smoothness = 0.4f, normal = 0.28f, tiling = 9f, tex = "leather" },   // fine grain, not blisters
             ["brass"] = new Surface { metallic = 1f, smoothness = 0.72f, normal = 0.25f, tiling = 1.5f, tex = "brushed" },
             ["gold"] = new Surface { metallic = 1f, smoothness = 0.82f, normal = 0.1f, tiling = 1.5f, tex = "brushed" },
             ["silver"] = new Surface { metallic = 1f, smoothness = 0.8f, normal = 0.15f, tiling = 1.5f, tex = "brushed" },
@@ -32,7 +32,7 @@ namespace LostAndFound
             ["paper"] = new Surface { metallic = 0f, smoothness = 0.12f, normal = 0.35f, tiling = 2f, tex = "paper" },
             ["card"] = new Surface { metallic = 0f, smoothness = 0.18f, normal = 0.3f, tiling = 2f, tex = "paper" },
             ["cloth"] = new Surface { metallic = 0f, smoothness = 0.08f, normal = 0.6f, tiling = 4f, tex = "cloth" },
-            ["felt"] = new Surface { metallic = 0f, smoothness = 0.05f, normal = 0.5f, tiling = 3f, tex = "felt" },
+            ["felt"] = new Surface { metallic = 0f, smoothness = 0.05f, normal = 0.22f, tiling = 6f, tex = "felt" },
             ["knit"] = new Surface { metallic = 0f, smoothness = 0.05f, normal = 1.0f, tiling = 6f, tex = "knit" },
             ["velvet"] = new Surface { metallic = 0f, smoothness = 0.2f, normal = 0.4f, tiling = 3f, tex = "felt" },
             ["fur"] = new Surface { metallic = 0f, smoothness = 0.05f, normal = 0.8f, tiling = 4f, tex = "felt" },

@@ -132,14 +132,14 @@ def hollow_box(mn, mx, wall, open_top=True, bevel=0.0):
 # ----------------------------------------------------------------------------- objects
 
 def wallet_brown():
-    L1, L2 = mat("leather", "6B3A22"), mat("leather", "8A5232")
+    L1, L2 = mat("leather", "4E2814"), mat("leather", "6A3A22")
     W, D, T = 0.115, 0.088, 0.008
     m = Model("wallet_brown")
     m.add(rrect_slab((0, T / 2, 0), W, D, T, 0.008, plane="xz", bevel=0.002), L1)
     # inside: card slots, the photo window, a ticket stub peeking out
     for k in range(3):
         m.add(rrect_slab((-0.03, T + 0.0006 + k * 0.0003, -0.02 + k * 0.012), 0.05, 0.03, 0.001, 0.003, plane="xz"), L2)
-    add_decal(m, (-0.03, T + 0.0022, 0.02), (0, 1, 0), (0, 0, 1), 0.044, 0.024, "ticket_harwick")
+    add_decal(m, (-0.03, T + 0.0026, 0.0295), (0, 1, 0), (0, 0, 1), 0.044, 0.024, "ticket_harwick", offset=0.0009)
     m.add(rrect_slab((0.029, T + 0.0005, 0.0), 0.05, 0.068, 0.001, 0.004, plane="xz"), L2)
     add_decal(m, (0.029, T + 0.0012, 0.004), (0, 1, 0), (0, 0, 1), 0.042, 0.032, "dog_photo")
     m.add(rrect_slab((0.029, T + 0.0016, 0.004), 0.044, 0.034, 0.0003, 0.002, plane="xz"), mat("glass", "DDE8EE"))
@@ -152,7 +152,7 @@ def wallet_brown():
         m.add(box((sx * W / 2 - 0.004 * sx - 0.0006, T - 0.0004, -D / 2 + 0.005), (sx * W / 2 - 0.004 * sx + 0.0006, T + 0.0002, D / 2 - 0.005)), mat("cloth", "C9A877"))
     obj = m.build()
     hs("photo", (0.029, T + 0.0018, 0.004), (0, 1, 0), obj)
-    hs("ticket", (-0.03, T + 0.0025, 0.02), (0, 1, 0), obj)
+    hs("ticket", (-0.03, T + 0.0036, 0.0295), (0, 1, 0), obj)
     hs("clover", (0.046, T + 0.0018, -0.026), (0, 1, 0), obj)
 
     # the cover folds over from the left edge (hinge along z)
