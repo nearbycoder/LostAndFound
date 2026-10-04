@@ -44,7 +44,7 @@ namespace LostAndFound
                 UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
             }
 #endif
-            QualitySettings.vSyncCount = 1;
+            QualitySettings.vSyncCount = Arg("-lafNoVsync") != null ? 0 : 1;
             // remove whatever the scene had (template camera / light / volume)
             foreach (var c in FindObjectsByType<Camera>()) if (c.transform.root != transform) Destroy(c.gameObject);
             foreach (var l in FindObjectsByType<Light>()) if (l.transform.root != transform) Destroy(l.gameObject);
@@ -77,8 +77,7 @@ namespace LostAndFound
             hl.type = LightType.Point;
             hl.range = 1.3f;
             hl.color = new Color(1f, 0.85f, 0.66f);
-            hl.shadows = LightShadows.Soft;
-            hl.shadowStrength = 0.6f;
+            hl.shadows = LightShadows.None;
             hl.intensity = 0f;
             camRig.handLight = hl;
 
@@ -104,6 +103,7 @@ namespace LostAndFound
             wfx.Init(desk.booth);
             gameObject.AddComponent<Director>();
             if (Arg("-lafAutopilot") != null) gameObject.AddComponent<AutoPilot>();
+            if (Arg("-lafSmoke") != null) gameObject.AddComponent<SmokeTest>();
         }
 
         void Start()
@@ -210,8 +210,7 @@ namespace LostAndFound
             fill.range = 4.2f;
             fill.intensity = 1.6f;
             fill.color = new Color(1f, 0.82f, 0.62f);
-            fill.shadows = LightShadows.Soft;
-            fill.shadowStrength = 0.5f;
+            fill.shadows = LightShadows.None;
             // a cool rim from behind the commuters
             var rim = new GameObject("RimLight").AddComponent<Light>();
             rim.transform.SetParent(transform, false);

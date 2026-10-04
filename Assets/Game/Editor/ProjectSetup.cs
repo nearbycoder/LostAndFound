@@ -61,6 +61,8 @@ namespace LostAndFound.EditorTools
             PlayerSettings.resizableWindow = true;
             PlayerSettings.runInBackground = true;
             PlayerSettings.SplashScreen.show = false;
+            PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.StandaloneLinux64, false);
+            PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneLinux64, new[] { UnityEngine.Rendering.GraphicsDeviceType.Vulkan, UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore });
             AssetDatabase.SaveAssets();
             Debug.Log("[ProjectSetup] applied");
         }
@@ -99,7 +101,7 @@ namespace LostAndFound.EditorTools
                     }
                 }
                 Set("m_SupportsHDR", 1);
-                Set("m_MSAA", 4);
+                Set("m_MSAA", 1);
                 Set("m_RenderScale", 1f);
                 Set("m_MainLightRenderingMode", 1);
                 Set("m_MainLightShadowsSupported", 1);
@@ -107,11 +109,11 @@ namespace LostAndFound.EditorTools
                 Set("m_AdditionalLightsRenderingMode", 1);
                 Set("m_AdditionalLightsPerObjectLimit", 8);
                 Set("m_AdditionalLightShadowsSupported", 1);
-                Set("m_AdditionalLightsShadowmapResolution", 4096);
+                Set("m_AdditionalLightsShadowmapResolution", 2048);
                 Set("m_AdditionalLightsShadowResolutionTierLow", 512);
                 Set("m_AdditionalLightsShadowResolutionTierMedium", 1024);
                 Set("m_AdditionalLightsShadowResolutionTierHigh", 2048);
-                Set("m_ShadowDistance", 9f);
+                Set("m_ShadowDistance", 7f);
                 Set("m_ShadowCascadeCount", 2);
                 Set("m_SoftShadowsSupported", 1);
                 Set("m_SoftShadowQuality", 3);

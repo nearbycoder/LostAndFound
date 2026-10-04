@@ -149,7 +149,7 @@ namespace LostAndFound
             bl.range = 4f;
             bl.intensity = 2.8f;
             bl.color = new Color(1f, 0.83f, 0.62f);
-            bl.shadows = LightShadows.Soft;
+            bl.shadows = LightShadows.None;
             boothLight = bl;
         }
     }

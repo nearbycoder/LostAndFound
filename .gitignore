@@ -26,6 +26,7 @@
 .idea/
 .vscode/
 sysinfo.txt
+mono_crash.*
 crashlytics-build.properties
 *.apk
 *.aab

@@ -10,6 +10,10 @@
 #   Tools/unity.sh build-linux     batch-build Builds/Linux/LostAndFound.x86_64
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
+#   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
+#
+# On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
+# so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
 set -euo pipefail
 UNITY="${UNITY:-$HOME/Unity/Hub/Editor/6000.6.2f1/Editor/Unity}"
 PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -26,5 +30,9 @@ case "${1:-open}" in
                  -executeMethod "$2" -logFile "$PROJECT/Logs/run.log" ;;
   test)        exec "$UNITY" -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
                  -testResults "$PROJECT/Logs/test-results.xml" -logFile "$PROJECT/Logs/test.log" ;;
-  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test]" >&2; exit 2 ;;
+  smoke)       [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               rm -rf "$PROJECT/Screenshots/smoke"
+               exec timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
+                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSeconds "${2:-30}" -lafNoVsync -logFile "$PROJECT/Logs/smoke.log" ;;
+  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]]" >&2; exit 2 ;;
 esac

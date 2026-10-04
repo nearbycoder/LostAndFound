@@ -78,7 +78,7 @@ namespace LostAndFound
             dof.gaussianStart.Override(3.5f);
             dof.gaussianEnd.Override(14f);
             dof.gaussianMaxRadius.Override(1.2f);
-            dof.highQualitySampling.Override(true);
+            dof.highQualitySampling.Override(false);
 
             Settings.Changed += ApplySettings;
             ApplySettings();

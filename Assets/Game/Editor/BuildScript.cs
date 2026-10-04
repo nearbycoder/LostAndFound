@@ -22,7 +22,9 @@ namespace LostAndFound.EditorTools
             });
             var s = report.summary;
             Debug.Log($"[LostAndFound] build {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
-            if (Application.isBatchMode) EditorApplication.Exit(s.result == BuildResult.Succeeded ? 0 : 1);
+            // quit only when launched as a one-shot (-executeMethod), not inside a resident editor
+            if (Application.isBatchMode && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-executeMethod") >= 0)
+                EditorApplication.Exit(s.result == BuildResult.Succeeded ? 0 : 1);
         }
     }
 }
