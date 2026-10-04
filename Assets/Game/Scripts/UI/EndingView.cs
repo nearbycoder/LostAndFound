@@ -47,7 +47,7 @@ namespace LostAndFound
             {
                 shown += Time.deltaTime * 60f;
                 body.maxVisibleCharacters = (int)shown;
-                if (shown > 20 && (UnityEngine.InputSystem.Mouse.current?.leftButton.wasPressedThisFrame ?? false)) shown = total;
+                if (shown > 20 && InputX.LeftDown) shown = total;
                 yield return null;
             }
             body.maxVisibleCharacters = total;

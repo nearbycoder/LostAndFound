@@ -141,7 +141,7 @@ namespace LostAndFound
                 UIRoot.I.hint.Set("Ring the bell for the next claimant");
                 while (!bellRung)
                 {
-                    if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame && !UIRoot.ModalOpen && !UIRoot.I.dialogue.Shown)
+                    if (InputX.KeyDown(Key.Space) && !UIRoot.ModalOpen && !UIRoot.I.dialogue.Shown)
                         Desk.I.props.bell.Ring();
                     if (Autopilot || autoRing) Desk.I.props.bell.Ring();
                     yield return null;

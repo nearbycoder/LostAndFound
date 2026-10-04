@@ -79,8 +79,8 @@ namespace LostAndFound
         }
 
         public static Vector2 MousePos => Mouse.current != null ? Mouse.current.position.ReadValue() : Vector2.zero;
-        public static bool Clicked => Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame;
-        public static bool RightClicked => Mouse.current != null && Mouse.current.rightButton.wasPressedThisFrame;
+        public static bool Clicked => InputX.LeftDown;
+        public static bool RightClicked => InputX.RightDown;
 
         public Interactable Pick(out RaycastHit best)
         {
@@ -88,27 +88,48 @@ namespace LostAndFound
             if (cam == null) return null;
             var ray = cam.ScreenPointToRay(MousePos);
             int n = Physics.RaycastNonAlloc(ray, hits, 6f, ~0, QueryTriggerInteraction.Collide);
-            float bestDist = float.MaxValue;
+            System.Array.Sort(hits, 0, n, HitComparer.Instance);
             Interactable found = null;
             for (int i = 0; i < n; i++)
             {
-                if (hits[i].distance >= bestDist) continue;
-                var it = hits[i].collider.GetComponentInParent<Interactable>();
-                bool blocking = hits[i].collider.GetComponent<RayBlocker>() != null;
-                if (it == null && !blocking) continue;
-                if (it != null && !it.Interactive && !blocking) continue;
-                bestDist = hits[i].distance;
-                best = hits[i];
-                found = blocking ? null : it;
+                var col = hits[i].collider;
+                bool blocking = col.GetComponent<RayBlocker>() != null;
+                var it = col.GetComponentInParent<Interactable>();
+                if (found == null)
+                {
+                    if (blocking) return null;               // a wall or the desk is in the way
+                    if (it == null || !it.Interactive) continue;
+                    found = it;
+                    best = hits[i];
+                    if (!(found is Drawer)) return found;
+                    continue;                                 // an open drawer: an item inside it wins
+                }
+                if (blocking) break;
+                if (it is ItemView item && found is Drawer d && d.IsOpen && item.drawer == d && item.Interactive)
+                {
+                    best = hits[i];
+                    return item;
+                }
             }
             return found;
         }
 
+        class HitComparer : System.Collections.Generic.IComparer<RaycastHit>
+        {
+            public static readonly HitComparer Instance = new();
+            public int Compare(RaycastHit a, RaycastHit b) => a.distance.CompareTo(b.distance);
+        }
+
+        public string debugState;
+        public int debugPresses, debugClicksDelivered;
+
         void Update()
         {
             Interactable now = null;
-            if (!Blocked && !PointerOverUI() && Mouse.current != null)
+            bool overUI = PointerOverUI();
+            if (!Blocked && !overUI && Mouse.current != null)
                 now = Pick(out _);
+            debugState = $"frame {Time.frameCount} blocked={Blocked} overUI={overUI} mouse={(Mouse.current != null ? Mouse.current.position.ReadValue().ToString() : "null")} pick={(now ? now.name : "null")}";
             if (now != Hovered)
             {
                 if (Hovered != null)
@@ -123,13 +144,14 @@ namespace LostAndFound
                     pulse = 0f;
                 }
             }
+            if (InputX.LeftDown) debugPresses++;
             if (Hovered != null)
             {
                 pulse += Time.deltaTime;
                 float k = 0.75f + 0.25f * Mathf.Sin(pulse * 5f);
                 Highlighter.Set(Hovered.HighlightRenderers, HoverGlow * k);
                 CursorController.Want(Hovered.Cursor);
-                if (Clicked) Hovered.OnClick();
+                if (Clicked) { debugClicksDelivered++; Hovered.OnClick(); }
                 else if (RightClicked) Hovered.OnRightClick();
             }
         }

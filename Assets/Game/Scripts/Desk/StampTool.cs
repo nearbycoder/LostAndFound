@@ -79,12 +79,12 @@ namespace LostAndFound
             shadow.gameObject.SetActive(over);
             CursorController.Want(CursorKind.Stamp);
 
-            if (mouse.rightButton.wasPressedThisFrame || (Keyboard.current?.escapeKey.wasPressedThisFrame ?? false))
+            if (InputX.RightDown || InputX.KeyDown(Key.Escape))
             {
                 StartCoroutine(PutBack());
                 return;
             }
-            if (mouse.leftButton.wasPressedThisFrame && !InteractionSystem.PointerOverUI())
+            if (InputX.LeftDown && !InteractionSystem.PointerOverUI())
             {
                 if (!over) { StartCoroutine(PutBack()); return; }
                 int who = ClaimSlip.I.ClaimantAt(hit);

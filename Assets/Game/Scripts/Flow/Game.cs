@@ -35,6 +35,15 @@ namespace LostAndFound
         {
             I = this;
             Application.targetFrameRate = 120;
+#if UNITY_EDITOR
+            if (Application.isBatchMode)
+            {
+                // headless editor testing: simulated devices should drive the game, focus or not
+                UnityEngine.InputSystem.InputSystem.settings.editorInputBehaviorInPlayMode =
+                    UnityEngine.InputSystem.InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+                UnityEngine.InputSystem.InputSystem.settings.backgroundBehavior = UnityEngine.InputSystem.InputSettings.BackgroundBehavior.IgnoreFocus;
+            }
+#endif
             QualitySettings.vSyncCount = 1;
             // remove whatever the scene had (template camera / light / volume)
             foreach (var c in FindObjectsByType<Camera>()) if (c.transform.root != transform) Destroy(c.gameObject);

@@ -150,16 +150,16 @@ namespace LostAndFound
             if (zoom <= 1.001f) pan = Vector2.Lerp(pan, Vector2.zero, 1f - Mathf.Exp(-6f * Time.deltaTime));
             if (kb != null)
             {
-                if (kb.tKey.wasPressedThisFrame) { Release(ItemPlace.Tray); return; }
-                if (kb.escapeKey.wasPressedThisFrame || kb.backspaceKey.wasPressedThisFrame) { Release(ItemPlace.Mat); return; }
-                if (kb.lKey.wasPressedThisFrame) Lamp.I?.ToggleUV();
+                if (InputX.KeyDown(Key.T)) { Release(ItemPlace.Tray); return; }
+                if (InputX.KeyDown(Key.Escape) || InputX.KeyDown(Key.Backspace)) { Release(ItemPlace.Mat); return; }
+                if (InputX.KeyDown(Key.L)) Lamp.I?.ToggleUV();
                 // keyboard turning for accessibility
-                if (kb.qKey.isPressed) angularVel.y += 260f * Time.deltaTime;
-                if (kb.eKey.isPressed) angularVel.y -= 260f * Time.deltaTime;
-                if (kb.wKey.isPressed) angularVel.x += 260f * Time.deltaTime;
-                if (kb.sKey.isPressed) angularVel.x -= 260f * Time.deltaTime;
+                if (InputX.KeyHeld(Key.Q)) angularVel.y += 260f * Time.deltaTime;
+                if (InputX.KeyHeld(Key.E)) angularVel.y -= 260f * Time.deltaTime;
+                if (InputX.KeyHeld(Key.W)) angularVel.x += 260f * Time.deltaTime;
+                if (InputX.KeyHeld(Key.S)) angularVel.x -= 260f * Time.deltaTime;
             }
-            if (mouse.rightButton.wasPressedThisFrame) { Release(ItemPlace.Mat); return; }
+            if (InputX.RightDown) { Release(ItemPlace.Mat); return; }
 
             Vector2 mp = mouse.position.ReadValue();
             bool overUI = InteractionSystem.PointerOverUI();
@@ -174,13 +174,13 @@ namespace LostAndFound
             if (nearDetail == null || px > ClickRadius) hoverPart = PartUnderMouse(mp);
 
             // --- press / drag / click
-            if (mouse.leftButton.wasPressedThisFrame && !overUI)
+            if (InputX.LeftDown && !overUI)
             {
                 pressing = true;
                 dragging = false;
                 pressPos = mp;
             }
-            if (pressing && mouse.leftButton.isPressed)
+            if (pressing && InputX.LeftHeld)
             {
                 Vector2 delta = mouse.delta.ReadValue();
                 if (!dragging && (mp - pressPos).magnitude > 5f) dragging = true;
@@ -191,7 +191,7 @@ namespace LostAndFound
                     angularVel = Vector3.Lerp(angularVel, v, 0.6f);
                 }
             }
-            if (pressing && mouse.leftButton.wasReleasedThisFrame)
+            if (pressing && InputX.LeftUp)
             {
                 pressing = false;
                 if (!dragging && !overUI)

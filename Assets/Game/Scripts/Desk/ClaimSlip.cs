@@ -166,8 +166,9 @@ namespace LostAndFound
             focused = on;
             if (on)
             {
-                Vector3 c = transform.position;
-                CameraRig.I.Focus(c + transform.forward * 0.005f, new Vector3(c.x * 0.7f, 1.12f, c.z - 0.2f), 46f);
+                // frame the slip with the stamp rack beside it
+                Vector3 c = transform.position + new Vector3(-0.07f, 0f, 0.01f);
+                CameraRig.I.Focus(c, new Vector3(c.x * 0.6f, 1.14f, c.z - 0.24f), 50f);
                 AudioDirector.Play("paper_lift", 0.4f);
             }
             else CameraRig.I.ClearFocus();
@@ -179,7 +180,7 @@ namespace LostAndFound
             if (cam == null) cam = Camera.main;
             var kb = Keyboard.current;
             bool busy = InspectController.I != null && InspectController.I.Held != null;
-            if (kb != null && kb.tabKey.wasPressedThisFrame && !busy && !UIRoot.ModalOpen) SetFocus(!focused);
+            if (kb != null && InputX.KeyDown(Key.Tab) && !busy && !UIRoot.ModalOpen) SetFocus(!focused);
 
             if (focused)
             {
@@ -188,7 +189,7 @@ namespace LostAndFound
                 if (m != null)
                 {
                     float y = m.position.ReadValue().y / Mathf.Max(1, Screen.height);
-                    if (m.rightButton.wasPressedThisFrame || (y > 0.93f && StampTool.I?.Carrying == null)) SetFocus(false);
+                    if (InputX.RightDown || (y > 0.93f && StampTool.I?.Carrying == null)) SetFocus(false);
                 }
                 if (busy) SetFocus(false);
                 UpdateLinkHover();
@@ -212,7 +213,7 @@ namespace LostAndFound
                 if (idx >= 0) AudioDirector.Play("tick_soft", 0.2f, 1.4f);
             }
             if (idx >= 0) CursorController.Want(CursorKind.Hand);
-            if (idx >= 0 && Mouse.current.leftButton.wasPressedThisFrame && !InteractionSystem.PointerOverUI()) TryAsk();
+            if (idx >= 0 && InputX.LeftDown && !InteractionSystem.PointerOverUI()) TryAsk();
         }
 
         void TryAsk()

@@ -13,7 +13,7 @@ namespace LostAndFound
         public static Mesh TagMesh(float w, float h, float thick)
         {
             string key = $"tag{w}{h}{thick}";
-            if (Cache.TryGetValue(key, out var m)) return m;
+            if (Cache.TryGetValue(key, out var m) && m != null) return m;
             float c = w * 0.28f;
             var outline = new List<Vector2>
             {
@@ -29,7 +29,7 @@ namespace LostAndFound
         public static Mesh Paper(float w, float h, float thick = 0.0006f)
         {
             string key = $"paper{w}{h}{thick}";
-            if (Cache.TryGetValue(key, out var m)) return m;
+            if (Cache.TryGetValue(key, out var m) && m != null) return m;
             var outline = new List<Vector2> { new(-w / 2, -h / 2), new(w / 2, -h / 2), new(w / 2, h / 2), new(-w / 2, h / 2) };
             m = Slab(outline, thick);
             Cache[key] = m;
@@ -92,7 +92,7 @@ namespace LostAndFound
         public static Mesh Ring(float outer, float inner, float thick, int seg)
         {
             string key = $"ring{outer}{inner}{thick}{seg}";
-            if (Cache.TryGetValue(key, out var m)) return m;
+            if (Cache.TryGetValue(key, out var m) && m != null) return m;
             var verts = new List<Vector3>();
             var tris = new List<int>();
             for (int i = 0; i < seg; i++)
@@ -120,7 +120,7 @@ namespace LostAndFound
         public static Mesh QuadXZ(float w, float h)
         {
             string key = $"qxz{w}{h}";
-            if (Cache.TryGetValue(key, out var m)) return m;
+            if (Cache.TryGetValue(key, out var m) && m != null) return m;
             m = new Mesh { name = "quad" };
             m.vertices = new[] { new Vector3(-w / 2, 0, -h / 2), new Vector3(w / 2, 0, -h / 2), new Vector3(w / 2, 0, h / 2), new Vector3(-w / 2, 0, h / 2) };
             m.uv = new[] { new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1) };
@@ -142,9 +142,10 @@ namespace LostAndFound
         public static readonly Color SealInk = new(0.18f, 0.16f, 0.24f);
         static Material tag, paper, receipt;
 
-        public static Material Tag => tag ??= MaterialLibrary.Make(new Color(0.86f, 0.74f, 0.52f), Resources.Load<Texture2D>("Textures/tag_paper"), 0.1f);
-        public static Material Paper => paper ??= MaterialLibrary.Make(new Color(0.96f, 0.93f, 0.85f), Resources.Load<Texture2D>("Textures/slip_paper"), 0.1f);
-        public static Material Receipt => receipt ??= MaterialLibrary.Make(new Color(0.97f, 0.95f, 0.9f), Resources.Load<Texture2D>("Textures/paper_a"), 0.12f);
+        // (Unity objects need an explicit == null check: ?? doesn't see destroyed objects)
+        public static Material Tag => tag != null ? tag : tag = MaterialLibrary.Make(new Color(0.86f, 0.74f, 0.52f), Resources.Load<Texture2D>("Textures/tag_paper"), 0.1f);
+        public static Material Paper => paper != null ? paper : paper = MaterialLibrary.Make(new Color(0.96f, 0.93f, 0.85f), Resources.Load<Texture2D>("Textures/slip_paper"), 0.1f);
+        public static Material Receipt => receipt != null ? receipt : receipt = MaterialLibrary.Make(new Color(0.97f, 0.95f, 0.9f), Resources.Load<Texture2D>("Textures/paper_a"), 0.12f);
     }
 
     public static class Text

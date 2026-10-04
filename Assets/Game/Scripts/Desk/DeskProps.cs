@@ -71,12 +71,13 @@ namespace LostAndFound
             lamp.bulb = ModelLibrary.Find(lampGo.transform, "Bulb")?.GetComponent<Renderer>();
 
             // --- stamps in their rack
-            var rack = Prop("StampRack", new Vector3(-0.33f, 0.76f, 0.56f), 10f, root);
+            var rack = Prop("StampRack", new Vector3(-0.235f, 0.76f, 0.56f), 78f, root);
             var kinds = new[] { (Verdict.Return, "Stamp_Return", -0.055f), (Verdict.Refuse, "Stamp_Refuse", 0f), (Verdict.Seal, "Stamp_Seal", 0.055f) };
             foreach (var (kind, model, dx) in kinds)
             {
                 Vector3 p = rack.transform.TransformPoint(new Vector3(dx, 0.012f, 0f));
                 var sg = Prop(model, p, 8f, root);
+                sg.transform.rotation = Quaternion.Euler(0f, 8f, 0f);
                 AddBoxCollider(sg);
                 var st = sg.AddComponent<Stamp>();
                 st.kind = kind;
@@ -86,7 +87,7 @@ namespace LostAndFound
             }
 
             // --- claim slip
-            slip = ClaimSlip.Create(root, new Vector3(-0.02f, 0.7625f, 0.52f), 3f);
+            slip = ClaimSlip.Create(root, new Vector3(0.0f, 0.7625f, 0.52f), 3f);
 
             // --- printer + spike
             var pr = Prop("Printer", new Vector3(0.56f, 0.76f, 0.76f), -24f, root);

@@ -96,8 +96,8 @@ namespace LostAndFound
             var kb = Keyboard.current;
             if (allowTurn && kb != null && !UIRoot.ModalOpen)
             {
-                if (kb.aKey.wasPressedThisFrame || kb.leftArrowKey.wasPressedThisFrame) Turn(-1);
-                if (kb.dKey.wasPressedThisFrame || kb.rightArrowKey.wasPressedThisFrame) Turn(1);
+                if (InputX.KeyDown(Key.A) || InputX.KeyDown(Key.LeftArrow)) Turn(-1);
+                if (InputX.KeyDown(Key.D) || InputX.KeyDown(Key.RightArrow)) Turn(1);
             }
             UpdateEdgeTurn(dt);
 

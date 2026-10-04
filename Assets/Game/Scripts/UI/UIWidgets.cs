@@ -202,13 +202,17 @@ namespace LostAndFound
         void LateUpdate()
         {
             if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+            // step aside while you read the slip or turn away to the drawers
+            bool away = ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
+                        || (CameraRig.I != null && CameraRig.I.view != View.Counter && !Waiting);
+            if (shown) group.alpha = Mathf.MoveTowards(group.alpha, away ? 0.18f : 1f, Time.unscaledDeltaTime * 4f);
         }
 
         void Update()
         {
             if (!shown || UIRoot.ModalOpen) return;
-            bool pressed = (Keyboard.current?.spaceKey.wasPressedThisFrame ?? false) || (Keyboard.current?.enterKey.wasPressedThisFrame ?? false)
-                           || ((Mouse.current?.leftButton.wasPressedThisFrame ?? false) && !InteractionSystem.PointerOverUI());
+            bool pressed = InputX.KeyDown(Key.Space) || InputX.KeyDown(Key.Enter)
+                           || (InputX.LeftDown && !InteractionSystem.PointerOverUI());
             if (!pressed) return;
             if (Typing) skip = true;
             else if (Waiting) advance = true;
@@ -543,7 +547,7 @@ namespace LostAndFound
             while (!dismissed)
             {
                 t += Time.deltaTime;
-                bool click = (Mouse.current?.leftButton.wasPressedThisFrame ?? false) || (Keyboard.current?.spaceKey.wasPressedThisFrame ?? false) || (Keyboard.current?.enterKey.wasPressedThisFrame ?? false);
+                bool click = InputX.LeftDown || InputX.KeyDown(Key.Space) || InputX.KeyDown(Key.Enter);
                 if (click && t > 0.35f && !UIRoot.ModalOpen) dismissed = true;
                 if (Director.AutoAdvance && t > 0.9f) dismissed = true;
                 yield return null;
@@ -598,7 +602,7 @@ namespace LostAndFound
             {
                 t += Time.deltaTime;
                 title.characterSpacing = Mathf.Lerp(4f, 0f, Ease.OutCubic(Mathf.Clamp01(t / hold)));
-                if (t > 0.6f && ((Mouse.current?.leftButton.wasPressedThisFrame ?? false) || (Keyboard.current?.spaceKey.wasPressedThisFrame ?? false))) break;
+                if (t > 0.6f && (InputX.LeftDown || InputX.KeyDown(Key.Space))) break;
                 yield return null;
             }
             yield return Tween.Run(0.8f, k => group.alpha = 1f - k, Ease.InOutSine);
