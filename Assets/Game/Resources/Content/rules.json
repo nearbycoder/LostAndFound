@@ -1,0 +1,12 @@
+{
+  "rules": [
+    { "id": 1, "text": "Every stray has a tag. A real owner knows where and when they lost it.", "hint": "If their story contradicts the tag, refuse." },
+    { "id": 2, "text": "Trust the object, not the story. Liars only know what they can see. Ask about what's hidden.", "hint": "Wrong about a hidden detail? Refuse." },
+    { "id": 3, "text": "If it hums, it's home, whatever they say.", "hint": "If it hums for them, return it, even if their story is muddled." },
+    { "id": 4, "text": "Two people claiming one thing? Let the object decide.", "hint": "The hidden details point to exactly one of them." },
+    { "id": 5, "text": "The Grey Gentleman gets nothing. Not even the time of day.", "hint": "Never return anything to Mr Vell." },
+    { "id": 6, "text": "If it comes from tomorrow, it isn't lost yet. Lock it in the Iron Drawer, even if they're the owner.", "hint": "Dated after today (check the calendar)? Put it on the tray and seal it." },
+    { "id": 7, "text": "Frost means they've gone on ahead. Cold things go only to the cold.", "hint": "Frosted objects go to visitors who frost the glass. Refuse the living." },
+    { "id": 8, "text": "My blue lamp shows what ink tries to hide. Every Ninefold ticket has a date in blue.", "hint": "While inspecting, press L to switch on the blue lamp." }
+  ]
+}

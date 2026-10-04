@@ -1,0 +1,27 @@
+using UnityEngine;
+
+namespace LostAndFound
+{
+    /// <summary>Player preferences (PlayerPrefs-backed).</summary>
+    public static class Settings
+    {
+        static float F(string k, float d) => PlayerPrefs.GetFloat("laf." + k, d);
+        static void SetF(string k, float v) { PlayerPrefs.SetFloat("laf." + k, v); PlayerPrefs.Save(); Changed?.Invoke(); }
+        static bool B(string k, bool d) => PlayerPrefs.GetInt("laf." + k, d ? 1 : 0) == 1;
+        static void SetB(string k, bool v) { PlayerPrefs.SetInt("laf." + k, v ? 1 : 0); PlayerPrefs.Save(); Changed?.Invoke(); }
+
+        public static event System.Action Changed;
+
+        public static float MasterVolume { get => F("master", 0.85f); set => SetF("master", value); }
+        public static float MusicVolume { get => F("music", 0.6f); set => SetF("music", value); }
+        public static float SfxVolume { get => F("sfx", 0.85f); set => SetF("sfx", value); }
+        public static float VoiceVolume { get => F("voice", 0.8f); set => SetF("voice", value); }
+        public static float AmbienceVolume { get => F("ambience", 0.7f); set => SetF("ambience", value); }
+        public static float MouseSensitivity { get => F("mouse", 1f); set => SetF("mouse", value); }
+        public static float TextSpeed { get => F("textspeed", 1f); set => SetF("textspeed", value); }
+        public static bool ScreenShake { get => B("shake", true); set => SetB("shake", value); }
+        public static bool ReduceMotion { get => B("reducemotion", false); set => SetB("reducemotion", value); }
+        public static bool PostEffects { get => B("post", true); set => SetB("post", value); }
+        public static bool Fullscreen { get => B("fullscreen", false); set => SetB("fullscreen", value); }
+    }
+}

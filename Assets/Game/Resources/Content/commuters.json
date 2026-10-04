@@ -1,0 +1,29 @@
+{
+  "commuters": [
+    { "id": "gus", "name": "Gus Penrose", "title": "Porter", "voice": "mid", "pitch": 1.15, "speed": 1.2 },
+    { "id": "walter", "name": "Walter Bix", "title": "Baker", "voice": "low", "pitch": 0.82, "speed": 0.85, "shrug": "Couldn't tell you. I'm a baker, not a detective." },
+    { "id": "clementine", "name": "Clementine Rook", "title": "Typist", "voice": "high", "pitch": 1.22, "speed": 1.3, "shrug": "Oh! I — I'm not sure. Sorry." },
+    { "id": "reggie", "name": "Reggie Stokes", "title": "Businessman", "voice": "mid", "pitch": 0.95, "speed": 1.1, "shrug": "Let's not get bogged down in details, squire." },
+    { "id": "odile", "name": "Mrs Odile Marsh", "title": "", "voice": "old", "pitch": 1.3, "speed": 0.7, "height": 0.9, "shrug": "Oh, my memory, dear. It comes and goes, like trains." },
+    { "id": "bramble", "name": "Constable Bramble", "title": "Station Police", "voice": "low", "pitch": 0.75, "speed": 0.9, "shrug": "No idea, I'm afraid. Not my department." },
+    { "id": "rosalind", "name": "Rosalind Fairweather", "title": "Twin", "voice": "high", "pitch": 1.18, "speed": 1.15, "shrug": "I couldn't say. Cecily?" },
+    { "id": "cecily", "name": "Cecily Fairweather", "title": "Twin", "voice": "high", "pitch": 1.24, "speed": 1.15, "shrug": "Haven't the foggiest. Rosalind?" },
+    { "id": "haversham", "name": "Hugo Haversham", "title": "Accountant", "voice": "mid", "pitch": 1.05, "speed": 1.35, "shrug": "I — er — that is to say — I don't recall." },
+    { "id": "vell", "name": "Mr Vell", "title": "The Grey Gentleman", "voice": "grey", "pitch": 0.7, "speed": 0.75, "grey": true, "height": 1.06, "shrug": "Does it matter? It's mine. Everything lost is a little bit mine." },
+    { "id": "pip", "name": "Pip Okafor", "title": "Schoolgirl", "voice": "child", "pitch": 1.45, "speed": 1.35, "height": 0.78, "shrug": "Dunno! I'm only ten." },
+    { "id": "dora", "name": "Dora Finch", "title": "Turf Accountant", "voice": "mid", "pitch": 0.92, "speed": 1.25, "shrug": "Search me, love." },
+    { "id": "harriet", "name": "Harriet Lowe", "title": "", "voice": "high", "pitch": 1.12, "speed": 1.0, "shrug": "I don't know. I'm sorry." },
+    { "id": "crane", "name": "Victor Crane", "title": "Antiques Dealer", "voice": "mid", "pitch": 1.0, "speed": 0.95, "shrug": "Irrelevant. I have documentation." },
+    { "id": "thomas", "name": "Thomas Hale", "title": "", "voice": "mid", "pitch": 1.02, "speed": 1.0, "sepia": true, "shrug": "I couldn't say. Everything's a bit... out of focus, lately." },
+    { "id": "penhallow", "name": "Lt. Arthur Penhallow", "title": "", "voice": "cold", "pitch": 0.88, "speed": 0.8, "cold": true, "shrug": "Forgive me. I don't remember everything any more." },
+    { "id": "sid", "name": "Big Sid Mulroney", "title": "Platelayer", "voice": "low", "pitch": 0.7, "speed": 0.9, "height": 1.04, "shrug": "Couldn't tell you, pal." },
+    { "id": "lou", "name": "Lou Delacroix", "title": "Musician", "voice": "mid", "pitch": 0.9, "speed": 1.1, "shrug": "Man, it was a long night." },
+    { "id": "spratt", "name": "Vernon Spratt", "title": "Musician", "voice": "mid", "pitch": 1.1, "speed": 1.2, "shrug": "Why would I know that? Er — I mean, yes. Probably." },
+    { "id": "edie", "name": "Edie Larkspur", "title": "Actress", "voice": "high", "pitch": 1.1, "speed": 1.05, "shrug": "Darling, I simply don't do details." },
+    { "id": "plum", "name": "Mr Ezra Plum", "title": "", "voice": "cold", "pitch": 0.8, "speed": 0.7, "cold": true, "shrug": "Can't see a thing, you see. That's rather the point." },
+    { "id": "lark", "name": "Prof. Ambrose Lark", "title": "Ornithologist", "voice": "mid", "pitch": 1.08, "speed": 1.15, "shrug": "Hm. Outside my field, I'm afraid." },
+    { "id": "agnes_old", "name": "Agnes", "title": "", "voice": "old", "pitch": 1.2, "speed": 0.85, "shrug": "Oh, love. You know more than I do now." },
+    { "id": "thomas_old", "name": "Thomas", "title": "", "voice": "low", "pitch": 0.9, "speed": 0.85, "shrug": "Ask Agnes. She remembers everything." },
+    { "id": "corporal", "name": "Corporal Lowe", "title": "", "voice": "low", "pitch": 0.85, "speed": 1.0 }
+  ]
+}

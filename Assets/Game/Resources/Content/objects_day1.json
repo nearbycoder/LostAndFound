@@ -1,0 +1,75 @@
+{
+  "objects": [
+    {
+      "id": "wallet_brown", "name": "Brown leather wallet", "storage": "A", "arrives": 1, "sound": "leather",
+      "tag": { "where": "Platform 2", "when": "Mon 15 Oct, 7.52 am", "train": "The Harwick stopper", "note": "Smells faintly of fresh bread." },
+      "details": [
+        { "id": "photo", "fact": "A photograph of a sausage dog. Written on it: \"Biscuit\".", "question": "What's tucked behind the little window?" },
+        { "id": "initials", "fact": "Initials pressed inside the cover: W.B.", "question": "Are there any initials on it?" },
+        { "id": "ticket", "fact": "A ticket stub: Harwick to Ninefold, third class.", "question": "Where were you travelling from?" },
+        { "id": "clover", "kind": "secret", "fact": "A pressed four-leaf clover, hidden by the photograph." }
+      ],
+      "parts": [ { "node": "Flap", "kind": "hinge", "axis": "z", "amount": 175, "sound": "leather", "label": "Open the wallet" } ]
+    },
+    {
+      "id": "scarf_red", "name": "Red knitted scarf", "storage": "B", "arrives": 1, "sound": "cloth",
+      "tag": { "where": "Waiting room bench", "when": "Mon 15 Oct, 8.30 am", "train": "", "note": "Hand-knitted. Damp at one end." },
+      "details": [
+        { "id": "hole", "fact": "A moth hole near the fringe.", "question": "Is it in good condition?" },
+        { "id": "label", "fact": "A label sewn underneath: \"Knitted with love, Nan\".", "question": "Is there a label in it?" },
+        { "id": "initial", "kind": "secret", "fact": "A tiny knitted letter C in one corner." }
+      ]
+    },
+    {
+      "id": "umbrella_duck", "name": "Green umbrella with a duck handle", "storage": "Shelf_2a", "arrives": 1, "sound": "cloth",
+      "tag": { "where": "Platform 5", "when": "Sun 14 Oct, evening", "train": "The 6.15 from Harwick", "note": "Carved duck's-head handle." },
+      "details": [
+        { "id": "namestrip", "fact": "A name strip hidden under the strap: B. BRAMBLE.", "question": "Is there a name on it anywhere?" },
+        { "id": "beak", "fact": "The duck's beak has a chip out of it.", "question": "Is the handle damaged at all?" },
+        { "id": "wrapper", "kind": "secret", "fact": "A sherbet lemon wrapper tucked into the folds." }
+      ],
+      "parts": [ { "node": "Strap", "kind": "hinge", "axis": "x", "amount": -140, "sound": "cloth", "label": "Undo the strap" } ]
+    },
+    {
+      "id": "umbrella_black", "name": "Black umbrella", "storage": "Shelf_2b", "arrives": 1, "sound": "cloth",
+      "tag": { "where": "Platform 1", "when": "Sat 13 Oct", "train": "", "note": "Good quality. Brass collar." },
+      "details": [
+        { "id": "stamp", "fact": "Stamped into the brass collar: NINEFOLD RLY.", "question": "Are there any markings on it?",
+          "altIf": "ring=thomas", "altFact": "Stamped into the brass collar: T. HALE, STATION MASTER.", "altTex": "collar_ninefold" },
+        { "id": "ferrule", "kind": "secret", "fact": "Scratched into the brass tip: A+T." }
+      ]
+    },
+    {
+      "id": "suitcase", "name": "Battered brown suitcase", "storage": "Shelf_3a", "arrives": 1, "sound": "leather",
+      "trait": "hum", "owner": "odile",
+      "tag": { "where": "Platform 9", "when": "(date smudged)", "train": "Unknown", "note": "It hums. Not my imagination. — G." },
+      "details": [
+        { "id": "initials", "fact": "Initials on the latch plate: O.M.", "question": "Are there any initials on it?" },
+        { "id": "stickers", "fact": "Travel labels: Lisboa 1931 and Wien, Opernball 1934.", "question": "Has it travelled far?" },
+        { "id": "sachet", "fact": "Inside, a lavender sachet. Still fragrant.", "question": "What's packed inside?" },
+        { "id": "dancecard", "kind": "secret", "fact": "A dance card from the Vienna Opera Ball. Every dance: \"T.\"" }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 105, "sound": "latch", "label": "Open the case" } ]
+    },
+    {
+      "id": "compass", "name": "Brass pocket compass", "storage": "C", "arrives": 1, "sound": "metal",
+      "tag": { "where": "Platform 9", "when": "Fri 12 Oct", "train": "", "note": "Needle won't settle." },
+      "details": [
+        { "id": "needle", "fact": "The needle doesn't point north. It swings towards the Iron Drawer.", "question": "Does it still work?" },
+        { "id": "engraving", "fact": "Engraved inside the lid: \"Find what is lost\".", "question": "Is there an inscription?" },
+        { "id": "map", "kind": "secret", "fact": "Engraved underneath: a tiny map of nine railway lines." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 110, "sound": "latch", "label": "Open the lid" } ]
+    },
+    {
+      "id": "hatbox", "name": "Striped hatbox", "storage": "Shelf_1a", "arrives": 1, "sound": "paper",
+      "tag": { "where": "The theatre special, first class", "when": "Sat 13 Oct", "train": "", "note": "Smells of greasepaint." },
+      "details": [
+        { "id": "hat", "fact": "Inside: a plum velvet cloche with an ostrich feather.", "question": "What's inside it?" },
+        { "id": "stub", "fact": "A theatre ticket: Twelfth Night, with Miss Edie Larkspur.", "question": "Were you at the theatre?" },
+        { "id": "letter", "kind": "secret", "fact": "A love letter, written and never sent." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "slide", "axis": "y", "amount": 0.16, "sound": "paper", "label": "Lift the lid" } ]
+    }
+  ]
+}
