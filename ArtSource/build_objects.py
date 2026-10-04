@@ -92,7 +92,7 @@ def hs(name, pos, up, parent, origin=(0, 0, 0), part=None):
     return empty("HS_" + name + ("__" + part if part else ""), p, parent=root, up=up)
 
 
-def spindle(x0, x1, rmax, lobes=8, steps=22, seg=48, cx=0.0, cy=0.0, cz=0.0):
+def spindle(x0, x1, rmax, lobes=8, steps=40, seg=64, cx=0.0, cy=0.0, cz=0.0, twist=1.6):
     """A furled umbrella canopy along x: radius swells from the tip, with folds."""
     bm = bmesh.new()
     rings = []
@@ -105,7 +105,8 @@ def spindle(x0, x1, rmax, lobes=8, steps=22, seg=48, cx=0.0, cy=0.0, cz=0.0):
         ring = []
         for k in range(seg):
             a = 2 * math.pi * k / seg
-            rr = r * (1 + 0.13 * math.cos(lobes * a) * min(1, t * 3))
+            # the folds wrap spirally round the shaft, sharper creases near the handle end
+            rr = r * (1 + 0.15 * math.cos(lobes * (a + twist * t * 2 * math.pi / lobes * lobes * 0.12)) ** 3 * min(1, t * 3))
             ring.append(bm.verts.new((x, cy + math.cos(a) * rr, cz + math.sin(a) * rr)))
         rings.append(ring)
     for r0, r1 in zip(rings[:-1], rings[1:]):
@@ -228,6 +229,11 @@ def umbrella(name, canopy_hex, handle):
     m.add(spindle(-0.38, 0.22, r, cy=cy), CAN)
     m.add(lathe([(0.0001, 0.0), (0.006, 0.004), (0.006, 0.03)], (-0.44, cy, 0), axis="x", segments=16), BRASS)
     m.add(torus((0.22, cy, 0), 0.007, 0.003, axis="x", segments=20), STEEL)
+    # rib tips peeping out where the canopy is gathered, and a cupped ferrule at the point
+    for k in range(8):
+        a = k * math.pi / 4
+        m.add(sphere((0.226, cy + math.cos(a) * 0.0105, math.sin(a) * 0.0105), 0.0018, segments=8, rings=6), STEEL)
+    m.add(cyl((-0.437, cy, 0), 0.0058, 0.006, axis="x", segments=16), BRASS_D)
     obj = m.build()
     return obj, cy
 
@@ -297,9 +303,19 @@ def suitcase():
     for sx in (-1, 1):
         for sz in (-1, 1):
             m.add(sphere((sx * (W / 2 - 0.01), 0.01, sz * (D / 2 - 0.01)), 0.02, scale=(1, 0.8, 1)), BRASS)
+    # buckles on both straps, stitching round the seams
+    for x in (-0.17, 0.17):
+        m.add(cbox((x, H1 * 0.62, -D / 2 - 0.004), (0.044, 0.026, 0.003), bevel=0.0012), BRASS_D)
+        m.add(cbox((x, H1 * 0.62, -D / 2 - 0.0058), (0.034, 0.016, 0.001)), BAND)
+        m.add(rod((x - 0.004, H1 * 0.62, -D / 2 - 0.006), (x + 0.012, H1 * 0.62, -D / 2 - 0.006), 0.0012), BRASS)
+    for z in (-D / 2 - 0.0006, D / 2 + 0.0006):
+        for k in range(60):
+            x = -W / 2 + 0.02 + k * (W - 0.04) / 59
+            m.add(cbox((x, H1 - 0.006, z), (0.004, 0.001, 0.0008)), mat("cloth", "C8A878"))
     # front: latch plates with O.M. engraved between them, and the handle
     for x in (-0.15, 0.15):
         m.add(cbox((x, H1 - 0.012, -D / 2 - 0.003), (0.03, 0.024, 0.006), bevel=0.002), BRASS)
+        m.add(cyl((x, H1 - 0.015, -D / 2 - 0.0062), 0.0028, 0.001, axis="z", segments=16), mat("paint", "1A1410"))
     m.add(cbox((0.0, H1 - 0.02, -D / 2 - 0.002), (0.07, 0.03, 0.004), bevel=0.002), BRASS)
     add_decal(m, (0.0, H1 - 0.02, -D / 2 - 0.0042), (0, 0, -1), (0, 1, 0), 0.062, 0.026, "latch_om")
     m.add(sweep([(-0.06, H1 * 0.55, -D / 2 - 0.004), (-0.05, H1 * 0.55, -D / 2 - 0.03), (0.05, H1 * 0.55, -D / 2 - 0.03), (0.06, H1 * 0.55, -D / 2 - 0.004)], 0.008, segments=10, flat=0.6), BAND)
@@ -352,6 +368,17 @@ def compass():
     lid = Model("Lid")
     lid.add(lathe([(0.0, H), (R - 0.004, H), (R, H + 0.0015), (R - 0.001, H + 0.004), (R - 0.006, H + 0.006), (0.0, H + 0.0065)], (0, 0, 0), segments=48), BRASS)
     lid.add(torus((0, H + 0.0035, 0), R - 0.008, 0.0008, axis="y", segments=40), BRASS_D)
+    # an engraved compass rose on the lid, and a knurled edge to get a thumbnail under
+    for k in range(8):
+        a = k * math.pi / 4
+        ln = 0.014 if k % 2 == 0 else 0.009
+        tipx, tipz = math.sin(a) * ln, -math.cos(a) * ln
+        sx, sz = math.cos(a) * 0.0022, math.sin(a) * 0.0022
+        lid.add(hull([(sx, H + 0.0062, sz), (-sx, H + 0.0062, -sz), (tipx, H + 0.0062, tipz), (0, H + 0.0068, 0)]), BRASS_D)
+    lid.add(text_mesh("N", (0, H + 0.0064, -0.0175), 0.004, depth=0.0003, plane="xz", font=FONT_TITLE), BRASS_D)
+    for k in range(110):
+        a = k * 2 * math.pi / 110
+        lid.add(transformed(cbox((R - 0.0001, H + 0.0011, 0), (0.0009, 0.0018, 0.0006)), mathutils.Matrix.Rotation(-a, 4, "Y")), BRASS_D)
     add_decal(lid, (0, H - 0.0001, 0), (0, -1, 0), (0, 0, -1), 0.046, 0.0105, "compass_lid", offset=0.0003)
     lobj = lid.build(origin=hinge, parent=obj)
     hs("engraving", (0, H - 0.0004, 0), (0, -1, 0), obj, part="Lid")
@@ -414,9 +441,16 @@ def locket():
     m.add(torus((0.0, 0.0024, 0.0125), 0.0016, 0.0004, axis="x", segments=12), mat("cloth", "3050A0"))
     # bail and a coil of fine chain
     m.add(torus((0, H * 0.5, -R * 1.25 - 0.0025), 0.0026, 0.0008, axis="x", segments=16), SILVER)
-    for k in range(9):
-        a = k * 0.9
-        m.add(torus((math.cos(a) * 0.006 - 0.004, 0.0006, -R * 1.25 - 0.009 - math.sin(a) * 0.004), 0.0016, 0.0004, axis="x" if k % 2 else "z", segments=10), SILVER)
+    path = [(0.0, 0.0012, -R * 1.25 - 0.0055)]
+    for k in range(1, 28):
+        t = k / 27
+        path.append((0.012 * math.sin(t * 5.5) - 0.006 * t, 0.0009, -R * 1.25 - 0.0055 - 0.03 * t - 0.006 * math.sin(t * 9)))
+    for k in range(len(path) - 1):
+        a, b = V(path[k]), V(path[k + 1])
+        c, d = (a + b) / 2, (b - a)
+        yaw = math.degrees(math.atan2(d.x, d.z))
+        link = torus((0, 0, 0), 0.0011, 0.00032, axis="y" if k % 2 else "x", segments=10, ring_segments=6, scale=(0.75, 1, 1.35) if k % 2 else (1, 0.75, 1.35))
+        m.add(transformed(link, mathutils.Matrix.Translation(c) @ mathutils.Matrix.Rotation(math.radians(yaw), 4, "Y")), SILVER)
     obj = m.build()
     hs("note", (0.0, 0.002, -0.002), (0, 1, 0), obj)
     hs("hair", (0.002, 0.0027, 0.0115), (0, 1, 0), obj)
@@ -448,35 +482,44 @@ def pocket_watch():
     R, H = 0.024, 0.011
     m = Model("pocket_watch")
     # open-topped case: an inner lip steps down to the dial
-    m.add(lathe([(0.0, 0.0), (R - 0.004, 0.0), (R, 0.003), (R, H - 0.002), (R - 0.001, H), (R - 0.0022, H), (R - 0.0022, H - 0.0024), (0.0, H - 0.0024)], (0, 0, 0), segments=48, cap_top=False), SILVER)
+    m.add(lathe([(0.0, 0.0), (R - 0.004, 0.0), (R, 0.003), (R, H - 0.002), (R - 0.001, H), (R - 0.0022, H), (R - 0.0022, H - 0.0024), (0.0, H - 0.0024)], (0, 0, 0), segments=64, cap_top=False), SILVER)
+    m.add(torus((0, H * 0.45, 0), R + 0.0002, 0.0009, axis="y", segments=64), mat("silver", "9A9C9E"))   # milled band
     bm, _ = cyl((0, H - 0.0016, 0), R - 0.0022, 0.0004, segments=48)
     planar_uv(bm, (0, H, 0), (1, 0, 0), (0, 0, 1), 2 * (R - 0.0022), 2 * (R - 0.0022))
     m.add((bm, None), tex("watch_face"), uv=False)
-    m.add(cyl((0, H - 0.0005, 0), R - 0.0018, 0.0006, segments=48), mat("glass", "DDEEF2"))
-    # crown and bow at twelve o'clock (towards the viewer)
-    m.add(cyl((0, H / 2, -R - 0.003), 0.0028, 0.006, axis="z", segments=16), SILVER)
-    m.add(torus((0, H / 2, -R - 0.01), 0.0062, 0.0013, axis="y", segments=24), SILVER)
+    m.add(lathe([(0.0, H - 0.0002), (R - 0.004, H - 0.0006), (R - 0.0018, H - 0.0012)], (0, 0, 0), segments=48, cap_bottom=False), mat("glass", "DDEEF2"))
+    # pendant, knurled crown and a heavy bow at twelve o'clock
+    m.add(cyl((0, H / 2, -R - 0.0025), 0.0034, 0.005, axis="z", segments=20), SILVER)
+    m.add(cyl((0, H / 2, -R - 0.0062), 0.0042, 0.0034, axis="z", segments=24), SILVER)
+    for k in range(16):
+        a = k * math.pi / 8
+        m.add(box((math.cos(a) * 0.0042 - 0.0004, H / 2 + math.sin(a) * 0.0042 - 0.0004, -R - 0.0078), (math.cos(a) * 0.0042 + 0.0004, H / 2 + math.sin(a) * 0.0042 + 0.0004, -R - 0.0046)), mat("silver", "A8AAAC"))
+    m.add(torus((0, H / 2, -R - 0.0135), 0.0068, 0.0015, axis="y", segments=28), SILVER)
     # a glass window in the back shows the movement: one gear is engraved IX
     m.add(cyl((0, -0.0001, 0.006), 0.009, 0.0004, segments=32), mat("glass", "DDEEF2"))
     m.add(cyl((0, 0.0012, 0.006), 0.0085, 0.0008, segments=24), BRASS_D)
     for k in range(12):
         a = k * math.pi / 6
         m.add(cbox((math.cos(a) * 0.0088, 0.0012, 0.006 + math.sin(a) * 0.0088), (0.0016, 0.0008, 0.0012)), BRASS_D)
+    m.add(cyl((0.004, 0.0013, 0.002), 0.0012, 0.0009, segments=12), mat("paint", "A01828"))   # a ruby jewel
     m.add(transformed(text_mesh("IX", (0, 0.0006, 0.006), 0.006, depth=0.0003, plane="xz", font=FONT_TITLE), rotate_about((0, 0.0006, 0.006), "Z", 180)), mat("brass", "5A4020"))
     obj = m.build()
     hs("gear", (0, -0.0004, 0.006), (0, -1, 0), obj)
-    # the hands (the game turns them backwards, all the time)
     hn = Model("Spin_Hands")
-    hn.add(hull([(-0.0008, H - 0.0011, 0.0), (0.0008, H - 0.0011, 0.0), (0, H - 0.0011, -0.016), (0, H - 0.0009, -0.008)]), BLACK)
-    hn.add(hull([(-0.001, H - 0.0013, 0.0), (0.001, H - 0.0013, 0.0), (0.0, H - 0.0013, 0.011), (0, H - 0.0011, 0.006)]), BLACK)
-    hn.add(cyl((0, H - 0.0011, 0), 0.0012, 0.0006, segments=12), BLACK)
+    hn.add(hull([(-0.0008, H - 0.0013, 0.0), (0.0008, H - 0.0013, 0.0), (0, H - 0.0013, -0.016), (0, H - 0.0011, -0.008)]), BLACK)
+    hn.add(hull([(-0.001, H - 0.0015, 0.0), (0.001, H - 0.0015, 0.0), (0.0, H - 0.0015, 0.011), (0, H - 0.0013, 0.006)]), BLACK)
+    hn.add(cyl((0, H - 0.0013, 0), 0.0012, 0.0006, segments=12), BLACK)
     hn.build(origin=(0, H, 0), parent=obj)
     hs("hands", (0.004, H - 0.0002, -0.004), (0, 1, 0), obj)
     hinge = V(0, H, R)
     lid = Model("Lid")
-    lid.add(lathe([(0.0, H), (R - 0.001, H), (R, H + 0.0015), (R - 0.002, H + 0.004), (0.0, H + 0.005)], (0, 0, 0), segments=48), SILVER)
-    lid.add(torus((0, H + 0.0035, 0), R - 0.007, 0.0008, axis="y", segments=40), mat("silver", "8C8E90"))
+    lid.add(lathe([(0.0, H), (R - 0.001, H), (R, H + 0.0015), (R - 0.002, H + 0.004), (0.0, H + 0.005)], (0, 0, 0), segments=64), SILVER)
+    # engine-turned guilloché: fine concentric rings and a little cartouche
+    for k in range(9):
+        lid.add(torus((0, H + 0.0049 - k * 0.00014, 0), 0.0035 + k * 0.0021, 0.00011, axis="y", segments=64), mat("silver", "B4B6B8"))
+    lid.add(lathe([(0.0, H + 0.0051), (0.006, H + 0.005), (0.0062, H + 0.0049)], (0, 0, 0), segments=32, cap_bottom=False), mat("silver", "D8DADC"))
     add_decal(lid, (0, H - 0.0001, 0), (0, -1, 0), (0, 0, -1), 0.04, 0.008, "watch_engraving", offset=0.0003)
+    lid.add(cbox((0, H + 0.0008, -R + 0.0004), (0.004, 0.0015, 0.0016), bevel=0.0005), SILVER)   # thumb catch
     lid.build(origin=hinge, parent=obj)
     hs("engraving", (0, H - 0.0004, 0), (0, -1, 0), obj, part="Lid")
     return obj
@@ -535,9 +578,24 @@ def briefcase():
     m.add(hull([(0.045, wall + 0.0125, 0.035), (0.142, wall + 0.0125, 0.035), (0.045, wall + 0.0125, 0.113), (0.045, wall + 0.0145, 0.035), (0.142, wall + 0.0145, 0.035), (0.045, wall + 0.0145, 0.113)]), mat("cloth", "E8D070"))
     m.add(hull([(0.05, wall + 0.0145, 0.04), (0.13, wall + 0.0145, 0.04), (0.05, wall + 0.0145, 0.1), (0.05, wall + 0.0158, 0.04), (0.13, wall + 0.0158, 0.04), (0.05, wall + 0.0158, 0.1)]), mat("cloth", "5A8A3A"))
     m.add(box((0.03, wall + 0.002, 0.02), (0.17, wall + 0.003, 0.135)), mat("paper", "F2EEE0"))
-    # brass clasp and handle on the front
-    m.add(cbox((0.0, H1 - 0.008, -D / 2 - 0.003), (0.05, 0.02, 0.006), bevel=0.002), BRASS)
-    m.add(sweep([(-0.05, H1 * 0.6, -D / 2 - 0.003), (-0.04, H1 * 0.6, -D / 2 - 0.028), (0.04, H1 * 0.6, -D / 2 - 0.028), (0.05, H1 * 0.6, -D / 2 - 0.003)], 0.007, segments=10, flat=0.6), HIDE)
+    # two brass lock latches with keyholes, the handle on brass loops, stitched welts, corner caps, feet
+    THREAD = mat("cloth", "C8A878")
+    for x in (-0.13, 0.13):
+        m.add(cbox((x, H1 - 0.009, -D / 2 - 0.003), (0.036, 0.022, 0.005), bevel=0.0018), BRASS)
+        m.add(cyl((x, H1 - 0.012, -D / 2 - 0.0058), 0.0028, 0.001, axis="z", segments=16), mat("paint", "1A1410"))
+        m.add(cbox((x, H1 - 0.0155, -D / 2 - 0.0058), (0.0016, 0.004, 0.001)), mat("paint", "1A1410"))
+    for x in (-0.055, 0.055):
+        m.add(torus((x, H1 * 0.72, -D / 2 - 0.006), 0.006, 0.0018, axis="x", segments=16), BRASS)
+        m.add(cbox((x, H1 * 0.72, -D / 2 - 0.0015), (0.016, 0.012, 0.003), bevel=0.001), BRASS)
+    m.add(sweep([(-0.055, H1 * 0.72, -D / 2 - 0.009), (-0.045, H1 * 0.72, -D / 2 - 0.034), (0.045, H1 * 0.72, -D / 2 - 0.034), (0.055, H1 * 0.72, -D / 2 - 0.009)], 0.0075, segments=12, flat=0.65), HIDE)
+    for z in (-D / 2 - 0.0004, D / 2 + 0.0004):
+        for k in range(41):
+            x = -W / 2 + 0.012 + k * (W - 0.024) / 40
+            m.add(cbox((x, 0.006, z), (0.0034, 0.0008, 0.0006)), THREAD)
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            m.add(sphere((sx * (W / 2 - 0.006), 0.006, sz * (D / 2 - 0.006)), 0.011, scale=(1, 0.75, 1)), BRASS_D)
+            m.add(cyl((sx * (W / 2 - 0.03), -0.0015, sz * (D / 2 - 0.03)), 0.006, 0.003, segments=16), BRASS_D)
     obj = m.build()
     hs("form", (-0.09, wall + 0.0068, -0.05), (0, 1, 0), obj)
     hs("sandwich", (0.08, wall + 0.017, 0.07), (0, 1, 0), obj)
@@ -562,6 +620,8 @@ def wallet_black():
     W, D, T = 0.11, 0.085, 0.007
     m = Model("wallet_black")
     m.add(rrect_slab((0, T / 2, 0), W, D, T, 0.006, plane="xz", bevel=0.0015), L1)
+    for sx in (-1, 1):
+        m.add(box((sx * W / 2 - 0.004 * sx - 0.0006, T - 0.0004, -D / 2 + 0.005), (sx * W / 2 - 0.004 * sx + 0.0006, T + 0.0002, D / 2 - 0.005)), mat("cloth", "5A5650"))
     m.add(rrect_slab((0.028, T + 0.0005, 0.0), 0.048, 0.066, 0.001, 0.004, plane="xz"), L2)
     add_decal(m, (0.028, T + 0.0012, 0.008), (0, 1, 0), (0, 0, 1), 0.044, 0.028, "library_card")
     m.add(rrect_slab((-0.028, T + 0.0005, 0.0), 0.046, 0.066, 0.001, 0.004, plane="xz"), L2)
@@ -582,7 +642,7 @@ def wallet_black():
 
 def chess_set():
     WOOD, DARK = mat("wood", "9A6A3A"), mat("darkwood", "4A2A16")
-    S, H1, H2, wall = 0.17, 0.025, 0.012, 0.006
+    S, H1, H2, wall = 0.17, 0.025, 0.026, 0.006   # the lid is deep enough to close over the kings
     m = Model("chess_set")
     for part in hollow_box((-S / 2, 0, -S / 2), (S / 2, H1, S / 2), wall, bevel=0.002):
         m.add(part, WOOD)
@@ -621,6 +681,18 @@ def chess_set():
     lid.add(box((-0.05, H1 + H2 - wall - 0.0015, -0.03), (0.05, H1 + H2 - wall, 0.03)), PAPER)
     add_decal(lid, (0.0, H1 + H2 - wall - 0.0016, 0.0), (0, -1, 0), (0, 0, 1), 0.09, 0.05, "chess_note", offset=0.0002)
     lid.add(cbox((0, H1 + H2 * 0.4, -S / 2 - 0.002), (0.02, 0.008, 0.004)), BRASS)
+    # an inlaid board on the outside of the lid, a boxwood border and brass corners
+    lsq = (S - 0.03) / 8
+    for i in range(8):
+        for j in range(8):
+            x0 = -S / 2 + 0.015 + i * lsq
+            z0 = -S / 2 + 0.015 + j * lsq
+            lid.add(box((x0, H1 + H2, z0), (x0 + lsq, H1 + H2 + 0.0006, z0 + lsq)), mat("wood", "E2C898") if (i + j) % 2 else DARK)
+    lid.add(rrect_slab((0, H1 + H2 + 0.0002, 0), S - 0.024, S - 0.024, 0.0004, 0.002, plane="xz"), mat("wood", "D8B880"))
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            lid.add(hull([(sx * S / 2, H1 + H2 + 0.0008, sz * S / 2), (sx * (S / 2 - 0.016), H1 + H2 + 0.0008, sz * S / 2), (sx * S / 2, H1 + H2 + 0.0008, sz * (S / 2 - 0.016)),
+                          (sx * S / 2, H1 + H2 - 0.004, sz * S / 2)]), BRASS_D)
     lid.build(origin=hinge, parent=obj)
     hs("note", (0.0, H1 + H2 - wall - 0.002, 0.0), (0, -1, 0), obj, part="Lid")
     return obj
@@ -639,6 +711,26 @@ def photograph():
     return obj
 
 
+def frost_coat(model, base, bmin, bmax, thickness=0.0011, cover=0.15, seed=7, top_bias=0.6, edge_bias=0.8):
+    """Hoar frost as a thin crust grown over a surface (base is an SDF of the object): densest on
+    top, feathering out down the sides in fine, ragged crystals rather than blotches."""
+    fine = sdf.noise(seed, 7, 420.0)
+    mid = sdf.noise(seed + 1, 5, 110.0)
+    grain = sdf.noise(seed + 2, 6, 1400.0)
+    crust = sdf.subtract(sdf.offset(base, thickness), sdf.offset(base, -0.0003))
+
+    def mask(p):
+        up = (p[:, 1] - bmin[1]) / max(1e-6, bmax[1] - bmin[1])
+        # frost gathers along rims and corners first, leaving the middle of a face thinly dusted
+        cx, cz = (bmin[0] + bmax[0]) / 2, (bmin[2] + bmax[2]) / 2
+        edge = np.maximum(np.abs(p[:, 0] - cx) / ((bmax[0] - bmin[0]) / 2), np.abs(p[:, 2] - cz) / ((bmax[2] - bmin[2]) / 2))
+        v = cover + top_bias * (up - 0.5) + edge_bias * (edge - 0.75) + 0.32 * fine(p) + 0.16 * mid(p)
+        return -v * 0.006
+    f = sdf.intersect(crust, mask, k=0.0003)
+    f = sdf.displace(f, lambda q: -0.00035 * np.abs(grain(q)))
+    model.add(sdf.mesh(f, bmin, bmax, 0.0009, smooth=1, tris=16000), mat("frost", "EEF6FF"))
+
+
 def frost_patches(model, pts, y, r):
     rng = np.random.default_rng(len(pts))
     for (x, z) in pts:
@@ -653,85 +745,115 @@ def frosted_tin():
     m = Model("frosted_tin")
     m.add(rrect_slab((0, H1 / 2, 0), W, D, H1, 0.02, plane="xz"), TIN)
     m.add(rrect_slab((0, H1 + 0.0005, 0), W - 0.01, D - 0.01, 0.001, 0.016, plane="xz"), mat("paint", "2A2A22"))
+    # rolled bead round the tin's shoulder
+    m.add(rrect_slab((0, H1 - 0.012, 0), W + 0.004, D + 0.004, 0.004, 0.022, plane="xz", bevel=0.0015), TIN_D)
     # inside, visible once the lid is off: letters tied with string, a harmonica, a pressed poppy
     m.add(box((-0.085, H1 - 0.012, -0.05), (0.02, H1 + 0.0012, 0.05)), mat("paper", "E2D6B8"))
     add_decal(m, (-0.032, H1 + 0.0013, 0.0), (0, 1, 0), (0, 0, 1), 0.1, 0.064, "letters_mabel", offset=0.0002)
     m.add(box((-0.04, H1 - 0.012, -0.0505), (-0.036, H1 + 0.0025, 0.0505)), mat("cloth", "B09060"))
+    m.add(box((-0.0855, H1 - 0.012, -0.002), (0.0205, H1 + 0.0025, 0.002)), mat("cloth", "B09060"))
     m.add(cbox((0.058, H1 - 0.004, -0.01), (0.03, 0.012, 0.1), bevel=0.002), STEEL)
+    m.add(cbox((0.058, H1 + 0.0021, -0.01), (0.026, 0.0008, 0.094)), mat("wood", "6A4A2A"))
     for k in range(10):
         m.add(box((0.0435, H1 - 0.006, -0.055 + k * 0.009), (0.0445, H1 - 0.002, -0.049 + k * 0.009)), mat("paint", "1A1A1A"))
     for k in range(5):
         a = k * 2 * math.pi / 5
         m.add(ellipsoid((0.06 + math.cos(a) * 0.006, H1 + 0.0025, 0.052 + math.sin(a) * 0.006), (0.006, 0.0006, 0.004)), mat("velvet", "B02020"))
     m.add(sphere((0.06, H1 + 0.003, 0.052), 0.0022, scale=(1, 0.4, 1)), mat("paint", "141414"))
-    frost_patches(m, [(-0.09, -0.06), (0.09, 0.06), (0.095, -0.05)], H1 * 0.6, 0.012)
+    body = sdf.rbox((0, H1 / 2, 0), (W / 2, H1 / 2, D / 2), 0.02)
+    frost_coat(m, body, (-W / 2 - 0.006, 0.0, -D / 2 - 0.006), (W / 2 + 0.006, H1 - 0.002, D / 2 + 0.006), cover=-0.05, seed=11, top_bias=0.6, edge_bias=0.5)
     obj = m.build()
     hs("letters", (-0.032, H1 + 0.0016, 0.0), (0, 1, 0), obj)
-    hs("harmonica", (0.058, H1 + 0.0025, -0.01), (0, 1, 0), obj)
+    hs("harmonica", (0.058, H1 + 0.0035, -0.01), (0, 1, 0), obj)
     hs("poppy", (0.06, H1 + 0.004, 0.052), (0, 1, 0), obj)
     lid = Model("Lid")
     lid.add(rrect_slab((0, H1 + H2 / 2 - 0.004, 0), W + 0.006, D + 0.006, H2, 0.022, plane="xz", bevel=0.002), TIN)
     add_decal(lid, (0, H1 + H2 - 0.004, 0), (0, 1, 0), (0, 0, 1), 0.16, 0.04, "tin_lid", offset=0.0004)
-    lid.add(box((-0.09, H1 + H2 - 0.0042, -0.055), (0.09, H1 + H2 - 0.0035, -0.052)), TIN_D)
-    frost_patches(lid, [(-0.07, 0.04), (0.06, 0.035), (0.02, -0.045), (-0.08, -0.04)], H1 + H2 - 0.003, 0.016)
+    # an embossed panel round the painted name
+    lid.add(rrect_slab((0, H1 + H2 - 0.0042, 0), 0.172, 0.05, 0.0012, 0.006, plane="xz"), TIN_D)
+    lid_f = sdf.rbox((0, H1 + H2 / 2 - 0.004, 0), ((W + 0.006) / 2, H2 / 2, (D + 0.006) / 2), 0.02)
+    frost_coat(lid, lid_f, (-W / 2 - 0.01, H1 - 0.006, -D / 2 - 0.01), (W / 2 + 0.01, H1 + H2 + 0.002, D / 2 + 0.01), cover=-0.02, seed=12, top_bias=0.25, edge_bias=1.2)
     lid.build(origin=(0, H1, 0), parent=obj)
     hs("lid", (0, H1 + H2 - 0.0035, 0), (0, 1, 0), obj, part="Lid")
     return obj
 
 
 def lunch_tin():
-    TIN = mat("paint", "8A3A2A")
-    W, D, H1 = 0.2, 0.12, 0.07
+    """A workman's snap tin: rectangular, with a half-round lid along its length and a wire handle."""
+    TIN, TIN_D = mat("paint", "7A2E22"), mat("paint", "4A1A14")
+    W, D, H1 = 0.2, 0.11, 0.06
+    R = D / 2
     m = Model("lunch_tin")
-    for part in hollow_box((-W / 2, 0, -D / 2), (W / 2, H1, D / 2), 0.003, bevel=0.003):
-        m.add(part, TIN)
+    base = sdf.subtract(sdf.rbox((0, H1 / 2, 0), (W / 2, H1 / 2, D / 2), 0.006), sdf.rbox((0, H1 / 2 + 0.003, 0), (W / 2 - 0.0025, H1 / 2, D / 2 - 0.0025), 0.004))
+    m.add(sdf.mesh(base, (-W / 2 - 0.004, -0.004, -D / 2 - 0.004), (W / 2 + 0.004, H1 + 0.004, D / 2 + 0.004), 0.0012, smooth=1, tris=8000), TIN)
+    # a rolled rim and the latch at the front
+    m.add(rrect_slab((0, H1 - 0.0015, 0), W + 0.002, D + 0.002, 0.003, 0.007, plane="xz", bevel=0.001), TIN_D)
+    m.add(cbox((0, H1 - 0.008, -D / 2 - 0.0015), (0.016, 0.012, 0.003), bevel=0.001), STEEL)
     # a doorstep corned-beef sandwich and Mavis's note
     for yb in (0.004, 0.024):
-        m.add(cbox((-0.03, yb + 0.009, 0.0), (0.11, 0.018, 0.09), bevel=0.006), mat("cloth", "E6CC98"))
-    m.add(cbox((-0.03, 0.0225, 0.0), (0.104, 0.005, 0.086)), mat("cloth", "B05A4A"))
-    m.add(box((0.035, 0.004, -0.045), (0.09, 0.006, 0.045)), PAPER)
-    add_decal(m, (0.0625, 0.0062, 0.0), (0, 1, 0), (-1, 0, 0), 0.085, 0.052, "note_mavis", offset=0.0002)
-    # the handle on the lid side
+        m.add(cbox((-0.03, yb + 0.009, 0.0), (0.11, 0.018, 0.085), bevel=0.006), mat("cloth", "E6CC98"))
+    m.add(cbox((-0.03, 0.0225, 0.0), (0.104, 0.005, 0.081)), mat("cloth", "B05A4A"))
+    m.add(box((0.035, 0.004, -0.042), (0.09, 0.006, 0.042)), PAPER)
+    add_decal(m, (0.0625, 0.0062, 0.0), (0, 1, 0), (-1, 0, 0), 0.08, 0.05, "note_mavis", offset=0.0002)
     obj = m.build()
     hs("sandwich", (-0.03, 0.043, 0.0), (0, 1, 0), obj)
     hs("note", (0.0625, 0.0068, 0.0), (0, 1, 0), obj)
     hinge = V(0, H1, D / 2)
     lid = Model("Lid")
-    r = D / 2 + 0.003
-    dome = lathe([(r, 0.0), (r, 0.008), (r * 0.92, 0.022), (r * 0.7, 0.034), (r * 0.35, 0.041), (0.0, 0.043)], (0, 0, 0), segments=40)
-    lid.add(transformed(dome, mathutils.Matrix.Translation((0, H1, 0)) @ mathutils.Matrix.Diagonal(((W / 2 + 0.003) / r, 1, 1, 1))), TIN)
-    lid.add(sweep([(-0.04, H1 + 0.04, 0), (-0.035, H1 + 0.058, 0), (0.035, H1 + 0.058, 0), (0.04, H1 + 0.04, 0)], 0.0035, segments=8), STEEL)
-    lid.add(box((-0.06, H1 + 0.002, -0.04), (0.06, H1 + 0.004, 0.04)), mat("paper", "FBF8F0"))
-    add_decal(lid, (0.0, H1 + 0.0042, 0.0), (0, 1, 0), (-1, 0, 0), 0.1, 0.07, "child_drawing", offset=0.0)
+    cyl_f = lambda p: np.maximum(np.sqrt((p[:, 1] - H1) ** 2 + p[:, 2] ** 2) - (R + 0.002), np.abs(p[:, 0]) - (W / 2 + 0.002))  # noqa: E731
+    dome = sdf.intersect(cyl_f, sdf.halfspace((0, H1, 0), (0, -1, 0)))
+    dome = sdf.subtract(dome, lambda p: np.maximum(np.sqrt((p[:, 1] - H1) ** 2 + p[:, 2] ** 2) - (R - 0.0005), np.abs(p[:, 0]) - (W / 2 - 0.001)))
+    lid.add(sdf.mesh(dome, (-W / 2 - 0.006, H1 - 0.004, -R - 0.006), (W / 2 + 0.006, H1 + R + 0.006, R + 0.006), 0.0012, smooth=1, tris=8000), TIN)
+    # end caps rolled over, a wire handle on top and the child's drawing tucked inside
+    for sx in (-1, 1):
+        lid.add(torus((sx * (W / 2 + 0.001), H1, 0), R + 0.0015, 0.0018, axis="x", segments=32, arc=0.5, start=0.0), TIN_D)
+    lid.add(sweep([(-0.045, H1 + R - 0.001, 0), (-0.04, H1 + R + 0.016, 0), (0.04, H1 + R + 0.016, 0), (0.045, H1 + R - 0.001, 0)], 0.0022, segments=8), STEEL)
+    for sx in (-1, 1):
+        lid.add(torus((sx * 0.045, H1 + R + 0.0005, 0), 0.004, 0.0012, axis="z", segments=12), STEEL)
+    lid.add(box((-0.06, H1 + 0.0004, -0.035), (0.06, H1 + 0.0012, 0.035)), mat("paper", "FBF8F0"))
+    add_decal(lid, (0.0, H1 + 0.0004, 0.0), (0, -1, 0), (-1, 0, 0), 0.11, 0.066, "child_drawing", offset=0.0003)
     lid.build(origin=hinge, parent=obj)
-    hs("drawing", (0.0, H1 + 0.005, 0.0), (0, 1, 0), obj, part="Lid")
+    hs("drawing", (0.0, H1 + 0.0002, 0.0), (0, -1, 0), obj, part="Lid")
     return obj
 
 
 def seashell():
-    m = Model("seashell")
+    """A whelk lying on its side: a logarithmic spiral tube with growth ridges and spiral cords,
+    a pointed spire, a flared aperture with a glossy pink lip, and a short siphonal canal."""
     P = lambda *a: np.array(a, dtype=float)  # noqa: E731
-    parts = []
-    n = 26
-    for i in range(n):
-        t = i / (n - 1)
-        a = t * 4.2 * math.pi
-        r = 0.032 * (1 - t) ** 1.1 + 0.002
-        c = P(math.cos(a) * r * 0.55 - 0.02 + t * 0.075, 0.03 * (1 - t) + 0.006 + t * 0.012, math.sin(a) * r * 0.55)
-        parts.append(sdf.ellipsoid(c, (r * 0.95, r * 0.8, r * 0.9)))
-    body = sdf.union(*parts, k=0.008)
-    body = sdf.subtract(body, sdf.ellipsoid(P(-0.035, 0.03, -0.004), (0.022, 0.018, 0.012)), k=0.004)
-    body = sdf.displace(body, lambda p: 0.0008 * np.sin(np.arctan2(p[:, 2], p[:, 0] + 0.02) * 22))
-    pink = sdf.sphere(P(-0.04, 0.03, -0.01), 0.02)
-    cream, inner = sdf.mesh(body, (-0.075, -0.004, -0.045), (0.07, 0.07, 0.045), 0.0016, smooth=1, tris=12000, regions=[pink])
-    m.add(cream, mat("ceramic", "E8D8C0"))
-    m.add(inner, mat("ceramic", "E8A898"))
-    for k in range(9):
-        a = k * 0.7
-        m.add(sphere((-0.044 + math.cos(a) * 0.006, 0.02 + math.sin(a) * 0.004, -0.006 + k * 0.001), 0.0014, segments=6, rings=4), mat("paint", "D8C090"))
+    m = Model("seashell")
+    turns, k = 4.2, 3.1
+    L, rho0, tube0 = 0.105, 0.02, 0.028
+    yc = 0.032
+    centers, radii = [], []
+    for i in range(70):
+        t = i / 69
+        sc = math.exp(k * (t - 1.0))
+        th = 2 * math.pi * turns * t
+        rho = rho0 * sc
+        centers.append(P(-0.045 + L * (1.0 - sc), yc + rho * math.cos(th), rho * math.sin(th)))
+        radii.append(max(0.0018, tube0 * sc))
+    parts = [sdf.sphere(c, r) for c, r in zip(centers, radii)]
+    body = sdf.union(*parts, k=0.005)
+    canal = sdf.capsule(centers[-1] + P(-0.012, -0.006, 0.0), P(-0.072, yc - 0.004, -0.004), 0.011, 0.004)
+    body = sdf.union(body, canal, k=0.008)
+    # open the aperture: a hollow mouth facing down and forward
+    mouth_c = centers[-1] + P(-0.004, -0.01, -0.012)
+    body = sdf.subtract(body, sdf.ellipsoid(mouth_c, (0.024, 0.017, 0.012)), k=0.003)
+    ax = lambda p: np.arctan2(p[:, 2], p[:, 1] - yc)  # noqa: E731
+    body = sdf.displace(body, lambda p: 0.0011 * np.sin(p[:, 0] * 380 + ax(p) * 0.6) + 0.0005 * np.sin(ax(p) * 22 + p[:, 0] * 40))
+    body = sdf.intersect(body, sdf.halfspace((0, 0.0005, 0), (0, -1, 0)))
+    lip = sdf.sphere(mouth_c + P(0.0, 0.002, 0.0), 0.026)
+    shell_, inner = sdf.mesh(body, (-0.085, -0.002, -0.05), (0.075, 0.075, 0.05), 0.0012, smooth=1, tris=16000, regions=[lip])
+    m.add(shell_, mat("ceramic", "E6D2B4"))
+    m.add(inner, mat("ceramic", "E8A08E"))
+    rng = np.random.default_rng(4)
+    for _ in range(14):
+        q = mouth_c + rng.normal(size=3) * np.array((0.008, 0.003, 0.005))
+        m.add(sphere(tuple(q), 0.0011, segments=6, rings=4), mat("paint", "D8C090"))
     obj = m.build()
-    hs("sea", (0.0, 0.065, 0.0), (0, 1, 0), obj)
-    hs("sand", (-0.044, 0.026, -0.012), (-0.6, 0.3, -0.7), obj)
+    hs("sea", (0.02, 0.07, 0.0), (0, 1, 0), obj)
+    hs("sand", tuple(mouth_c + P(0.0, -0.002, -0.006)), (-0.3, -0.2, -0.9), obj)
     return obj
 
 
@@ -772,6 +894,8 @@ def ring_box():
     lid = Model("Lid")
     lid.add(rrect_slab((0, 0.0008 + H1 + H2 / 2, -0.004), S, S, H2, 0.006, plane="xz", bevel=0.004), VEL)
     lid.add(rrect_slab((0, 0.0008 + H1 + 0.0015, -0.004), S - 0.006, S - 0.006, 0.002, 0.004, plane="xz"), mat("velvet", "F0E8DC"))
+    lid.add(cyl((0, 0.0008 + H1 + 0.002, -0.004 - S / 2 - 0.0008), 0.0032, 0.003, axis="z", segments=16), mat("brass", "C9A15A"))   # push-button clasp
+    lid.add(torus((0, 0.0008 + H1 + H2 * 0.55, -0.004), S / 2 - 0.004, 0.0008, axis="y", segments=40, scale=(1, 1, 1)), mat("brass", "B8964E"))
     lid.build(origin=hinge, parent=obj)
     return obj
 
@@ -789,40 +913,57 @@ def violin_outline(cx, cz, scale):
 
 
 def violin_case():
+    """A shaped 'dart' case: one smooth moulded shell, a domed lid, two latches, a handle and studs."""
     SHELL, LIN = mat("leather", "1E1E22"), mat("velvet", "2A4A3A")
-    L, Wc, H1, H2 = 0.66, 0.24, 0.07, 0.05
+    H1, H2 = 0.07, 0.05
+    P = lambda *a: np.array(a, dtype=float)  # noqa: E731
+    def shape(grow=0.0, flat=1.0):
+        lower = sdf.ellipsoid(P(-0.17, 0.0, 0.0), (0.16 + grow, 0.06 * flat + grow, 0.125 + grow))
+        upper = sdf.ellipsoid(P(0.03, 0.0, 0.0), (0.12 + grow, 0.055 * flat + grow, 0.1 + grow))
+        neck = sdf.capsule(P(0.08, 0.0, 0.0), P(0.31, 0.0, 0.0), 0.06 * flat + grow, 0.045 * flat + grow)
+        f = sdf.union(lower, upper, neck, k=0.06)
+        return sdf.intersect(f, sdf.rbox((0.0, 0.0, 0.0), (0.4, 0.06 * flat + grow + 0.001, 0.2), 0.0))
+    base = sdf.intersect(sdf.warp(shape(), lambda p: p - np.array((0, H1, 0))), sdf.halfspace((0, H1, 0), (0, 1, 0)))
+    base = sdf.subtract(base, sdf.warp(shape(-0.007), lambda p: p - np.array((0, H1 + 0.004, 0))), k=0.002)
     m = Model("violin_case")
-    outline = violin_outline(0, 0, L / 2)
-    m.add(slab(outline, 0.0, H1, plane="xz", bevel=0.008), SHELL)
-    m.add(slab(violin_outline(0, 0, L / 2 - 0.015), H1 - 0.002, H1 + 0.0005, plane="xz"), LIN)
+    bmn, bmx = (-0.36, -0.004, -0.15), (0.38, H1 + 0.004, 0.15)
+    m.add(sdf.mesh(sdf.intersect(base, sdf.halfspace((0, 0.0005, 0), (0, -1, 0))), bmn, bmx, 0.002, smooth=1, tris=12000), SHELL)
+    plush = sdf.intersect(sdf.warp(shape(-0.008), lambda p: p - np.array((0, H1, 0))), sdf.halfspace((0, H1 - 0.012, 0), (0, 1, 0)), sdf.halfspace((0, 0.004, 0), (0, -1, 0)))
+    m.add(sdf.mesh(plush, bmn, bmx, 0.002, smooth=1, tris=8000), LIN)
     # the violin resting in the plush
     VW = mat("wood", "A0501E")
     vb = violin_outline(-0.06, 0, 0.18)
-    m.add(slab(vb, H1, H1 + 0.03, plane="xz", bevel=0.01), VW)
-    m.add(box((0.11, H1 + 0.012, -0.012), (0.28, H1 + 0.026, 0.012)), mat("darkwood", "1E140E"))
-    m.add(sphere((0.295, H1 + 0.02, 0.0), 0.016, scale=(1.2, 0.8, 0.9)), VW)
-    m.add(box((-0.14, H1 + 0.03, -0.035), (-0.12, H1 + 0.046, 0.035)), mat("darkwood", "1E140E"))
+    m.add(slab(vb, H1 - 0.014, H1 + 0.016, plane="xz", bevel=0.01), VW)
+    m.add(box((0.11, H1 - 0.002, -0.012), (0.28, H1 + 0.012, 0.012)), mat("darkwood", "1E140E"))
+    m.add(sphere((0.295, H1 + 0.006, 0.0), 0.016, scale=(1.2, 0.8, 0.9)), VW)
+    m.add(box((-0.14, H1 + 0.016, -0.035), (-0.12, H1 + 0.032, 0.035)), mat("darkwood", "1E140E"))
     for k in range(4):
         z = -0.006 + k * 0.004
-        m.add(box((-0.2, H1 + 0.0315, z - 0.0004), (0.29, H1 + 0.0322, z + 0.0004)), STEEL)
-    m.add(box((-0.045, H1 + 0.0305, -0.022), (-0.035, H1 + 0.04, 0.022)), mat("wood", "E0C090"))
+        m.add(box((-0.2, H1 + 0.0175, z - 0.0004), (0.29, H1 + 0.0182, z + 0.0004)), STEEL)
+    m.add(box((-0.045, H1 + 0.0165, -0.022), (-0.035, H1 + 0.026, 0.022)), mat("wood", "E0C090"))
     for sz in (-1, 1):
-        m.add(transformed(text_mesh("f", (-0.04, H1 + 0.0302, sz * 0.032), 0.04, depth=0.0006, plane="xz", font=FONT_TITLE), mathutils.Matrix.Identity(4)), mat("paint", "120A06"))
-    add_decal(m, (-0.04, H1 + 0.0303, 0.032), (0, 1, 0), (1, 0, 0), 0.03, 0.012, "violin_label", offset=0.0004)
-    for x in (-0.14, 0.14):
-        m.add(cbox((x, H1 - 0.01, -Wc / 2 + 0.01), (0.025, 0.02, 0.008), bevel=0.002), STEEL)
-    m.add(sweep([(-0.05, H1 * 0.55, -0.1), (-0.04, H1 * 0.55, -0.125), (0.04, H1 * 0.55, -0.125), (0.05, H1 * 0.55, -0.1)], 0.007, segments=10, flat=0.6), SHELL)
+        m.add(text_mesh("f", (-0.04, H1 + 0.0162, sz * 0.032), 0.04, depth=0.0006, plane="xz", font=FONT_TITLE), mat("paint", "120A06"))
+    add_decal(m, (-0.04, H1 + 0.0163, 0.032), (0, 1, 0), (1, 0, 0), 0.03, 0.012, "violin_label", offset=0.0004)
+    # latches and a carry handle on the front, studs underneath
+    for x in (-0.2, 0.12):
+        m.add(cbox((x, H1 - 0.008, -0.112 if x < 0 else -0.088), (0.026, 0.02, 0.008), bevel=0.002), STEEL)
+    m.add(sweep([(-0.08, H1 * 0.62, -0.118), (-0.07, H1 * 0.62, -0.142), (0.0, H1 * 0.62, -0.142), (0.01, H1 * 0.62, -0.112)], 0.007, segments=10, flat=0.6), SHELL)
+    for x, z in ((-0.26, -0.06), (-0.26, 0.06), (0.25, -0.03), (0.25, 0.03)):
+        m.add(sphere((x, 0.002, z), 0.006, scale=(1, 0.5, 1)), STEEL)
     obj = m.build()
-    hs("label", (-0.04, H1 + 0.0315, 0.032), (0, 1, 0), obj)
-    hinge = V(0, H1, 0.11)
+    hs("label", (-0.04, H1 + 0.0175, 0.032), (0, 1, 0), obj)
+    hinge = V(0, H1, 0.12)
     lid = Model("Lid")
-    lid.add(slab(outline, H1, H1 + H2, plane="xz", bevel=0.01), SHELL)
-    lid.add(slab(violin_outline(0, 0, L / 2 - 0.015), H1 - 0.0005, H1 + 0.001, plane="xz"), LIN)
-    add_decal(lid, (0.12, H1 - 0.0006, 0.0), (0, -1, 0), (-1, 0, 0), 0.07, 0.056, "setlist", offset=0.0003)
-    add_decal(lid, (-0.18, H1 - 0.0006, 0.02), (0, -1, 0), (-1, 0, 0), 0.05, 0.063, "lou_mother", offset=0.0003)
+    top = sdf.intersect(sdf.warp(shape(0.0, 1.0), lambda p: p - np.array((0, H1, 0))), sdf.halfspace((0, H1, 0), (0, -1, 0)))
+    top = sdf.warp(top, lambda p: np.stack([p[:, 0], H1 + (p[:, 1] - H1) * 0.06 / H2 * 1.0, p[:, 2]], 1))
+    top = sdf.subtract(top, sdf.warp(shape(-0.006), lambda p: p - np.array((0, H1 - 0.002, 0))), k=0.002)
+    lid.add(sdf.mesh(top, (-0.36, H1 - 0.004, -0.15), (0.38, H1 + H2 + 0.01, 0.15), 0.002, smooth=1, tris=12000), SHELL)
+    lid.add(slab(violin_outline(0, 0, 0.3), H1 + 0.0035, H1 + 0.0045, plane="xz"), LIN)
+    add_decal(lid, (0.12, H1 + 0.0034, 0.0), (0, -1, 0), (-1, 0, 0), 0.07, 0.056, "setlist", offset=0.0003)
+    add_decal(lid, (-0.18, H1 + 0.0034, 0.02), (0, -1, 0), (-1, 0, 0), 0.05, 0.063, "lou_mother", offset=0.0003)
     lid.build(origin=hinge, parent=obj)
-    hs("setlist", (0.12, H1 - 0.0012, 0.0), (0, -1, 0), obj, part="Lid")
-    hs("mother", (-0.18, H1 - 0.0012, 0.02), (0, -1, 0), obj, part="Lid")
+    hs("setlist", (0.12, H1 + 0.0028, 0.0), (0, -1, 0), obj, part="Lid")
+    hs("mother", (-0.18, H1 + 0.0028, 0.02), (0, -1, 0), obj, part="Lid")
     return obj
 
 
@@ -849,7 +990,7 @@ def record():
 
 
 def opera_glove():
-    SATIN = mat("cloth", "EEE6D8")
+    SATIN = mat("plastic", "EEE6D8")   # satin: a soft sheen, not matte cloth
     m = Model("opera_glove")
     P = lambda *a: np.array(a, dtype=float)  # noqa: E731
     arm = sdf.capsule(P(-0.17, 0.012, 0.0), P(0.0, 0.009, 0.0), 0.026, 0.017)
@@ -864,6 +1005,8 @@ def opera_glove():
     cuff = sdf.subtract(f, sdf.halfspace(P(-0.172, 0, 0), P(1, 0, 0)))
     m.add(sdf.mesh(cuff, (-0.2, -0.02, -0.08), (0.15, 0.04, 0.05), 0.0016, smooth=1, tris=12000), SATIN)
     m.add(text_mesh("E.L.", (-0.13, 0.034, -0.004), 0.016, depth=0.0008, plane="xz", font=FONT_TITLE, rot=90), mat("cloth", "B08840"))
+    for k in range(3):
+        m.add(sphere((-0.01 - k * 0.014, 0.0205, 0.012), 0.0024, segments=12, rings=8), mat("ceramic", "F4F0EA"))
     m.add(ellipsoid((0.112, 0.0128, -0.009), (0.007, 0.0006, 0.0045)), mat("paint", "B01828"))
     m.add(ellipsoid((0.105, 0.013, -0.006), (0.005, 0.0006, 0.003)), mat("paint", "C02030"))
     # a rose petal tucked into the open cuff
@@ -890,7 +1033,8 @@ def spectacles():
         m.add(cyl((sx * 0.028, H1 - 0.006, 0), 0.0165, 0.0012, segments=32), mat("frost", "E8F2FF"))
         m.add(rod((sx * 0.045, H1 - 0.006, 0.0), (sx * 0.05, H1 - 0.0065, 0.026), 0.0008), BRASS_D)
     m.add(sweep([(-0.011, H1 - 0.006, 0), (0, H1 - 0.003, 0), (0.011, H1 - 0.006, 0)], 0.001, segments=6), BRASS_D)
-    frost_patches(m, [(-0.05, -0.02), (0.06, 0.015)], H1 * 0.5, 0.008)
+    case_f = sdf.ellipsoid((0, H1 / 2 + 0.002, 0), (L / 2, H1 / 2 + 0.002, Wd / 2))
+    frost_coat(m, case_f, (-L / 2 - 0.006, 0.0, -Wd / 2 - 0.006), (L / 2 + 0.006, H1 - 0.001, Wd / 2 + 0.006), cover=-0.05, seed=21, top_bias=0.5, edge_bias=0.6)
     obj = m.build()
     hs("lenses", (0.028, H1 - 0.005, 0.0), (0, 1, 0), obj)
     hs("timetable", (-0.034, H1 - 0.0095, 0.012), (0, 1, 0), obj)
@@ -899,7 +1043,8 @@ def spectacles():
     lid.add(transformed(oval(lathe([(Wd / 2, H1), (Wd / 2, H1 + H2 - 0.006), (Wd / 2 - 0.004, H1 + H2), (0.0, H1 + H2)], (0, 0, 0), segments=40, cap_bottom=False), 1.0), mathutils.Matrix.Diagonal((L / Wd, 1, 1, 1))), CASE)
     lid.add(transformed(cyl((0, H1 + 0.001, 0), Wd / 2 - 0.002, 0.002, segments=40), mathutils.Matrix.Diagonal((L / Wd, 1, 1, 1))), mat("velvet", "E8DCC8"))
     add_decal(lid, (0.0, H1 - 0.0001, 0.0), (0, -1, 0), (0, 0, -1), 0.13, 0.022, "spec_case", offset=0.0003)
-    frost_patches(lid, [(-0.04, 0.0), (0.03, -0.012)], H1 + H2, 0.01)
+    lid_f = sdf.ellipsoid((0, H1 + 0.001, 0), (L / 2, H2, Wd / 2))
+    frost_coat(lid, lid_f, (-L / 2 - 0.006, H1, -Wd / 2 - 0.006), (L / 2 + 0.006, H1 + H2 + 0.004, Wd / 2 + 0.006), cover=-0.02, seed=22, top_bias=0.25, edge_bias=1.2)
     lid.build(origin=hinge, parent=obj)
     hs("case", (0.0, H1 - 0.0006, 0.0), (0, -1, 0), obj, part="Lid")
     return obj
@@ -975,6 +1120,12 @@ def snow_globe():
     m.add(cbox((0.012, 0.0405, -0.008), (0.0025, 0.007, 0.0025)), mat("paint", "2A3A5A"))
     m.add(sphere((0.012, 0.0455, -0.008), 0.0018), mat("skin", "E0B090"))
     m.add(cyl((0, 0.0355, 0), 0.04, 0.003, segments=40), mat("paint", "F4F6FA"))
+    for x, z in ((-0.027, 0.012), (0.026, 0.016), (-0.018, 0.024)):
+        for k, (r_, h_) in enumerate(((0.008, 0.012), (0.0062, 0.01), (0.0042, 0.008))):
+            m.add(cyl((x, 0.04 + k * 0.006 + h_ / 2, z), r_, h_, radius2=0.0004, segments=12), mat("paint", "2E5A3A"))
+        m.add(cyl((x, 0.04 + 0.03, z), 0.0018, 0.003, radius2=0.0001, segments=8), mat("paint", "FFFFFF"))
+    m.add(rod((0.022, 0.037, -0.014), (0.022, 0.06, -0.014), 0.0008), mat("paint", "1A1A1A"))
+    m.add(sphere((0.022, 0.061, -0.014), 0.002), mat("emit", "F0C060"))
     rng = np.random.default_rng(3)
     for _ in range(40):
         a, r = rng.uniform(0, 2 * math.pi), math.sqrt(rng.uniform(0, 1)) * 0.036
@@ -996,18 +1147,29 @@ def snow_globe():
 def iron_key():
     IRON = mat("iron", "3A3634")
     m = Model("iron_key")
-    m.add(torus((-0.045, 0.006, 0), 0.016, 0.005, axis="y", segments=32), IRON)
-    m.add(rod((-0.03, 0.006, 0), (0.06, 0.006, 0), 0.004), IRON)
-    m.add(cbox((0.05, 0.006, 0.011), (0.016, 0.006, 0.016), bevel=0.001), IRON)
-    m.add(cbox((0.046, 0.006, 0.02), (0.006, 0.006, 0.006)), IRON)
-    m.add(text_mesh("1921", (-0.045, 0.0112, -0.016), 0.006, depth=0.0004, plane="xz"), mat("iron", "8A8480"))
+    # a trefoil bow, a collared shank and a bit cut with wards
+    bx = -0.048
+    for a in (90, 210, 330):
+        c = (bx + math.cos(math.radians(a)) * 0.009, 0.006, math.sin(math.radians(a)) * 0.009)
+        m.add(torus(c, 0.0085, 0.0028, axis="y", segments=28), IRON)
+    m.add(cyl((bx, 0.006, 0), 0.006, 0.006, segments=20), IRON)
+    m.add(rod((-0.034, 0.006, 0), (0.062, 0.006, 0), 0.0036, segments=14), IRON)
+    for x in (-0.03, -0.024, 0.044):
+        m.add(cyl((x, 0.006, 0), 0.0055, 0.003, axis="x", segments=18), IRON)
+    m.add(cyl((0.064, 0.006, 0), 0.0042, 0.006, axis="x", segments=14), IRON)
+    bit = [box((0.046, 0.0015, 0.0), (0.062, 0.0105, 0.009)), box((0.046, 0.0015, 0.009), (0.05, 0.0105, 0.02)),
+           box((0.054, 0.0015, 0.009), (0.058, 0.0105, 0.017)), box((0.046, 0.0015, 0.018), (0.062, 0.0105, 0.022))]
+    for b in bit:
+        m.add(b, IRON)
+    m.add(text_mesh("1921", (bx, 0.0094, 0.0), 0.0042, depth=0.0004, plane="xz"), mat("iron", "8A8480"))
     # red ribbon through the bow, and Agnes's tag
-    m.add(sweep([(-0.058, 0.004, 0), (-0.075, 0.003, 0.01), (-0.09, 0.002, 0.02), (-0.1, 0.002, 0.012)], 0.004, segments=8, flat=0.25), mat("velvet", "A01818"))
+    m.add(sweep([(-0.062, 0.004, 0), (-0.078, 0.003, 0.01), (-0.092, 0.002, 0.02), (-0.1, 0.002, 0.012)], 0.004, segments=8, flat=0.25), mat("velvet", "A01818"))
     m.add(box((-0.13, 0.0, 0.0), (-0.095, 0.0008, 0.035)), mat("card", "E8D0A0"))
+    m.add(torus((-0.124, 0.0009, 0.006), 0.003, 0.0008, axis="y", segments=12), mat("brass", "C9A15A"))
     add_decal(m, (-0.1125, 0.0008, 0.0175), (0, 1, 0), (0, 0, 1), 0.034, 0.034, "key_tag", offset=0.0002)
     obj = m.build()
     hs("tag", (-0.1125, 0.0012, 0.0175), (0, 1, 0), obj)
-    hs("year", (-0.045, 0.012, -0.016), (0, 1, 0), obj)
+    hs("year", (bx, 0.0096, 0.0), (0, 1, 0), obj)
     return obj
 
 

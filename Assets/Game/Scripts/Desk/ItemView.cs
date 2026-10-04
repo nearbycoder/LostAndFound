@@ -86,7 +86,8 @@ namespace LostAndFound
             }
             foreach (var pd in def.parts)
             {
-                var t = ModelLibrary.Find(model.transform, pd.node);
+                // actions on the whole object (listen to the shell, shake the globe) have no node
+                var t = string.IsNullOrEmpty(pd.node) ? model.transform : ModelLibrary.Find(model.transform, pd.node);
                 if (t == null) { Debug.LogWarning($"[Item] {def.id}: missing part {pd.node}"); continue; }
                 var part = t.gameObject.AddComponent<ItemPart>();
                 part.Init(this, pd);
@@ -287,6 +288,7 @@ namespace LostAndFound
 
         void Update()
         {
+            if (def.kind is "shake" or "listen" or "play") return;   // the inspect controller animates these
             float target = open ? 1f : 0f;
             if (def.kind == "spin" && open)
             {

@@ -69,10 +69,45 @@ class HeadGeo:
         self.fem = is_fem(spec)
         self.child = spec.get("build") == "child"
         self.eye_r = 0.0118 * self.sm
-        self.E = [self.P(sx * 0.0315, 0.0, -0.077) for sx in (-1, 1)]
+        gap = spec.get("eye_gap", 1.0)
+        ey = spec.get("eye_y", 0.0)
+        # the lower face is stretched (face_len) and widened (face_w) by warping space below the eyes
+        self.fl = float(spec.get("face_len", 1.0))
+        self.fw = float(spec.get("face_w", 1.0))
+        self.E = [self.fwd(self.P(sx * 0.0315 * gap, ey, -0.077)) for sx in (-1, 1)]
 
     def P(self, x, y, z):
         return self.C + np.array((x, y, z)) * self.S
+
+    # ---- the lower-face warp: reference space (sculpted) <-> world space (this character)
+    WARP_DEPTH = 0.14   # how far below the eyes the stretch reaches before the neck carries on unchanged
+
+    def _width(self, y):
+        s = np.clip((self.C[1] + 0.01 - y) / 0.06, 0.0, 1.0)
+        return 1.0 + (self.fw - 1.0) * s
+
+    def inv(self, p):
+        """World -> reference (for evaluating fields sculpted in reference space)."""
+        q = p.copy()
+        dy = q[:, 1] - self.C[1]
+        d = self.WARP_DEPTH * self.S[1]
+        ref = np.where(dy >= 0, dy, np.where(dy >= -d * self.fl, dy / self.fl, -d + (dy + d * self.fl)))
+        q[:, 0] = self.C[0] + (q[:, 0] - self.C[0]) / self._width(p[:, 1])
+        q[:, 1] = self.C[1] + ref
+        return q
+
+    def fwd(self, pt):
+        """Reference -> world for a single point (eyes, mouth: things placed on the warped face)."""
+        x, y, z = (float(v) for v in pt)
+        dy = y - self.C[1]
+        d = self.WARP_DEPTH * self.S[1]
+        wy = dy if dy >= 0 else (dy * self.fl if dy >= -d else -d * self.fl + (dy + d))
+        Y = self.C[1] + wy
+        X = self.C[0] + (x - self.C[0]) * float(self._width(np.array([Y]))[0])
+        return np.array((X, Y, z))
+
+    def warp(self, f):
+        return f if (self.fl == 1.0 and self.fw == 1.0) else sdf.warp(f, self.inv)
 
     def R(self, x, y, z):
         return tuple(np.array((x, y, z)) * self.S)
@@ -122,6 +157,13 @@ def nose_field(g, spec):
     (by, bz, br), (ty, tz, tr), nw, al = NOSES.get(spec.get("nose", "round"), NOSES["round"])
     if g.fem:
         tr *= 0.92
+    age = spec.get("age", 0.0)
+    ns = spec.get("nose_s", 1.0) * (1.0 + 0.08 * age)      # noses keep growing
+    nl = spec.get("nose_l", 1.0)
+    # scale the tip away from the bridge: length along the ridge, size of the bulb and wings
+    ty, tz = by + (ty - by) * nl * ns, bz + (tz - bz) * ns
+    br, tr, al = br * ns, tr * ns, al * ns
+    nw = nw * spec.get("nose_w", 1.0) * ns
     parts = [
         sdf.capsule(g.P(0, by, bz), g.P(0, ty + tr * 0.6, tz + tr * 0.55), g.r(br), g.r(tr * 0.8)),
         sdf.sphere(g.P(0, ty, tz), g.r(tr)),
@@ -144,47 +186,111 @@ def mouth_geo(g, spec):
     return mw, y, smile
 
 
+LIP_WRAP = 11.0   # how quickly the mouth's corners recede into the cheeks (lips follow the face's curve)
+
+
 def smile_warp(g, smile):
     cx = g.C[0]
 
     def w(p):
         q = p.copy()
-        q[:, 1] -= smile * (p[:, 0] - cx) ** 2
+        dx2 = (p[:, 0] - cx) ** 2
+        q[:, 1] -= smile * dx2
+        q[:, 2] -= LIP_WRAP * dx2
         return q
     return w
 
 
 def lips_field(g, spec):
     mw, y, smile = mouth_geo(g, spec)
-    full = 1.25 if g.fem else 1.0
-    upper = sdf.ellipsoid(g.P(0, y + 0.0048, -0.0985), g.R(0.021 * mw, 0.0048 * full, 0.0075))
-    lower = sdf.ellipsoid(g.P(0, y - 0.0058, -0.0965), g.R(0.019 * mw, 0.006 * full, 0.0078))
+    full = (1.25 if g.fem else 1.0) * (1.0 - 0.3 * spec.get("age", 0.0))
+    lu, ll = full * spec.get("lip_u", 1.0), full * spec.get("lip_l", 1.0)
+    # set into the face: the upper lip just proud of the philtrum, the lower lip a little behind it
+    upper = sdf.ellipsoid(g.P(0, y + 0.0046, -0.0948), g.R(0.024 * mw, 0.0045 * lu, 0.0052 * (0.8 + 0.2 * lu)))
+    lower = sdf.ellipsoid(g.P(0, y - 0.0056, -0.0932), g.R(0.021 * mw, 0.0058 * ll, 0.0058 * (0.8 + 0.2 * ll)))
     return sdf.warp(sdf.union(upper, lower, k=g.r(0.003)), smile_warp(g, smile))
+
+
+def groove(head, pts, radius):
+    """A crease pressed into the surface along a line of (x, y) world points."""
+    chain = []
+    for x, y in pts:
+        z = surface_z(head, x, y)
+        if z is not None:
+            chain.append(np.array((x, y, z + radius * 0.35)))
+    return sdf.chain(chain, [radius] * len(chain)) if len(chain) >= 2 else None
+
+
+def age_lines(g, spec, head, age):
+    """Forehead lines, smile folds, crow's feet and eye bags, all scaled by age."""
+    P, r = g.P, g.r
+    cuts, adds = [], []
+    gap = spec.get("eye_gap", 1.0)
+    for y in (0.05, 0.064) + ((0.078,) if age > 0.8 else ()):
+        pts = [(float(P(x, y + 0.003 * math.sin(x * 90), 0)[0]), float(P(x, y + 0.003 * math.sin(x * 90), 0)[1])) for x in np.linspace(-0.042, 0.042, 9)]
+        c = groove(head, pts, r(0.0008 + 0.0004 * age))
+        if c is not None:
+            cuts.append(c)
+    for sx in (-1, 1):
+        fold = [(float(P(sx * x, y, 0)[0]), float(P(sx * x, y, 0)[1])) for x, y in ((0.019, -0.036), (0.025, -0.048), (0.029, -0.06), (0.031, -0.073))]
+        c = groove(head, fold, r(0.0012 + 0.0009 * age))
+        if c is not None:
+            cuts.append(c)
+        if age > 0.35:
+            ex = sx * (0.0315 * gap + 0.019)
+            for ang in (-0.45, 0.0, 0.45):
+                pts = [(float(P(ex + sx * t * math.cos(ang), t * math.sin(ang), 0)[0]), float(P(0, t * math.sin(ang), 0)[1])) for t in (0.0, 0.006, 0.011)]
+                c = groove(head, pts, r(0.0009 + 0.0004 * age))
+                if c is not None:
+                    cuts.append(c)
+        # puffy lower lids
+        E = P(sx * 0.0315 * gap, spec.get("eye_y", 0.0), -0.077)
+        adds.append(sdf.ellipsoid(E + np.array((0.0, -g.eye_r * 1.55, -g.eye_r * 0.45)), (g.eye_r * 1.05, g.eye_r * (0.3 + 0.25 * age), g.eye_r * 0.45)))
+    head = sdf.union(head, *adds, k=r(0.004))
+    return sdf.subtract(head, *cuts, k=r(0.0018)) if cuts else head
 
 
 def head_field(g, spec):
     P, R, r = g.P, g.R, g.r
     jaw = spec.get("jaw", 1.0) * (0.9 if g.fem else 1.0)
-    ridge = 0.65 if (g.fem or g.child) else 1.0
-    cheeks = 1.12 if spec.get("rosy") else 1.0
+    ridge = (0.65 if (g.fem or g.child) else 1.0) * spec.get("brow_ridge", 1.0)
+    cheeks = (1.12 if spec.get("rosy") else 1.0) * spec.get("cheek", 1.0)
+    cy = spec.get("cheek_y", 0.0)
+    chin = spec.get("chin", 1.0)
+    cz = spec.get("chin_z", 0.0)
+    fat, gaunt, age = spec.get("fat", 0.0), spec.get("gaunt", 0.0), spec.get("age", 0.0)
     masses = [
         sdf.ellipsoid(P(0, 0.03, 0.012), R(0.077, 0.094, 0.097)),                      # cranium
         sdf.ellipsoid(P(0, 0.034, -0.042), R(0.068, 0.062, 0.05)),                     # forehead
         sdf.ellipsoid(P(0, -0.032, -0.036), R(0.067 * jaw, 0.078, 0.058)),             # face
-        sdf.ellipsoid(P(0, -0.104, -0.066), R(0.022, 0.017, 0.02)),                    # chin
-        sdf.ellipsoid(P(0, -0.064, -0.073), R(0.031, 0.029, 0.029)),                   # muzzle
+        sdf.ellipsoid(P(0, -0.104 - 0.004 * (chin - 1), -0.066 - cz), R(0.022 * chin, 0.017 * chin, 0.02 * chin)),  # chin
+        sdf.ellipsoid(P(0, -0.064, -0.071), R(0.034, 0.03, 0.025)),                    # muzzle
         sdf.capsule(P(-0.04, 0.019, -0.081), P(0.04, 0.019, -0.081), r(0.0105 * ridge)),  # brow ridge
     ]
     for sx in (-1, 1):
-        masses.append(sdf.capsule(P(sx * 0.057 * jaw, -0.035, 0.018), P(sx * 0.026 * jaw, -0.099, -0.056), r(0.017)))  # jaw
-        masses.append(sdf.ellipsoid(P(sx * 0.043, -0.021, -0.064), R(0.025 * cheeks, 0.019 * cheeks, 0.023)))       # cheekbone
+        masses.append(sdf.capsule(P(sx * 0.057 * jaw, -0.035, 0.018), P(sx * 0.026 * jaw, -0.099 - 0.003 * (chin - 1), -0.056 - cz * 0.5), r(0.017)))  # jaw
+        masses.append(sdf.ellipsoid(P(sx * 0.043 * (0.96 + 0.04 * cheeks), -0.021 + cy, -0.064), R(0.025 * cheeks, 0.019 * cheeks, 0.023 * (0.9 + 0.1 * cheeks))))  # cheekbone
+    if fat > 0.05:
+        for sx in (-1, 1):   # cheek pads and jowls
+            masses.append(sdf.ellipsoid(P(sx * 0.044, -0.052, -0.06), np.array(R(0.027, 0.028, 0.025)) * (0.7 + 0.45 * fat)))
+    if fat + age > 0.5:
+        j = 0.5 * fat + 0.45 * age
+        for sx in (-1, 1):
+            masses.append(sdf.ellipsoid(P(sx * 0.046, -0.09 - 0.008 * age, -0.046), np.array(R(0.021, 0.021, 0.022)) * (0.6 + 0.5 * j)))
+    if fat > 0.4:   # a second chin
+        masses.append(sdf.ellipsoid(P(0, -0.114, -0.05), np.array(R(0.038, 0.019, 0.034)) * (0.6 + 0.5 * fat)))
     head = sdf.union(*masses, k=r(0.02))
+    if gaunt > 0.05:   # hollows under the cheekbones
+        hollows = [sdf.ellipsoid(P(sx * 0.054, -0.054, -0.058), np.array(R(0.017, 0.024, 0.015)) * (0.55 + 0.6 * gaunt)) for sx in (-1, 1)]
+        head = sdf.subtract(head, *hollows, k=r(0.012))
     nose, nostrils = nose_field(g, spec)
     head = sdf.union(head, nose, k=r(0.007))
     lips = lips_field(g, spec)
     head = sdf.union(head, lips, k=r(0.004))
+    if age > 0.15:
+        head = age_lines(g, spec, head, age)
     # ears
-    ear = spec.get("ears", 1.0)
+    ear = spec.get("ears", 1.0) * (1.0 + 0.1 * age)
     ears = []
     for sx in (-1, 1):
         shell_ = sdf.ellipsoid(P(sx * 0.079, -0.002, 0.016), R(0.012 * ear, 0.032 * ear, 0.021 * ear), rot=(0, sx * 28, sx * -8))
@@ -198,19 +304,20 @@ def head_field(g, spec):
     head = sdf.union(head, neck, k=r(0.025))
     # eyes: an orbital hollow, a seat for the eyeball, and lids around the opening
     es = spec.get("eye_size", 1.0)
-    lids = spec.get("lids", 0.0)
+    lids = max(spec.get("lids", 0.0), 0.16)
     er = g.eye_r
     carve = []
-    for E in g.E:
+    Eref = [g.P(sx * 0.0315 * spec.get("eye_gap", 1.0), spec.get("eye_y", 0.0), -0.077) for sx in (-1, 1)]
+    for E in Eref:
         carve.append(sdf.ellipsoid(E + np.array((0, 0.0005, -er * 1.05)), (er * 1.18, er * 0.92, er * 0.85)))
         carve.append(sdf.sphere(E, er * 1.02))
     head = sdf.subtract(head, *carve, nostrils[0], nostrils[1], k=r(0.0025))
     # mouth parting
     mw, my, smile = mouth_geo(g, spec)
-    slit = sdf.warp(sdf.ellipsoid(P(0, my, -0.104), R(0.021 * mw, 0.0009, 0.009)), smile_warp(g, smile))
+    slit = sdf.warp(sdf.ellipsoid(P(0, my, -0.099), R(0.024 * mw, 0.0009, 0.009)), smile_warp(g, smile))
     head = sdf.subtract(head, slit, k=r(0.0012))
     lid_parts = []
-    for i, E in enumerate(g.E):
+    for i, E in enumerate(Eref):
         sx = -1 if i == 0 else 1
         up = er * (0.36 * es - 0.6 * lids)
         tilt = (sx * 0.12, -1.0, 0.0)
@@ -224,8 +331,8 @@ def head_field(g, spec):
 
 
 def head_bounds(g):
-    lo = g.C + np.array((-0.105, -0.135, -0.135)) * g.S
-    hi = g.C + np.array((0.105, 0.135, 0.12)) * g.S
+    lo = g.C + np.array((-0.115, -0.135 * max(1.0, g.fl), -0.135)) * g.S
+    hi = g.C + np.array((0.115, 0.135, 0.12)) * g.S
     lo[1] = NECK_Y - 0.07
     return lo, hi
 
@@ -365,7 +472,8 @@ def build_head(spec):
     skin_hex = spec["skin"]
     skin = mat("skin", skin_hex)
     lip_hex = spec.get("lips", shade(mix_hex(skin_hex, "B0505A", 0.32 if g.fem else 0.2), 0.92))
-    head_f, lips_f = head_field(g, spec)
+    raw_head, raw_lips = head_field(g, spec)
+    head_f, lips_f = g.warp(raw_head), g.warp(raw_lips)
     lo, hi = head_bounds(g)
     skin_prim, lips_prim = sdf.mesh(head_f, lo, hi, STEP_HEAD, smooth=1, tris=14000, regions=[sdf.offset(lips_f, g.r(0.0008))])
     head = Model("Head")
@@ -384,10 +492,12 @@ def build_head(spec):
             uncovered = sdf.halfspace((0, hc.y + hh * 0.72, 0), (0, 1, 0))
         hf = sdf.intersect(hf, sdf.union(uncovered, g.skull(0.003)))
     if hf is not None:
+        hf = g.warp(hf)
         head.add(sdf.mesh(hf, lo + np.array((-0.01, 0, -0.01)), hi + np.array((0.01, 0.03, 0.03)), STEP_HEAD, smooth=1, tris=6000),
                  mat("hair", hair_col))
-    ff = facial_hair_field(g, spec, head_f)
+    ff = facial_hair_field(g, spec, raw_head)
     if ff is not None:
+        ff = g.warp(ff)
         head.add(sdf.mesh(ff, lo, hi, 0.0012, smooth=1, tris=2500), mat("hair", spec.get("moustache_col", hair_col)))
     add_glasses(head, g, spec, head_f)
     return head, g, head_f
@@ -467,11 +577,12 @@ def build_face(root, spec, g, head_f):
         b.build(origin=tuple(cen), parent=root)
     # the mouth cavity, stretched open by the game when talking
     mw, my, smile = mouth_geo(g, spec)
-    mc = g.P(0, my, 0)
+    mc = g.fwd(g.P(0, my, 0))
     z = surface_z(head_f, float(mc[0]), float(mc[1]) + 0.004) or -0.1
     c = V(float(mc[0]), float(mc[1]), z + 0.0032)
     mo = Model("Mouth")
-    mo.add(ellipsoid(c, (0.017 * mw * g.S[0], 0.0046 * g.S[1], 0.0035), segments=24, rings=12), MOUTH)
+    wf = float(g._width(np.array([float(mc[1])]))[0])
+    mo.add(ellipsoid(c, (0.017 * mw * g.S[0] * wf, 0.0046 * g.S[1], 0.0035), segments=24, rings=12), MOUTH)
     mo.add(ellipsoid(c + V(0, 0.003 * g.S[1], 0.0012), (0.011 * mw * g.S[0], 0.0014 * g.S[1], 0.0028), segments=16, rings=8), mat("ceramic", "D8D0C0"))
     mo.build(origin=c, parent=root)
 
@@ -910,6 +1021,44 @@ CAST = {
     "corporal": dict(build="broad", skin="E2B48E", hair="short", hair_col="3A2A1A", nose="round", coat="6A6A48", hat="peaked",
                      hat_col="5A5A3C", brass_buttons=True, buttons=4, smile=True),
 }
+
+
+# ----------------------------------------------------------------------------- faces
+# Bone structure, weight and age, so nobody shares a face: face_len/face_w stretch the lower face,
+# chin (size) and chin_z (forward), cheek (cheekbones) and cheek_y, brow_ridge, fat (cheek pads,
+# jowls, double chin), gaunt (hollow cheeks), age (lines, folds, bags, thinner lips, bigger nose and
+# ears), eye_gap/eye_y, nose_s/nose_l/nose_w, lip_u/lip_l. The twins share one face, on purpose.
+
+TWIN_FACE = dict(face_len=0.96, face_w=0.94, chin=0.82, cheek=1.12, cheek_y=0.003, eye_gap=1.05, nose_s=0.82, lip_u=1.12, lip_l=1.1, fat=0.15)
+
+FACES = {
+    "gus": dict(face_len=1.06, face_w=0.92, chin=0.9, chin_z=0.002, eye_gap=1.05, nose_s=0.92, cheek=0.9, brow_ridge=0.8, lip_u=0.9, smile=True, mouth_w=1.15),
+    "walter": dict(face_len=0.94, face_w=1.16, fat=0.95, age=0.6, cheek=1.1, eye_gap=0.94, eye_size=0.88, chin=1.05),
+    "clementine": dict(face_len=1.06, face_w=0.87, chin=0.82, chin_z=0.002, nose_s=0.85, eye_size=1.12, eye_gap=1.02, lip_u=0.92, cheek=0.95),
+    "reggie": dict(face_len=1.1, face_w=0.95, cheek=1.28, cheek_y=0.004, gaunt=0.3, chin=1.15, chin_z=0.004, age=0.3, lip_u=0.7, eye_gap=0.95, brow_ridge=1.1),
+    "odile": dict(age=1.0, face_len=0.92, face_w=0.95, gaunt=0.35, fat=0.2, lip_u=0.65, lip_l=0.75, chin=0.9),
+    "bramble": dict(face_w=1.15, chin=1.32, chin_z=0.004, brow_ridge=1.5, fat=0.4, age=0.45, nose_s=1.1, eye_gap=0.95, eye_size=0.9),
+    "rosalind": TWIN_FACE, "cecily": TWIN_FACE,
+    "haversham": dict(face_w=1.1, face_len=0.95, fat=0.8, chin=0.62, chin_z=-0.007, eye_size=0.85, age=0.35, lip_u=0.8),
+    "vell": dict(face_len=1.18, face_w=0.86, cheek=1.38, cheek_y=0.006, gaunt=0.75, chin=1.12, chin_z=0.003, lip_u=0.6, lip_l=0.7, eye_gap=0.92, age=0.2, brow_ridge=1.2),
+    "pip": dict(face_len=0.88, fat=0.4, eye_size=1.18, eye_gap=1.07, nose_s=0.75, chin=0.8, lip_u=1.1),
+    "dora": dict(face_w=1.1, face_len=1.02, chin=1.1, cheek=1.15, fat=0.35, age=0.45, nose_s=1.05, lip_u=1.1),
+    "harriet": dict(face_w=0.93, chin=0.9, cheek=1.05, nose_s=0.9, eye_size=1.08, lip_u=1.05, age=0.1),
+    "crane": dict(face_len=1.12, face_w=0.9, chin=1.22, chin_z=0.006, cheek=1.15, gaunt=0.35, nose_s=1.15, nose_l=1.15, lip_u=0.65, age=0.35, eye_gap=0.94),
+    "thomas": dict(face_len=0.98, fat=0.15, eye_size=1.04, nose_s=0.95, eye_gap=1.02, cheek=1.05, chin=0.95),
+    "penhallow": dict(face_len=1.08, face_w=0.94, gaunt=0.55, cheek=1.25, chin=1.15, brow_ridge=1.2, age=0.25, eye_size=0.95),
+    "sid": dict(face_w=1.22, face_len=1.04, chin=1.35, brow_ridge=1.6, fat=0.45, nose_s=1.2, nose_w=1.2, eye_size=0.82, eye_gap=0.92, age=0.4, lip_u=0.9),
+    "lou": dict(face_len=1.05, cheek=1.25, nose_w=1.3, nose_s=1.05, lip_u=1.25, lip_l=1.25, chin=1.05, age=0.3),
+    "spratt": dict(face_len=1.15, face_w=0.86, gaunt=0.8, cheek=1.2, chin=0.7, chin_z=-0.004, nose_l=1.15, eye_gap=0.9, age=0.45, lip_u=0.6),
+    "edie": dict(face_w=0.95, cheek=1.12, cheek_y=0.003, chin=0.92, fat=0.15, lip_u=1.05, lip_l=1.05, eye_size=1.12, nose_s=0.82, age=0.1),
+    "plum": dict(face_w=1.15, fat=1.0, age=0.85, chin=0.9, eye_size=0.85, face_len=0.98),
+    "lark": dict(face_w=1.05, face_len=0.95, eye_size=1.1, fat=0.3, age=0.7, nose_l=1.2, chin=0.85, brow_ridge=0.9),
+    "agnes_old": dict(age=0.85, face_len=0.98, face_w=0.95, fat=0.25, cheek=1.05, lip_u=0.8, nose_s=0.95, chin=0.95),
+    "thomas_old": dict(age=0.85, face_w=1.05, fat=0.4, nose_s=1.05, ears=1.1),
+    "corporal": dict(face_w=1.08, face_len=1.03, chin=1.3, chin_z=0.004, brow_ridge=1.3, cheek=1.1, age=0.2, nose_s=1.05),
+}
+for _cid, _face in FACES.items():
+    CAST[_cid].update(_face)
 
 
 def bounds(obj):
