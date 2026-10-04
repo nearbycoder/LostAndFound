@@ -15,6 +15,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "lib
 import bmesh  # noqa: E402
 import bpy  # noqa: E402
 import mathutils  # noqa: E402
+import numpy as np  # noqa: E402
+import sdf  # noqa: E402
 from laf import (V, Model, box, cbox, cyl, empty, export_fbx, lathe, mat, rod, rrect_slab, sphere, torus,  # noqa: E402
                  reset_scene, setup_preview, render, text_mesh, rotate_about, transformed, sweep, slab,
                  planar_uv, args_after_dashes, tex, ellipsoid, hull, rrect_outline)
@@ -177,28 +179,39 @@ def scarf_red():
     RED, CREAM, DARK = mat("knit", "B8302A"), mat("knit", "E8DCC0"), mat("paint", "2A1010")
     m = Model("scarf_red")
     L, Wd, t = 0.27, 0.11, 0.013
-    # two layers folded over at the right end
-    m.add(rrect_slab((0, t / 2, 0), L, Wd, t, 0.012, plane="xz", bevel=0.004), RED)
-    m.add(rrect_slab((0.02, t * 1.5 + 0.001, 0), L - 0.04, Wd, t, 0.012, plane="xz", bevel=0.004), RED)
-    m.add(torus((L / 2 - 0.004, t + 0.0005, 0), t * 0.55, t * 0.5, axis="z", segments=20, ring_segments=10, arc=0.5, start=-0.25, scale=(1, 1, Wd / (t * 1.05) * 0.0 + 1)), RED,
-          transform=mathutils.Matrix.Translation((L / 2 - 0.004, t + 0.0005, 0)) @ mathutils.Matrix.Diagonal((1, 1, Wd / 0.0266, 1)) @ mathutils.Matrix.Translation((-(L / 2 - 0.004), -(t + 0.0005), 0)))
-    # cream stripes near the ends
-    for x in (-0.1, -0.075):
-        m.add(box((x - 0.008, 0.0, -Wd / 2 + 0.002), (x + 0.008, t + 0.0004, Wd / 2 - 0.002)), CREAM)
-        m.add(box((x + 0.02 - 0.008, t + 0.001, -Wd / 2 + 0.002), (x + 0.02 + 0.008, 2 * t + 0.0014, Wd / 2 - 0.002)), CREAM)
-    # fringe
+    hole = np.array((-0.085, 2 * t, 0.022))
+    # two soft knitted layers, folded over at the right end, with ribs, a gentle sag and a moth hole
+    lower = sdf.rbox((0, t / 2, 0), (L / 2, t / 2, Wd / 2), t * 0.48)
+    upper = sdf.rbox((0.02, t * 1.5 + 0.0005, 0), ((L - 0.04) / 2, t / 2, Wd / 2), t * 0.48)
+    fold = sdf.capsule((L / 2 - t * 0.9, t, -Wd / 2 + t * 0.5), (L / 2 - t * 0.9, t, Wd / 2 - t * 0.5), t * 1.02)
+    body = sdf.union(lower, upper, fold, k=0.004)
+    body = sdf.warp(body, lambda p: p + np.stack([0.004 * np.sin(p[:, 2] * 30), 0.003 * np.sin(p[:, 0] * 23 + 1) * np.cos(p[:, 2] * 19), 0 * p[:, 0]], 1))
+    body = sdf.displace(body, lambda p: -0.0016 * np.sin(p[:, 0] * 31 + 2) * np.cos(p[:, 2] * 27))
+    body = sdf.subtract(body, sdf.ellipsoid(hole + np.array((0, 0.002, 0)), (0.0075, t * 0.55, 0.006)), k=0.0015)
+
+    def stripes(p):
+        x = p[:, 0] - np.where(p[:, 1] > t + 0.0005, 0.02, 0.0)
+        return np.minimum(np.abs(x + 0.1), np.abs(x + 0.075)) - 0.008
+    red_part, cream_part = sdf.mesh(body, (-L / 2 - 0.01, -0.004, -Wd / 2 - 0.01), (L / 2 + 0.01, 2 * t + 0.008, Wd / 2 + 0.01),
+                                    0.0011, smooth=1, tris=14000, regions=[stripes])
+    m.add(red_part, RED)
+    m.add(cream_part, CREAM)
+    m.add(sphere(hole + V(0, -t * 0.52, 0), 0.0052, scale=(1.3, 0.12, 1), segments=12, rings=6), DARK)
+    # fringe: little twisted tassels hanging off both layers
+    rng = np.random.default_rng(5)
+    tassels = []
     for k in range(9):
         z = -Wd / 2 + 0.01 + k * (Wd - 0.02) / 8
-        m.add(sweep([(-L / 2 + 0.004, t * 0.5, z), (-L / 2 - 0.018, t * 0.35, z + 0.002), (-L / 2 - 0.034, 0.002, z - 0.001)], 0.0022, segments=6), RED)
-        m.add(sweep([(-L / 2 + 0.024, t * 1.6, z), (-L / 2 + 0.004, t * 1.4, z - 0.002), (-L / 2 - 0.012, t * 1.1, z + 0.002)], 0.002, segments=6), RED)
-    # the moth hole: a frayed dark gap in the top layer, near the fringe
-    m.add(sphere((-0.085, 2 * t + 0.0009, 0.022), 0.0055, scale=(1.3, 0.1, 1), segments=12, rings=6), DARK)
-    for k in range(6):
-        a = k * math.pi / 3
-        m.add(rod((-0.085 + math.cos(a) * 0.006, 2 * t + 0.001, 0.022 + math.sin(a) * 0.006), (-0.085 + math.cos(a) * 0.009, 2 * t + 0.0014, 0.022 + math.sin(a) * 0.009), 0.0008, segments=5), RED)
+        j = rng.normal(size=3) * 0.002
+        tassels.append(sdf.chain([np.array((-L / 2 + 0.006, t * 0.5, z)), np.array((-L / 2 - 0.016, t * 0.3, z + j[0])), np.array((-L / 2 - 0.033, 0.0022, z - 0.001 + j[1]))],
+                                 [0.0025, 0.0021, 0.0016]))
+        tassels.append(sdf.chain([np.array((-L / 2 + 0.026, t * 1.5, z)), np.array((-L / 2 + 0.006, t * 1.25, z + j[2])), np.array((-L / 2 - 0.012, t * 0.95, z + 0.002))],
+                                 [0.0023, 0.002, 0.0015]))
+    fr = sdf.displace(sdf.union(*tassels), lambda p: 0.0004 * np.sin(p[:, 0] * 1800))
+    m.add(sdf.mesh(fr, (-L / 2 - 0.045, -0.002, -Wd / 2), (-L / 2 + 0.035, 2 * t, Wd / 2), 0.0007, smooth=1, tris=3000), RED)
     # Nan's label sewn on the underside, and a little knitted C in the corner
     add_decal(m, (0.07, 0.0, 0.0), (0, -1, 0), (0, 0, 1), 0.06, 0.024, "label_nan")
-    m.add(text_mesh("C", (0.105, 2 * t + 0.0012, -0.04), 0.014, depth=0.0012, plane="xz"), CREAM)
+    m.add(text_mesh("C", (0.105, 2 * t + 0.0022, -0.04), 0.014, depth=0.0016, plane="xz"), CREAM)
     obj = m.build()
     hs("hole", (-0.085, 2 * t + 0.001, 0.022), (0, 1, 0), obj)
     hs("label", (0.07, -0.0008, 0.0), (0, -1, 0), obj)

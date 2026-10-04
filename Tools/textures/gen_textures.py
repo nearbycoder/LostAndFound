@@ -477,9 +477,32 @@ def gen_cursors():
     cursor("cursor_look", look)
 
 
+def gen_skin_hair():
+    """Skin (pores, faint mottling) and hair (fine strands). Own RNG so the sets above don't change."""
+    r = np.random.default_rng(77)
+    pores = blur_wrap((r.random((N, N)) > 0.985).astype(np.float32), 0.9)
+    mottle = tile_noise(N, 6, 4, seed=71)
+    fine = tile_noise(N, 48, 3, seed=72)
+    h = norm01(fine * 0.6 + mottle * 0.4 - norm01(pores) * 0.9)
+    tone = norm01(mottle)
+    alb = np.stack([0.93 + tone * 0.07, 0.9 + tone * 0.06 - fine * 0.03, 0.9 + tone * 0.05 - fine * 0.04], -1)
+    material("skin", h, (np.clip(alb, 0, 1) * 255).astype(np.uint8), 1.6)
+
+    strands = blur_wrap(r.random((N, N)).astype(np.float32), 0.7)
+    k = 61
+    ker = np.zeros(N, np.float32)
+    ker[:k] = 1.0 / k
+    strands = np.real(np.fft.ifft(np.fft.fft(strands, axis=0) * np.fft.fft(np.roll(ker, -k // 2))[:, None], axis=0)).astype(np.float32)
+    clumps = tile_noise(N, 10, 3, seed=73)
+    h = norm01(norm01(strands) * 0.75 + clumps * 0.25)
+    alb = np.repeat((0.62 + h * 0.38)[..., None], 3, -1)
+    material("hair", h, (np.clip(alb, 0, 1) * 255).astype(np.uint8), 3.0)
+
+
 if __name__ == "__main__":
     gen_materials()
     gen_papers()
     gen_ui()
     gen_cursors()
+    gen_skin_hair()
     print("textures written to", OUT)
