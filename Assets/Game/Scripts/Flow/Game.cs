@@ -45,6 +45,7 @@ namespace LostAndFound
             }
 #endif
             QualitySettings.vSyncCount = Arg("-lafNoVsync") != null ? 0 : 1;
+            Settings.MusicMuted = Arg("-lafNoMusic") != null;
             // remove whatever the scene had (template camera / light / volume)
             foreach (var c in FindObjectsByType<Camera>()) if (c.transform.root != transform) Destroy(c.gameObject);
             foreach (var l in FindObjectsByType<Light>()) if (l.transform.root != transform) Destroy(l.gameObject);

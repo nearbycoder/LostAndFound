@@ -18,9 +18,10 @@ namespace LostAndFound
     /// Game time is locked to 30 fps; each frame is piped to ffmpeg as raw RGBA and the mixed audio
     /// is captured with AudioRenderer, so the video is smooth however slowly the machine renders.
     /// Writes &lt;dir&gt;/video.mp4 and &lt;dir&gt;/audio.f32 (32-bit float, interleaved).
+    /// -lafPlay plays whole days the same way instead (see DemoRecorder.Play.cs).
     /// </summary>
     [DefaultExecutionOrder(1000)]
-    public class DemoRecorder : MonoBehaviour
+    public partial class DemoRecorder : MonoBehaviour
     {
         const int Fps = 30;
         string dir;
@@ -30,6 +31,8 @@ namespace LostAndFound
         FileStream audioOut;
         int channels;
         int frames, pending;
+        /// <summary>Frames sent to the encoder so far: the frame index of whatever is on screen now.</summary>
+        int captured;
         bool recording;
 
         Mouse mouse;
@@ -56,6 +59,8 @@ namespace LostAndFound
             recordOnly = Game.Arg("-lafRecordOnly") != null;
             recordFrom = Game.Arg("-lafRecordFrom");
             if (recordOnly) { Director.Cinematic = true; return; }
+            playDays = Game.Arg("-lafPlay") != null;
+            if (playDays) Director.Cinematic = true;
             InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
             mouse = InputSystem.AddDevice<Mouse>("DemoMouse");
             keyboard = InputSystem.AddDevice<Keyboard>("DemoKeyboard");
@@ -73,6 +78,7 @@ namespace LostAndFound
             StartCoroutine(Capture());
             if (recordOnly) { StartCoroutine(Watch()); return; }
             rolling = true;
+            if (playDays) { StartPlay(); return; }
             StartCoroutine(Advancer());
             StartCoroutine(Script());
         }
@@ -112,6 +118,7 @@ namespace LostAndFound
                 }
                 ScreenCapture.CaptureScreenshotIntoRenderTexture(grab);
                 pending++;
+                captured++;
                 AsyncGPUReadback.Request(grab, 0, TextureFormat.RGBA32, req =>
                 {
                     pending--;
@@ -157,6 +164,7 @@ namespace LostAndFound
             pipe = null;
             ffmpeg.WaitForExit();
             Debug.Log($"[Demo] done: {frames} frames ({frames / (float)Fps:0.0}s), ffmpeg exit {ffmpeg.ExitCode}");
+            markers?.Close();
             Application.Quit();
         }
 

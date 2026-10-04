@@ -15,7 +15,7 @@ namespace LostAndFound
     /// <summary>
     /// Agnes's rules as code. Given only what the player can learn at the desk (tag, discoverable
     /// details, the claimants' claims and answers, traits, and the rules known by then), derive the
-    /// correct verdict. The validator and the EditMode tests prove that this matches the authored
+    /// correct verdict. The content validator (run by every build) proves that this matches the authored
     /// "best" verdict for every case, so every case is solvable from on-desk information; the
     /// AutoPilot uses it to play the week.
     /// </summary>

@@ -48,6 +48,27 @@ namespace LostAndFound
             bc.size = new Vector3(Mathf.Abs(s.x), Mathf.Abs(s.y), Mathf.Abs(s.z));
         }
 
+        /// <summary>A block for the rubber and wooden base and a capsule for the handle and knob. One bounding
+        /// box reached up into the empty air beside the knob, and from the chair the stamp in front's box
+        /// covered part of the knob behind it, so a click on the green knob could pick up the red stamp.</summary>
+        static void AddStampColliders(GameObject go)
+        {
+            var b = ModelLibrary.Bounds(go);
+            var t = go.transform;
+            Vector3 c = t.InverseTransformPoint(b.center);
+            var s = t.InverseTransformVector(b.size);
+            s = new Vector3(Mathf.Abs(s.x), Mathf.Abs(s.y), Mathf.Abs(s.z));
+            float bottom = c.y - s.y * 0.5f, baseH = s.y * 0.28f;
+            var box = go.AddComponent<BoxCollider>();
+            box.center = new Vector3(c.x, bottom + baseH * 0.5f, c.z);
+            box.size = new Vector3(s.x, baseH, s.z);
+            var cap = go.AddComponent<CapsuleCollider>();
+            cap.direction = 1;
+            cap.radius = t.InverseTransformVector(Vector3.right * 0.021f).magnitude;   // the knob's radius is 2 cm
+            cap.height = s.y - baseH + 0.004f;
+            cap.center = new Vector3(c.x, bottom + baseH + (s.y - baseH) * 0.5f, c.z);
+        }
+
         public void Build(Desk desk)
         {
             var root = desk.transform;
@@ -82,7 +103,7 @@ namespace LostAndFound
                 Vector3 p = rack.transform.TransformPoint(new Vector3(dx, 0.012f, 0f));
                 var sg = Prop(model, p, 8f, root);
                 sg.transform.rotation = Quaternion.Euler(0f, 8f, 0f);
-                AddBoxCollider(sg);
+                AddStampColliders(sg);
                 var st = sg.AddComponent<Stamp>();
                 st.kind = kind;
                 st.rackPos = sg.transform.position;

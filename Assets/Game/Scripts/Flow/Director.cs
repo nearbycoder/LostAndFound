@@ -57,6 +57,10 @@ namespace LostAndFound
         // ------------------------------------------------------------------ queries used by the desk
 
         public bool CanRing => phase == Phase.AwaitBell && !bellRung;
+        /// <summary>The case the bell will call up next (set while waiting for the bell).</summary>
+        public CaseDef Upcoming { get; private set; }
+        /// <summary>The day's cases are done: the evening, the ledger and the Gazette.</summary>
+        public bool InEvening => phase == Phase.Evening;
         /// <summary>A day is under way (the pause menu is available).</summary>
         public bool Running => phase != Phase.Idle && DayDef != null;
         public bool CanUseStamps => phase == Phase.Investigate && !asking;
@@ -140,6 +144,7 @@ namespace LostAndFound
                 cases = Rules.ActiveCases(DayDef, State).ToList();
                 if (caseIndex >= cases.Count) break;
                 var c = cases[caseIndex];
+                Upcoming = c;
                 phase = Phase.AwaitBell;
                 bellRung = false;
                 UIRoot.I.hint.Set("Ring the bell for the next claimant");

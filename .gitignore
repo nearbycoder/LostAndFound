@@ -32,10 +32,25 @@ crashlytics-build.properties
 *.aab
 # Tooling
 .venv/
+venv/
 __pycache__/
+*.pyc
+node_modules/
+/dist/
 *.blend1
 /ArtSource/_renders/
 /.unity-libs/
 /Assets/Screenshots/
 /Assets/Screenshots.meta
 mono_crash*
+
+# Raw captures (Recordings/ holds the takes and trailer intermediates; finished media is in docs/media/)
+*.f32
+*.mkv
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~

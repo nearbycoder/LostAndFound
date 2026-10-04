@@ -12,7 +12,7 @@ cell = 320
 rows = (len(files) + cols - 1) // cols
 sheet = Image.new("RGB", (cols * cell, rows * (cell + 24)), (30, 26, 24))
 dr = ImageDraw.Draw(sheet)
-font = ImageFont.truetype("/usr/share/fonts/TTF/DejaVuSans.ttf", 15)
+font = ImageFont.truetype(os.path.join(os.path.dirname(os.path.abspath(__file__)), "fonts", "CourierPrime-Regular.ttf"), 15)
 for i, f in enumerate(files):
     im = Image.open(f).convert("RGB")
     im.thumbnail((cell, cell))

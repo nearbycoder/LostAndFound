@@ -13,7 +13,9 @@ namespace LostAndFound
         public static event System.Action Changed;
 
         public static float MasterVolume { get => F("master", 0.85f); set => SetF("master", value); }
-        public static float MusicVolume { get => F("music", 0.6f); set => SetF("music", value); }
+        public static float MusicVolume { get => MusicMuted ? 0f : F("music", 0.6f); set => SetF("music", value); }
+        /// <summary>-lafNoMusic: silence the score for this run only (trailer captures lay their own music bed).</summary>
+        public static bool MusicMuted;
         public static float SfxVolume { get => F("sfx", 0.85f); set => SetF("sfx", value); }
         public static float VoiceVolume { get => F("voice", 0.8f); set => SetF("voice", value); }
         public static float AmbienceVolume { get => F("ambience", 0.7f); set => SetF("ambience", value); }

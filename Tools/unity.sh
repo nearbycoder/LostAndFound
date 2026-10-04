@@ -15,6 +15,10 @@
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
+#   Tools/unity.sh film <name> [player args]
+#                                  film whole days played through simulated mouse and keyboard, without the score,
+#                                  to Recordings/<name>/take.mp4 plus markers.tsv (e.g. -lafDay 2 -lafUntil 3;
+#                                  no -lafDay starts at the title). Tools/make_trailer.py cuts the trailer from these.
 #
 # On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
 # so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
@@ -60,5 +64,15 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$PROJECT/Logs/demo.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/raw/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/raw/audio.f32" \
                  -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart "$out/demo.mp4" ;;
-  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]|demo]" >&2; exit 2 ;;
+  film)        [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               name="${2:?usage: $0 film <name> [player args]}"; shift 2
+               out="$PROJECT/Recordings/$name"; rm -rf "$out"; mkdir -p "$out"
+               timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out" -lafPlay -lafNoMusic \
+                 -lafSave "$out/save.json" -lafNoVsync -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 \
+                 -logFile "$out/player.log" "$@"
+               rate=$(grep -a -o '[0-9]* Hz x' "$out/player.log" | head -1 | cut -d' ' -f1)
+               ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
+               exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
+                 -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
+  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac
