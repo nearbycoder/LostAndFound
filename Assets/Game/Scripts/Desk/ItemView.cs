@@ -33,6 +33,9 @@ namespace LostAndFound
         AudioSource humSource;
         Renderer[] renderers;
         float frost;
+        /// <summary>Brought to the window by a claimant (a chit, a certificate): taken away again after the case.</summary>
+        public bool presented;
+        readonly List<Transform> spinners = new();
 
         public override CursorKind Cursor => CursorKind.Grab;
         public override string Hint => place == ItemPlace.Tray ? $"{def.name} (on the tray)" : $"Pick up";
@@ -90,6 +93,10 @@ namespace LostAndFound
                 parts.Add(part);
             }
             renderers = model.GetComponentsInChildren<Renderer>();
+            // Spin_* children turn on their own (the watch that runs backwards)
+            foreach (var t in ModelLibrary.Walk(model.transform))
+                if (t.name.StartsWith("Spin_")) spinners.Add(t);
+            if (def.trait == "frost") MakeFrosted();
             // hidden ink: UV_* children only show under Agnes's blue lamp
             foreach (var t in ModelLibrary.Walk(model.transform))
                 if (t.name.StartsWith("UV_") && t.TryGetComponent<Renderer>(out var r)) uvRenderers.Add(r);
@@ -104,6 +111,30 @@ namespace LostAndFound
         }
 
         readonly List<Renderer> uvRenderers = new();
+
+        /// <summary>Frosted objects: an icy cast over every surface, a faint cold glow, and a breath of mist.</summary>
+        void MakeFrosted()
+        {
+            var ice = new Color(0.78f, 0.88f, 1f);
+            foreach (var r in renderers)
+            {
+                if (r.name.StartsWith("UV_")) continue;
+                var mats = r.sharedMaterials;
+                for (int i = 0; i < mats.Length; i++)
+                {
+                    if (mats[i] == null || !mats[i].HasProperty("_BaseColor")) continue;
+                    var m = new Material(mats[i]);
+                    var c = m.GetColor("_BaseColor");
+                    if (c.a < 0.99f) continue;   // leave glass and frost alone
+                    m.SetColor("_BaseColor", new Color(Mathf.Lerp(c.r, ice.r, 0.18f), Mathf.Lerp(c.g, ice.g, 0.18f), Mathf.Lerp(c.b, ice.b, 0.22f), c.a));
+                    mats[i] = m;
+                }
+                r.sharedMaterials = mats;
+            }
+            var mist = new GameObject("FrostMist").AddComponent<FrostMist>();
+            mist.transform.SetParent(pivot, false);
+            mist.Init(radius);
+        }
 
         void OnDestroy() => Lamp.UVChanged -= OnUV;
 
@@ -195,6 +226,7 @@ namespace LostAndFound
 
         void Update()
         {
+            foreach (var sp in spinners) sp.localRotation *= Quaternion.AngleAxis(-70f * Time.deltaTime, Vector3.up);
             // jiggle: a small tilt that springs back (only while resting)
             jiggleSpring.Step(0f, 3.5f, 0.25f, Time.deltaTime);
             if (place != ItemPlace.Held)
@@ -248,8 +280,9 @@ namespace LostAndFound
         {
             open = !open;
             string s = string.IsNullOrEmpty(def.sound) ? "hinge" : def.sound;
-            AudioDirector.Play(open ? s + "_open" : s + "_close", 0.7f, Random.Range(0.94f, 1.06f));
             if (def.kind == "spin") AudioDirector.Play("wind", 0.6f);
+            else if (def.kind is "shake" or "listen" or "play") AudioDirector.Play(s, 0.8f);
+            else AudioDirector.Play(open ? s + "_open" : s + "_close", 0.7f, Random.Range(0.94f, 1.06f));
         }
 
         void Update()
@@ -332,6 +365,78 @@ namespace LostAndFound
             lift = MathX.Damp(lift, liftTarget, 12f, Time.deltaTime);
             transform.localPosition = restPos + Vector3.up * lift * 0.012f;
             transform.localRotation = restRot * Quaternion.Euler(-lift * 18f, 0f, lift * 4f);
+        }
+    }
+
+    /// <summary>A few soft puffs of cold vapour curling off a frosted object.</summary>
+    public class FrostMist : MonoBehaviour
+    {
+        struct Puff { public Transform t; public float age, life; public Vector3 vel; }
+        readonly List<Puff> puffs = new();
+        Material mat;
+        float radius;
+
+        public void Init(float r)
+        {
+            radius = r;
+            mat = MaterialLibrary.Make(new Color(0.9f, 0.95f, 1f, 0f), SoftDot(), 0f, true);
+            for (int i = 0; i < 6; i++)
+            {
+                var go = new GameObject("Puff");
+                go.transform.SetParent(transform, false);
+                go.AddComponent<MeshFilter>().sharedMesh = ProcMesh.QuadXY(1f, 1f);
+                var mr = go.AddComponent<MeshRenderer>();
+                mr.sharedMaterial = new Material(mat);
+                mr.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                var p = new Puff { t = go.transform, life = Random.Range(2.2f, 3.4f) };
+                p.age = p.life * i / 6f;
+                Respawn(ref p, false);
+                puffs.Add(p);
+            }
+        }
+
+        static Texture2D softDot;
+
+        /// <summary>A white disc that fades to nothing at the edge.</summary>
+        static Texture2D SoftDot()
+        {
+            if (softDot != null) return softDot;
+            const int N = 64;
+            softDot = new Texture2D(N, N, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < N; y++)
+                for (int x = 0; x < N; x++)
+                {
+                    float d = Vector2.Distance(new Vector2(x, y), new Vector2(N / 2f - 0.5f, N / 2f - 0.5f)) / (N / 2f);
+                    softDot.SetPixel(x, y, new Color(1f, 1f, 1f, Mathf.Pow(Mathf.Clamp01(1f - d), 2f)));
+                }
+            softDot.Apply();
+            return softDot;
+        }
+
+        void Respawn(ref Puff p, bool reset = true)
+        {
+            if (reset) p.age = 0f;
+            p.t.localPosition = new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 0.6f), Random.Range(-1f, 1f)) * radius * 0.6f;
+            p.vel = new Vector3(Random.Range(-0.2f, 0.2f), Random.Range(0.25f, 0.5f), Random.Range(-0.2f, 0.2f)) * radius * 0.35f;
+        }
+
+        void LateUpdate()
+        {
+            var cam = Camera.main;
+            for (int i = 0; i < puffs.Count; i++)
+            {
+                var p = puffs[i];
+                p.age += Time.deltaTime;
+                if (p.age > p.life) Respawn(ref p);
+                float k = p.age / p.life;
+                p.t.localPosition += p.vel * Time.deltaTime;
+                float size = radius * Mathf.Lerp(0.5f, 1.3f, k);
+                p.t.localScale = new Vector3(size, size, size) / Mathf.Max(0.001f, transform.lossyScale.x);
+                if (cam != null) p.t.rotation = Quaternion.LookRotation(p.t.position - cam.transform.position);
+                var r = p.t.GetComponent<MeshRenderer>();
+                r.sharedMaterial.SetColor("_BaseColor", new Color(0.9f, 0.95f, 1f, 0.16f * Mathf.Sin(k * Mathf.PI)));
+                puffs[i] = p;
+            }
         }
     }
 }

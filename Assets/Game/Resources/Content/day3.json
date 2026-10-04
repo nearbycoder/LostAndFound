@@ -1,0 +1,159 @@
+{
+  "days": [
+    {
+      "day": 3, "weekday": "Wednesday", "date": "Wednesday 17 October 1962", "title": "Tomorrow's Photograph",
+      "rules": [7],
+      "morning": [
+        { "who": "gus", "text": "Morning. Cold one today. Colder in here than out there, somehow.", "emote": "sad" },
+        { "who": "gus", "text": "There's a biscuit tin on your shelf that frosted the whole trolley. And a photograph of Mrs Lowe from Canal Row, which is odd, because she says she's never had her picture taken." },
+        { "who": "agnes", "text": "Some of the people who come to your window have gone on ahead, love. You'll know them: the glass goes cold.\n\nFrost belongs to the frosted. Never give a cold thing to warm hands." }
+      ],
+      "cases": [
+        {
+          "id": "3.1", "claimants": ["dora"], "wants": "briefcase",
+          "intro": [
+            { "who": "dora", "text": "Morning, love! Dora Finch, turf accountant. Some daft beggar's walked off with my {briefcase|case}.", "emote": "happy" },
+            { "who": "dora", "text": "Brown leather. Inside: {an egg-and-cress sandwich|sandwich} I was saving, and {my racing form, two horses circled|form}." },
+            { "who": "dora", "text": "{D.F. in the lining|initials}. Dora Finch. Left it in the bar on Monday night, didn't I." }
+          ],
+          "claims": [
+            { "key": "case", "text": "A brown leather briefcase", "checks": "visible" },
+            { "key": "sandwich", "text": "An egg-and-cress sandwich inside", "checks": "detail:sandwich" },
+            { "key": "form", "text": "A racing form with two horses circled", "checks": "detail:form" },
+            { "key": "initials", "text": "D.F. in the lining", "checks": "detail:initials" }
+          ],
+          "answers": [
+            { "detail": "form", "text": "Ninefold Lass and Late Train. Late Train came in at five to one, bless him." },
+            { "detail": "sandwich", "text": "Egg and cress. Don't tell me it's gone off." },
+            { "detail": "initials", "text": "D.F. My old dad's case, that was. Same initials." }
+          ],
+          "notMine": [ { "text": "That's not it, love. Brown leather briefcase. Smells of cress." } ],
+          "missing": [
+            { "who": "dora", "text": "Given to a nervous little man in a bow tie? Hugo Haversham?", "emote": "angry" },
+            { "who": "dora", "text": "That weasel owes me eleven pounds. Now he's got my sandwich as well.", "emote": "angry" }
+          ],
+          "missingLedger": "You handed Dora's briefcase to Hugo Haversham yesterday. It wasn't here for her.",
+          "verdicts": [
+            { "verdict": "return", "to": "dora", "grade": "best", "ledger": "The sandwich, the racing form, and D.F. in the lining. Dora's case went home.",
+              "reply": [ { "who": "dora", "text": "Lovely! And the sandwich. Ta, love.", "emote": "happy" }, { "who": "dora", "text": "Here, if you ever fancy a flutter, Late Train's running again Saturday." } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "Every detail matched Dora's story. It was hers.",
+              "reply": [ { "who": "dora", "text": "You what? It's got my initials in it!", "emote": "angry" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "An egg sandwich is unpleasant, not uncanny. It should have gone home with Dora.",
+              "reply": [ { "who": "dora", "text": "Locking up my sandwich? You're a strange one.", "emote": "surprised" } ] }
+          ]
+        },
+        {
+          "id": "3.2", "claimants": ["harriet"], "wants": "photograph",
+          "intro": [
+            { "who": "harriet", "text": "Hello. I'm sorry, this will sound silly. The porter said you have a {photograph of me|photo}.", "emote": "shy" },
+            { "who": "harriet", "text": "Me and my Jack. {On Platform 9|where}. But Jack's been away eighteen months. He's not home until... well. Soon, they say." },
+            { "who": "harriet", "text": "I just want to see it. Please. I'd like to keep it, if it's mine." }
+          ],
+          "claims": [
+            { "key": "photo", "text": "A photograph of her and her husband, Jack", "checks": "visible" },
+            { "key": "where", "text": "Taken on Platform 9", "checks": "detail:clock" }
+          ],
+          "answers": [
+            { "detail": "clock", "text": "Twenty to ten. The 9.40. That's the train his letter said he'd be on.", "emote": "surprised" },
+            { "detail": "stamp", "text": "Thursday? But that's... that's tomorrow.", "emote": "surprised" }
+          ],
+          "notMine": [ { "text": "No, that's not it. It's a photograph." } ],
+          "verdicts": [
+            { "verdict": "seal", "grade": "best", "ledger": "It was Harriet's, but the developer's stamp said Thursday: tomorrow. It isn't lost yet, so it went in the Iron Drawer.", "set": ["harrietPhoto=sealed"],
+              "reply": [ { "who": "harriet", "text": "You're locking it away?", "emote": "sad" }, { "who": "harriet", "text": "...Thursday. The 9.40. All right. I'll be there. I'll be there anyway." } ] },
+            { "verdict": "return", "to": "harriet", "grade": "wrong", "ledger": "It was hers, but it came from tomorrow. Things from tomorrow aren't lost yet; they go in the Iron Drawer.", "set": ["harrietPhoto=given"],
+              "reply": [ { "who": "harriet", "text": "Oh. Oh, look at him. He's smiling.", "emote": "happy" }, { "who": "harriet", "text": "I'll go to the platform right now. Just in case." } ] },
+            { "verdict": "refuse", "grade": "ok", "ledger": "Right not to hand it over. But a photograph from tomorrow belongs in the Iron Drawer, not back on the shelf.",
+              "reply": [ { "who": "harriet", "text": "I see. I'm sorry for wasting your time.", "emote": "sad" } ] }
+          ]
+        },
+        {
+          "id": "3.3", "claimants": ["crane"], "wants": "frosted_tin", "presents": ["certificate_crane"],
+          "intro": [
+            { "who": "crane", "text": "Victor Crane, antiques. I'm here for my great-grandfather's effects. {A tin of letters|tin}.", "emote": "sly" },
+            { "who": "crane", "text": "{Lieutenant A. Penhallow, 1917, on the lid|lid}. {Letters to some woman called Mabel|letters}. Sentimental rubbish, but they'll fetch a price." },
+            { "who": "crane", "text": "I have documentation. There, on your counter. All quite in order." }
+          ],
+          "claims": [
+            { "key": "tin", "text": "A biscuit tin of letters", "checks": "visible" },
+            { "key": "lid", "text": "\"Lt. A. Penhallow, 1917\" on the lid", "checks": "detail:lid" },
+            { "key": "letters", "text": "Letters to a woman called Mabel", "checks": "detail:letters" }
+          ],
+          "answers": [
+            { "detail": "lid", "text": "Penhallow. My great-grandfather. It's all on the certificate." },
+            { "detail": "letters", "text": "Mabel something. Who cares? The postmarks alone are worth a fortune." },
+            { "detail": "harmonica", "text": "A mouth organ? Possibly. Irrelevant." }
+          ],
+          "notMine": [ { "text": "Don't be absurd. The tin. With the frost on it.", "emote": "angry" } ],
+          "verdicts": [
+            { "verdict": "refuse", "grade": "best", "ledger": "Crane knew the name on the lid, and he had a certificate (the ink was still wet). But the tin was frosted, and Crane's hands were warm. Cold things go only to the cold.",
+              "reply": [ { "who": "crane", "text": "Refused? I'll be back. With a solicitor.", "emote": "angry" } ] },
+            { "verdict": "return", "to": "crane", "grade": "wrong", "ledger": "The tin was frosted, and Victor Crane is very much alive. Cold things go only to the cold.", "set": ["penhallowRest=sold"],
+              "reply": [ { "who": "crane", "text": "Splendid. Mind the frost, it's quite... it's quite cold, isn't it.", "emote": "surprised" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "It wasn't from tomorrow. It belonged to someone cold, who was on his way. Refuse Crane, and wait.",
+              "reply": [ { "who": "crane", "text": "The safe? Are you quite mad?", "emote": "angry" } ] }
+          ]
+        },
+        {
+          "id": "3.4", "claimants": ["thomas"], "wants": "",
+          "intro": [
+            { "who": "thomas", "text": "Excuse me, miss. I'm awful sorry to trouble you. I've lost {a ring|ring}.", "emote": "shy" },
+            { "who": "thomas", "text": "{In a little velvet box|box}. I had it in my waistcoat pocket on {the 9.40, this morning|when}, and then I didn't." },
+            { "who": "thomas", "text": "I was going to ask a girl to marry me. She's waiting on the platform. She's always waiting on the platform.", "emote": "sad" }
+          ],
+          "claims": [
+            { "key": "ring", "text": "A ring", "checks": "visible" },
+            { "key": "box", "text": "In a small velvet box", "checks": "visible" },
+            { "key": "when", "text": "Lost on the 9.40, \"this morning\"", "checks": "tag.when" }
+          ],
+          "notMine": [ { "text": "No, miss. A ring. A little velvet box." } ],
+          "verdicts": [
+            { "verdict": "refuse", "grade": "best", "ledger": "There was no ring in the drawers. Not yet. A sepia young man in a 1921 suit said he'd come back.",
+              "reply": [ { "who": "thomas", "text": "Not here. No. Never is.", "emote": "sad" }, { "who": "thomas", "text": "I'll come back tomorrow. I'm good at coming back." } ] }
+          ]
+        },
+        {
+          "id": "3.5", "claimants": ["penhallow"], "wants": "frosted_tin",
+          "intro": [
+            { "who": "penhallow", "text": "Good afternoon. Penhallow. Lieutenant. I believe you have {a tin of mine|tin}.", "emote": "sad" },
+            { "who": "penhallow", "text": "{Letters to my Mabel|letters}. I wrote her every week from France. I never posted the last few." },
+            { "who": "penhallow", "text": "And {my harmonica|harmonica}. The lads used to make me play \"Mabel's Waltz\" until they couldn't stand it." }
+          ],
+          "claims": [
+            { "key": "tin", "text": "A tin of letters", "checks": "visible" },
+            { "key": "letters", "text": "Letters to his Mabel", "checks": "detail:letters" },
+            { "key": "harmonica", "text": "His harmonica", "checks": "detail:harmonica" }
+          ],
+          "answers": [
+            { "detail": "lid", "text": "Penhallow, 1917. My mother painted that. She was terribly proud." },
+            { "detail": "letters", "text": "Miss Mabel Hart. 14 Canal Row. I'd know that address with my eyes shut." },
+            { "detail": "harmonica", "text": "That's her. Dented at Arras. Still plays, near enough." }
+          ],
+          "notMine": [ { "text": "No. I'm sorry. The tin. With the letters.", "emote": "sad" } ],
+          "missing": [
+            { "who": "penhallow", "text": "Sold? To my... to someone who says he's family.", "emote": "sad" },
+            { "who": "penhallow", "text": "Then I'll have to go on without them. Mabel never did get the last ones.", "emote": "sad" }
+          ],
+          "missingLedger": "The Lieutenant came for his letters, but they'd gone to Victor Crane.",
+          "verdicts": [
+            { "verdict": "return", "to": "penhallow", "grade": "best", "ledger": "The window frosted when he spoke. Lt. Penhallow had gone on ahead, and the frosted tin was his. He'll post the last letters now.", "set": ["penhallowRest=yes"],
+              "reply": [ { "who": "penhallow", "text": "Thank you. I'll deliver them by hand.", "emote": "happy" }, { "who": "penhallow", "text": "She always said I'd be late for my own funeral. Turns out I was." } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "The window frosted: he was cold, and the tin was cold. It was his.",
+              "reply": [ { "who": "penhallow", "text": "Ah. Of course. Orders are orders.", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "Frost isn't tomorrow. The cold tin belonged with the cold soldier.",
+              "reply": [ { "who": "penhallow", "text": "Locked away? Like the last ones.", "emote": "sad" } ] }
+          ]
+        }
+      ],
+      "evening": [
+        { "who": "gus", "text": "Did you see that young fellow in the old-fashioned suit? Walked straight through the barrier. Didn't open it. Through it.", "emote": "surprised" },
+        { "who": "gus", "text": "There's a draught from Platform 9 tonight that smells like 1921. Don't ask me how I know." }
+      ],
+      "gazette": [
+        { "condition": "penhallowRest=yes", "headline": "LETTERS FROM 1917 ARRIVE AT CANAL ROW", "body": "Residents of 14 Canal Row were astonished this morning to find a bundle of letters on the doormat, dated 1917 and addressed to Miss Mabel Hart, who lived there until 1958. The envelopes were cold to the touch." },
+        { "condition": "penhallowRest=sold", "headline": "WAR LETTERS FETCH RECORD PRICE", "body": "A tin of unposted letters from the Western Front was sold at auction yesterday by Mr Victor Crane of Ninefold Antiques. The tin, Mr Crane admitted, \"would not stop frosting\"." },
+        { "condition": "", "headline": "MYSTERY YOUNG MAN SEEN ON PLATFORM 9", "body": "Several passengers report a young man in an old-fashioned suit and flat cap, asking after \"the 9.40\". Platform 9 has not seen a regular service since 1921." }
+      ]
+    }
+  ]
+}

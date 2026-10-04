@@ -147,7 +147,7 @@ namespace LostAndFound
         /// <summary>True when the object has arrived by `day` and is still in storage.</summary>
         public bool InStorage(ObjectDef def, int day)
         {
-            if (def.arrives > day) return false;
+            if (def.arrives > day || def.storage == "presented") return false;
             string loc = ObjectLocation(def.id);
             return loc == null || loc == "storage";
         }

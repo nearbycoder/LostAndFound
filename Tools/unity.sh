@@ -11,6 +11,7 @@
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
 #   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
+#   Tools/unity.sh autopilot [x]   play the whole week hands-free at x speed, screenshots in Screenshots/autopilot/
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #
 # On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
@@ -34,7 +35,11 @@ case "${1:-open}" in
   smoke)       [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                rm -rf "$PROJECT/Screenshots/smoke"
                exec timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
-                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSeconds "${2:-30}" -lafNoVsync -logFile "$PROJECT/Logs/smoke.log" ;;
+                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -logFile "$PROJECT/Logs/smoke.log" ;;
+  autopilot)   [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
+               exec timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
+                 -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
   demo)        [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
                timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out/raw" \

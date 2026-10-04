@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -9,9 +10,31 @@ namespace LostAndFound.EditorTools
     {
         static readonly string[] Scenes = { "Assets/Scenes/Main.unity" };
 
+        [MenuItem("Lost & Found/Validate Content")]
+        static void ValidateMenu() => ValidateContent();
+
+        /// <summary>Load every content file and prove each case is solvable from what's on the desk.</summary>
+        public static int ValidateContent()
+        {
+            var parts = new System.Collections.Generic.List<ContentRoot>();
+            foreach (var guid in AssetDatabase.FindAssets("t:TextAsset", new[] { "Assets/Game/Resources/Content" }))
+            {
+                var ta = AssetDatabase.LoadAssetAtPath<TextAsset>(AssetDatabase.GUIDToAssetPath(guid));
+                parts.Add(JsonUtility.FromJson<ContentRoot>(ta.text));
+            }
+            var db = new ContentDb(ContentDb.Merge(parts.ToArray()));
+            var log = new System.Collections.Generic.List<string>();
+            var issues = Rules.Validate(db, log);
+            foreach (var l in log) Debug.Log("[Validate] " + l);
+            foreach (var i in issues) Debug.LogWarning("[Validate] ISSUE " + i);
+            Debug.Log($"[Validate] {db.root.objects.Length} objects, {db.root.days.Length} days, {db.root.days.Sum(d => d.cases.Length)} cases, {issues.Count} issues");
+            return issues.Count;
+        }
+
         [MenuItem("Lost & Found/Build Linux Player")]
         public static void BuildLinux()
         {
+            ValidateContent();
             ProjectSetup.Apply();
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {

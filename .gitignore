@@ -38,3 +38,4 @@ __pycache__/
 /.unity-libs/
 /Assets/Screenshots/
 /Assets/Screenshots.meta
+mono_crash*

@@ -1,0 +1,172 @@
+{
+  "days": [
+    {
+      "day": 2, "weekday": "Tuesday", "date": "Tuesday 16 October 1962", "title": "Two of Everything",
+      "rules": [4, 5],
+      "morning": [
+        { "who": "gus", "text": "Morning! Busy night on the platforms. A locket, a briefcase, a rabbit, two of nearly everything.", "emote": "happy" },
+        { "who": "gus", "text": "Oh, and there's a watch in drawer D that I don't like the look of. Have a squint at its tag before you do anything with it." },
+        { "who": "gus", "text": "That photograph came in last night, the one of you. Put it in a frame, I did. Gave me the shivers.", "emote": "surprised", "condition": "" },
+        { "who": "agnes", "text": "Two today, love. Some days there are two people for every one thing.\n\nAnd if a tall gentleman in grey comes to the window: smile, say no, and mean it." }
+      ],
+      "cases": [
+        {
+          "id": "2.1", "claimants": ["bramble"], "wants": "umbrella_duck",
+          "intro": [
+            { "who": "bramble", "text": "Good morning! Constable Bramble, station police. I've come about an umbrella.", "emote": "happy" },
+            { "who": "bramble", "text": "{Green, with a duck's head for a handle|umbrella}. Left it on {Platform 5|where} on Sunday evening, chasing a pickpocket." },
+            { "who": "bramble", "text": "My name's on it, mind. {Under the strap|name}. Can't be too careful, in my line of work." }
+          ],
+          "claims": [
+            { "key": "umbrella", "text": "A green umbrella with a duck's-head handle", "checks": "visible" },
+            { "key": "where", "text": "Left on Platform 5, Sunday evening", "checks": "tag.where" },
+            { "key": "name", "text": "His name is written under the strap", "checks": "detail:namestrip" }
+          ],
+          "answers": [
+            { "detail": "namestrip", "text": "B. Bramble. Bartholomew, but don't spread it about." },
+            { "detail": "beak", "text": "Chipped it on a pickpocket's noggin, Whitsun. He came quietly after that." }
+          ],
+          "notMine": [ { "text": "That's not it, I'm afraid. Green, duck's head. Can't miss it." } ],
+          "missing": [
+            { "who": "bramble", "text": "Gone? Handed to a gentleman in a kipper tie and a wide hat?", "emote": "surprised" },
+            { "who": "bramble", "text": "That'll be Reggie Stokes. Right. I'll be having a word with Mr Stokes.", "emote": "angry" }
+          ],
+          "missingLedger": "Reggie walked off with the Constable's umbrella yesterday. It wasn't here to return.",
+          "verdicts": [
+            { "verdict": "return", "to": "bramble", "grade": "best", "ledger": "The Constable knew his name was under the strap, and how the beak got chipped. Refusing Reggie yesterday paid off.",
+              "reply": [ { "who": "bramble", "text": "That's the fellow! Much obliged. If anyone gives you trouble, you send for Bramble.", "emote": "happy" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "His name was under the strap, just as he said. It was his.",
+              "reply": [ { "who": "bramble", "text": "Refused? A police officer? Well. I'll be making a note of this.", "emote": "angry" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "Just an umbrella. It should have gone home with the Constable.",
+              "reply": [ { "who": "bramble", "text": "Locking it up? It's evidence of nothing, that brolly!", "emote": "surprised" } ] }
+          ]
+        },
+        {
+          "id": "2.2", "claimants": ["rosalind", "cecily"], "wants": "locket",
+          "hint": "Two claimants? Each half of the slip is theirs. Stamp RETURN on the half of the one it belongs to.",
+          "intro": [
+            { "who": "rosalind", "text": "Good morning! We've come about our locket.", "emote": "happy" },
+            { "who": "cecily", "text": "My locket.", "emote": "angry" },
+            { "who": "rosalind", "text": "{Silver, with ivy on the front|silver}. Gran gave it to me. There's {a note inside that says \"Happy birthday, Rosie\"|note}." },
+            { "who": "cecily", "text": "It's {silver, with ivy|silver}, and it's mine. {Gran's picture is inside|photo}, and {a note she wrote for me|note}." },
+            { "who": "rosalind", "text": "We lost it on Platform 3 last night. We do everything together.", "emote": "sly" }
+          ],
+          "claims": [
+            { "who": "rosalind", "key": "silver", "text": "A silver locket with ivy on the front", "checks": "visible" },
+            { "who": "rosalind", "key": "note", "text": "The note inside says \"Happy birthday, Rosie\"", "checks": "detail:note", "truthful": false },
+            { "who": "cecily", "key": "silver", "text": "Silver, with ivy", "checks": "visible" },
+            { "who": "cecily", "key": "photo", "text": "Gran's picture is inside", "checks": "detail:photo" },
+            { "who": "cecily", "key": "note", "text": "There's a note Gran wrote for her", "checks": "detail:note" }
+          ],
+          "answers": [
+            { "who": "rosalind", "detail": "note", "text": "\"Happy birthday, Rosie.\" Obviously.", "truthful": false },
+            { "who": "cecily", "detail": "note", "text": "\"For Cecily, who never loses anything.\" Gran was being funny." },
+            { "who": "rosalind", "detail": "photo", "text": "Gran! In her Sunday hat." },
+            { "who": "cecily", "detail": "photo", "text": "Gran, in her Sunday hat. She hated that photo." },
+            { "who": "rosalind", "detail": "ivy", "text": "Ivy. Gran loved ivy." },
+            { "who": "cecily", "detail": "ivy", "text": "Ivy, all across the front." }
+          ],
+          "notMine": [ { "who": "cecily", "text": "That's not our locket.", "emote": "angry" } ],
+          "verdicts": [
+            { "verdict": "return", "to": "cecily", "grade": "best", "ledger": "Both twins could see the ivy, and both knew Gran's photo. Only Cecily knew what the note said: it had her name on it.",
+              "reply": [ { "who": "cecily", "text": "Thank you. I knew someone would read it properly.", "emote": "happy" }, { "who": "rosalind", "text": "...I was only borrowing it.", "emote": "shy" } ] },
+            { "verdict": "return", "to": "rosalind", "grade": "wrong", "ledger": "The note inside said \"For Cecily\". Rosalind got it wrong. The object decides.",
+              "reply": [ { "who": "rosalind", "text": "Ha! Told you.", "emote": "sly" }, { "who": "cecily", "text": "You didn't even read it.", "emote": "sad" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "The note named Cecily. When two people claim one thing, let the object decide.",
+              "reply": [ { "who": "cecily", "text": "But it says my name!", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "A family locket, nothing strange about it. It should have gone home with Cecily.",
+              "reply": [ { "who": "rosalind", "text": "Well, now neither of us has it.", "emote": "angry" } ] }
+          ]
+        },
+        {
+          "id": "2.3", "claimants": ["haversham"], "wants": "briefcase",
+          "intro": [
+            { "who": "haversham", "text": "Ah. Good morning. Haversham. Hugo. I — I left my {briefcase|case} on a train. Leather.", "emote": "shy" },
+            { "who": "haversham", "text": "Most important. Inside are {the ledgers for the Pemberton account|contents}. Very confidential. Columns, figures." },
+            { "who": "haversham", "text": "And my initials, of course. {H.H., in the lining|initials}." }
+          ],
+          "claims": [
+            { "key": "case", "text": "A leather briefcase", "checks": "visible" },
+            { "key": "contents", "text": "Ledgers for the Pemberton account inside", "checks": "detail:form", "truthful": false },
+            { "key": "initials", "text": "His initials, H.H., in the lining", "checks": "detail:initials", "truthful": false }
+          ],
+          "answers": [
+            { "detail": "form", "text": "Ledgers. Columns. Figures. Ex-extremely dull.", "truthful": false },
+            { "detail": "sandwich", "text": "A sandwich? I never eat at my desk. Ulcer.", "truthful": false },
+            { "detail": "initials", "text": "H.H., naturally. Hugo Haversham.", "truthful": false }
+          ],
+          "notMine": [ { "text": "N-no, that's not it. Mine's a leather briefcase." } ],
+          "verdicts": [
+            { "verdict": "refuse", "grade": "best", "ledger": "No ledgers: a racing form and an egg-and-cress sandwich. The lining said D.F., not H.H.",
+              "reply": [ { "who": "haversham", "text": "Ah. Well. Perhaps it was a different briefcase. Good day.", "emote": "shy" } ] },
+            { "verdict": "return", "to": "haversham", "grade": "wrong", "ledger": "There were no ledgers inside, and the lining said D.F. Hugo was lying.", "set": ["briefcase=haversham"],
+              "reply": [ { "who": "haversham", "text": "Oh! Oh, thank you. Thank you very much indeed.", "emote": "happy" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "Nothing uncanny about a sandwich. It just wasn't his. Refuse him, and the owner will come.",
+              "reply": [ { "who": "haversham", "text": "The — the safe? What on earth for?", "emote": "surprised" } ] }
+          ]
+        },
+        {
+          "id": "2.4", "claimants": ["vell"], "wants": "pocket_watch", "unlockRule": "6",
+          "intro": [
+            { "who": "vell", "text": "Good morning. You must be the new one. You have her eyes.", "emote": "sly" },
+            { "who": "vell", "text": "I've come for my watch. {Silver|watch}. {It runs backwards|hands}, which suits me very well." },
+            { "who": "vell", "text": "{Station Master, Ninefold, engraved inside the lid|engraving}. You'll find everything exactly as I say. I am never wrong about my things." }
+          ],
+          "claims": [
+            { "key": "watch", "text": "A silver pocket watch", "checks": "visible" },
+            { "key": "hands", "text": "It runs backwards", "checks": "detail:hands" },
+            { "key": "engraving", "text": "\"Station Master, Ninefold\" inside the lid", "checks": "detail:engraving" }
+          ],
+          "answers": [
+            { "detail": "hands", "text": "Backwards, yes. It's counting down. To what, I wonder?" },
+            { "detail": "engraving", "text": "Station Master, Ninefold. A position of some importance. Vacant, I believe." }
+          ],
+          "notMine": [ { "text": "No. Do try to concentrate.", "emote": "sly" } ],
+          "verdicts": [
+            { "verdict": "seal", "grade": "best", "ledger": "Mr Vell knew every detail, as he always does. But the tag said it was found on Wednesday: tomorrow. Things from tomorrow go in the Iron Drawer.",
+              "reply": [ { "who": "vell", "text": "The Iron Drawer. How very like her.", "emote": "sly" }, { "who": "vell", "text": "No matter. I'm a patient man. I'll be back on Thursday." } ] },
+            { "verdict": "refuse", "grade": "ok", "ledger": "Right to refuse Mr Vell: the Grey Gentleman gets nothing. But the watch came from tomorrow. It belonged in the Iron Drawer.",
+              "reply": [ { "who": "vell", "text": "No? Just like that? She trained you well.", "emote": "sly" }, { "who": "vell", "text": "I'll be back on Thursday." } ] },
+            { "verdict": "return", "to": "vell", "grade": "wrong", "ledger": "You gave the Grey Gentleman the Station Master's watch. Did the colours look a little thinner after he left?", "set": ["vellItems+=1", "watch=vell"],
+              "reply": [ { "who": "vell", "text": "Thank you. Thank you so very much.", "emote": "happy" }, { "who": "vell", "text": "Tick, tock. Backwards." } ] }
+          ]
+        },
+        {
+          "id": "2.5", "claimants": ["pip"], "wants": "toy_rabbit",
+          "intro": [
+            { "who": "pip", "text": "Hiya! Have you got Mr Hops? He's {a grey rabbit|rabbit}. He's not mine, he's my brother's, Tobi's.", "emote": "happy" },
+            { "who": "pip", "text": "Tobi left him on the {school train|where} yesterday and he's been crying ALL night. He's three." },
+            { "who": "pip", "text": "{Tobi chews his ear|ear} when he's asleep. It's disgusting. Mum says it's a comfort." }
+          ],
+          "claims": [
+            { "key": "rabbit", "text": "A grey toy rabbit called Mr Hops", "checks": "visible" },
+            { "key": "where", "text": "Left on the school train, yesterday", "checks": "tag.where" },
+            { "key": "ear", "text": "Her brother chews one of his ears", "checks": "detail:ear" }
+          ],
+          "answers": [
+            { "detail": "ear", "text": "That's Tobi! Told you. Disgusting." },
+            { "detail": "tag", "text": "OKAFOR! That's us! Mum sews our name in everything, even my PE knickers." }
+          ],
+          "notMine": [ { "text": "That's not Mr Hops, silly. He's a rabbit!" } ],
+          "verdicts": [
+            { "verdict": "return", "to": "pip", "grade": "best", "ledger": "The chewed ear and the OKAFOR tag. Mr Hops went home to Tobi.",
+              "reply": [ { "who": "pip", "text": "MR HOPS! Tobi is going to go bananas!", "emote": "happy" }, { "who": "pip", "text": "Thanks, mister! I'll draw you something." } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "Her name was sewn under his foot. Mr Hops should have gone home.",
+              "reply": [ { "who": "pip", "text": "But Tobi's CRYING.", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "A toy rabbit isn't dangerous. He should have gone home to Tobi.",
+              "reply": [ { "who": "pip", "text": "You can't lock up Mr Hops! He hasn't done anything!", "emote": "angry" } ] }
+          ]
+        }
+      ],
+      "evening": [
+        { "who": "gus", "text": "That's your Tuesday. You're getting the hang of it." },
+        { "who": "gus", "text": "Fellow in grey was asking about you, on the way out. Polite as anything. I didn't like it one bit.", "emote": "sad" }
+      ],
+      "gazette": [
+        { "condition": "vellItems>=1", "headline": "STATION CLOCKS RUN SLOW, SAY COMMUTERS", "body": "Passengers at Ninefold Junction report that the station clocks lost several minutes yesterday afternoon. Several also remarked that the paint seemed duller than they remembered." },
+        { "condition": "obj:umbrella_duck@returned:bramble", "headline": "CONSTABLE REUNITED WITH TRUSTY BROLLY", "body": "Constable B. Bramble of the station police collected his umbrella from Lost Property yesterday. \"Chipped the beak on a pickpocket,\" he told the Gazette. \"Wouldn't swap it for a new one.\"" },
+        { "condition": "", "headline": "TWINS IN PLATFORM 3 SQUABBLE", "body": "Commuters were treated to a lively exchange between the Misses Fairweather yesterday morning. The matter is understood to concern a locket, and their grandmother's handwriting." }
+      ]
+    }
+  ]
+}

@@ -95,6 +95,19 @@ namespace LostAndFound
             float k = w / Mathf.Max(1, Screen.width);
             Vector2 head = new Vector2(sp.x, sp.y) * k;
             tailLeft = head.x <= w * 0.55f;
+            // with two people at the window, the bubble goes on the far side from the other one
+            // (and a little narrower) so it never covers a face
+            bool crowded = false;
+            foreach (var other in Object.FindObjectsByType<Commuter>())
+            {
+                if (other == who || other == null) continue;
+                float ox = Camera.main.WorldToScreenPoint(other.HeadPosition).x * k;
+                if (Mathf.Abs(ox - head.x) > w * 0.45f) continue;
+                crowded = true;
+                tailLeft = ox < head.x;
+            }
+            panel.sizeDelta = new Vector2(crowded ? 560f : 700f, panel.sizeDelta.y);
+            size = panel.sizeDelta;
             float x = tailLeft ? head.x + 170f : head.x - 170f - size.x;
             x = Mathf.Clamp(x, 30f, w - size.x - 30f);
             float y = Mathf.Clamp(head.y + size.y * 0.55f, size.y + 40f, h - 24f);
@@ -324,6 +337,10 @@ namespace LostAndFound
             a = Mathf.MoveTowards(a, string.IsNullOrEmpty(show) ? 0f : 1f, Time.unscaledDeltaTime * 6f);
             if (!string.IsNullOrEmpty(show)) text.text = show;
             text.color = new Color(c.r, c.g, c.b, a);
+            // while you're holding something, sit between the object's name and the control strip
+            var rt = (RectTransform)transform;
+            float y = InspectController.I != null && InspectController.I.Held != null ? 64f : 22f;
+            rt.anchoredPosition = new Vector2(0f, Mathf.Lerp(rt.anchoredPosition.y, y, 1f - Mathf.Exp(-12f * Time.unscaledDeltaTime)));
         }
     }
 
@@ -342,6 +359,15 @@ namespace LostAndFound
             b.group = UiKit.Group(rt.gameObject);
             b.group.alpha = 0f;
             b.group.blocksRaycasts = false;
+            // a soft dark band behind the text so it reads over the pale slip and desk
+            var ramp = new Texture2D(1, 64, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (int i = 0; i < 64; i++) ramp.SetPixel(0, i, new Color(0.03f, 0.02f, 0.02f, 0.62f * Mathf.Pow(1f - i / 63f, 1.4f)));
+            ramp.Apply();
+            var band = new GameObject("Band", typeof(RectTransform)).AddComponent<RawImage>();
+            band.transform.SetParent(rt, false);
+            band.texture = ramp;
+            band.raycastTarget = false;
+            band.rectTransform.Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(0f, -64f), new Vector2(2400f, 300f));
             b.title = UiKit.Label(rt, "Title", "", Fonts.Title, 46f, new Color(1f, 0.93f, 0.8f), TextAlignmentOptions.Bottom);
             b.title.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f)).Place(new Vector2(0f, 0f), new Vector2(0f, 60f));
             b.title.outlineWidth = 0.15f;

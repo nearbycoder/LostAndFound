@@ -273,6 +273,44 @@ def wind(_):
     return mix(*parts)
 
 
+@sfx("ceramic_pick")
+def ceramic_pick(_):
+    return metal([2600, 3900, 5600], 0.25, [0.06, 0.04, 0.03]) * 0.35
+
+
+@sfx("metal_open")
+def metal_open(_):
+    """A tight tin lid prised up: a scrape, then a hollow pop."""
+    d = 0.45
+    scrape = friction(0.3, 1800, 5200, rough=55, grain=0.7) * env_points(0.3, [(0, 0), (0.05, 0.6), (0.25, 0.4), (0.3, 0)]) * 0.35
+    return mix(scrape, (0.27, metal([780, 1650, 2900], 0.4, [0.12, 0.08, 0.05], [0.7, 0.4, 0.25]) * 0.6))
+
+
+@sfx("metal_close")
+def metal_close(_):
+    return mix(metal([700, 1500, 2700], 0.45, [0.14, 0.09, 0.05], [0.7, 0.4, 0.2]) * 0.6, soft_thud(150, 0.1) * 0.5)
+
+
+@sfx("sea")
+def sea(_):
+    """A shell held to the ear: slow surf, and very faintly a station announcement chime."""
+    d = 2.6
+    tt = t(d)
+    swell = 0.55 + 0.45 * np.sin(2 * np.pi * tt / 2.2 - 1.2)
+    surf = lowpass(noise(d, "pink"), 900) * swell * 0.8 + bandpass(noise(d), 2000, 5000) * swell ** 3 * 0.12
+    chime = mix((1.4, bell_tone(659, 0.9, 0.5) * 0.06), (1.75, bell_tone(523, 1.0, 0.5) * 0.05))
+    return mix(surf * env_points(d, [(0, 0), (0.4, 1), (2.2, 1), (d, 0)]), chime)
+
+
+@sfx("snow")
+def snow(_):
+    """Shaking a snow globe: water slosh against glass, and a soft glitter of flakes."""
+    d = 0.9
+    slosh = sweep_bandpass(noise(d, "pink"), 300, 1400, 0.9) * env_points(d, [(0, 0), (0.08, 1), (0.3, 0.5), (0.45, 0.9), (d, 0)]) * 0.5
+    tinkle = mix(*[(0.1 + i * 0.07, metal([5200 + (i * 731) % 1800], 0.08, [0.02]) * 0.12) for i in range(10)])
+    return mix(slosh, tinkle)
+
+
 # ----------------------------------------------------------------------------- discovery, writing, paper
 
 def bell_tone(f, d, decay=0.6, partials=((1, 1.0), (2.0, 0.3), (3.01, 0.15), (4.2, 0.06))):

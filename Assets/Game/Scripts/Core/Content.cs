@@ -23,7 +23,7 @@ namespace LostAndFound
         public string id;
         public string name;
         public string model;           // FBX name under Resources/Models/Objects (defaults to id)
-        public string storage;         // drawer letter A-F, shelf slot (Shelf_1a...), or "desk"
+        public string storage;         // drawer letter A-F, shelf slot (Shelf_1a...), "desk", or "presented" (brought by a claimant)
         public int arrives = 1;        // day the object first appears in storage
         public string trait = "";      // "", hum, frost, tomorrow
         public string owner = "";      // commuter id the object belongs to (hum target)
@@ -120,6 +120,7 @@ namespace LostAndFound
         public string id;
         public string[] claimants = Array.Empty<string>();
         public string[] companions = Array.Empty<string>(); // stand at the window but make no claim
+        public string[] presents = Array.Empty<string>();   // documents the claimant puts on the counter
         public string wants = "";      // object id the case is about ("" = asks for something not in storage)
         public string condition = "";  // story condition for the case to run at all
         public string altOf = "";      // this case replaces another case id when its condition holds
@@ -141,6 +142,7 @@ namespace LostAndFound
         public string who = "";        // commuter id, "agnes" (note), "gus", "you"
         public string text = "";
         public string emote = "";      // happy, sad, angry, surprised, sly, shy
+        public string condition = "";  // story condition for the line to be said at all
     }
 
     [Serializable]

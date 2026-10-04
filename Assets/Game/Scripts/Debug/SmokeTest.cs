@@ -40,6 +40,7 @@ namespace LostAndFound
                 ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"smoke_{n:00}.png"));
                 Debug.Log($"[Smoke] shot {n} at {t:0.0}s phase ok, frame {Time.frameCount}");
                 n++;
+                if (n == 2 && TitleScreen.Showing) TitleScreen.Begin(Game.I);   // past the title, into the week
                 yield return new WaitForSeconds(3f);
                 t += 3f;
             }

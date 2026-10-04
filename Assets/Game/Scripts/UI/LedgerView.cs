@@ -123,7 +123,13 @@ namespace LostAndFound
             var rb = UiKit.Button(book.transform, "Replay", "Replay the day", Fonts.TitleItalic, 30f, () => replay = true);
             rb.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(320f, -88f), new Vector2(300f, 60f));
             rb.normal = new Color(0.8f, 0.72f, 0.6f);
-            while (!next && !replay) yield return null;
+            float waited = 0f;
+            while (!next && !replay)
+            {
+                waited += Time.deltaTime;
+                if (Director.AutoAdvance && waited > 2.5f) next = true;
+                yield return null;
+            }
 
             yield return UIRoot.I.fader.FadeTo(1f, 0.8f);
             Object.Destroy(panel.gameObject);

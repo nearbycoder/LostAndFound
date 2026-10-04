@@ -55,6 +55,8 @@ namespace LostAndFound
         // ------------------------------------------------------------------ queries used by the desk
 
         public bool CanRing => phase == Phase.AwaitBell && !bellRung;
+        /// <summary>A day is under way (the pause menu is available).</summary>
+        public bool Running => phase != Phase.Idle && DayDef != null;
         public bool CanUseStamps => phase == Phase.Investigate && !asking;
         public string TodayText => DayDef != null ? DayDef.date : "";
         public bool IsDiscovered(ObjectDef o, DetailDef d) => discovered.Contains(o.id + "." + d.id);
@@ -119,7 +121,7 @@ namespace LostAndFound
             yield return UIRoot.I.fader.FadeTo(0f, 1.2f);
 
             // the morning: Gus drops off the night's intake, Agnes's note for the day
-            if (DayDef.morning.Any(l => l.who == "gus")) yield return Visit("gus", true);
+            if (DayDef.morning.Any(l => l.who == "gus" && State.Check(l.condition))) yield return Visit("gus", true);
             foreach (var line in DayDef.morning)
                 yield return SayLine(line, null);
             if (window.Count > 0) yield return LeaveAll();
@@ -183,6 +185,13 @@ namespace LostAndFound
             int no = 100 + Day * 10 + caseIndex + 1;
             ClaimSlip.I.Begin($"{no:0000}", $"{DayDef.weekday} {DayNumber(DayDef.date)} Oct", names);
             UpdateHums(null);
+
+            // documents the claimant slides under the glass (a chit, a certificate, an order)
+            foreach (var pid in c.presents)
+            {
+                var pdef = Db.Object(pid);
+                if (pdef != null) yield return Desk.I.Present(pdef);
+            }
 
             if (!string.IsNullOrEmpty(c.unlockRule) && int.TryParse(c.unlockRule, out int rid))
                 yield return ShowRule(rid);
@@ -312,6 +321,7 @@ namespace LostAndFound
         /// <summary>Say one line. Speakers: a commuter id, "agnes" (a note), "gus", "you".</summary>
         IEnumerator SayLine(LineDef line, CaseDef c, List<string> keys = null)
         {
+            if (!State.Check(line.condition)) yield break;
             if (line.who == "agnes")
             {
                 yield return UIRoot.I.note.Show(null, line.text);
@@ -449,9 +459,13 @@ namespace LostAndFound
             }
             UIRoot.I.dialogue.Hide();
             yield return printing;
+            var first = WindowCommuter(c.claimants[0]);
+            yield return Desk.I.ReturnPresented(first != null ? first.HandPosition : WindowSpot + Vector3.up * 1.1f);
 
             // record and apply
+            bool ringBefore = State.Check("ring=thomas");
             Rules.ApplyVerdict(Db, c, vd, to, State);
+            bool worldChanged = !ringBefore && State.Check("ring=thomas");
             if (v == Verdict.Seal && trayItem != null && trayItem.def.id != c.wants) State.SetObjectLocation(trayItem.def.id, "sealed");
             int total = item != null ? item.CaseDetails.Count() : 0;
             int found = item != null ? item.CaseDetails.Count(d => IsDiscovered(item, d)) : 0;
@@ -460,10 +474,11 @@ namespace LostAndFound
                 caseId = c.id, verdict = vd.verdict, to = to, grade = vd.grade, ledger = vd.ledger,
                 detailsFound = found, detailsTotal = total,
             });
-            ApplyStoryVisuals();
+            if (!worldChanged) ApplyStoryVisuals();
             Save.Write();
 
             yield return LeaveAll();
+            if (worldChanged) yield return PhotographsChange();
             yield return Desk.I.Tidy();
             Desk.I.CloseAllDrawers();
             ClaimSlip.I.Clear();
@@ -477,8 +492,17 @@ namespace LostAndFound
         {
             phase = Phase.Evening;
             UIRoot.I.hint.Set(null);
-            foreach (var line in DayDef.evening.Where(l => true))
+            if (DayDef.evening.Any(l => l.who == "gus" && State.Check(l.condition))) yield return Visit("gus", Day % 2 == 0);
+            foreach (var line in DayDef.evening)
                 yield return SayLine(line, null);
+            if (Day == 1 && Desk.I.props.polaroid != null && !Desk.I.props.polaroid.gameObject.activeSelf)
+            {
+                // the photograph off the last train: you, at this desk
+                UIRoot.I.dialogue.Hide();
+                yield return Desk.I.props.ArrivePolaroid(Desk.I.tray.position);
+                yield return new WaitForSeconds(2.2f);
+            }
+            if (window.Count > 0) yield return LeaveAll();
             UIRoot.I.dialogue.Hide();
             AudioDirector.Play("shutter_down", 0.8f);
             yield return UIRoot.I.fader.FadeTo(1f, 1.2f);
@@ -574,8 +598,42 @@ namespace LostAndFound
 
         public void ApplyStoryVisuals()
         {
-            PostFX.I?.SetGreyness(State.GetInt("vellItems") * 0.14f);
+            PostFX.I?.SetGreyness(State.GetInt("vellItems") * 0.14f + (State.Check("ring=vell") ? 0.2f : 0f));
             foreach (var p in Desk.I.props.photos) p.SetPhoto(PhotoTexture(p.photoId));
+            if (Desk.I.props.polaroid != null) Desk.I.props.polaroid.gameObject.SetActive(Day >= 2);
+        }
+
+        /// <summary>
+        /// The ring has gone home. The music stops; one by one every photograph on the desk glows and
+        /// becomes the world where Thomas made it to the platform.
+        /// </summary>
+        IEnumerator PhotographsChange()
+        {
+            UIRoot.I.hint.Set(null);
+            InteractionSystem.I.Blocked = true;
+            CameraRig.I.allowTurn = false;
+            CameraRig.I.SetView(View.Counter);
+            AudioDirector.FadeMusic(0f);
+            yield return new WaitForSeconds(1.4f);
+            AudioDirector.Music("ring", 0.5f);
+            AudioDirector.FadeMusic(1f);
+            yield return new WaitForSeconds(0.8f);
+            var all = Desk.I.props.photos.Where(p => p.gameObject.activeInHierarchy).OrderBy(p => p.transform.position.x).ToList();
+            foreach (var p in all)
+            {
+                Vector3 at = p.photo != null ? p.photo.bounds.center : p.transform.position + Vector3.up * 0.07f;
+                Vector3 fromEye = Vector3.Lerp(at, CameraRig.I.eye, 0.42f) + Vector3.up * 0.03f;
+                CameraRig.I.Focus(at, fromEye, 38f);
+                yield return new WaitForSeconds(1.1f);
+                yield return p.Change(PhotoTexture(p.photoId));
+                yield return new WaitForSeconds(0.6f);
+            }
+            foreach (var it in Desk.I.items.Values) if (it != null) it.ApplyStory(State);
+            CameraRig.I.ClearFocus();
+            yield return new WaitForSeconds(1.0f);
+            InteractionSystem.I.Blocked = false;
+            CameraRig.I.allowTurn = true;
+            AudioDirector.Music("day" + Mathf.Clamp(Day, 1, 5), 4f);
         }
 
         public Texture2D PhotoTexture(string id)
@@ -594,7 +652,7 @@ namespace LostAndFound
                 "retirement" => after ? "Forty-one years. Agnes and Thomas, with cake." : "Agnes's retirement, last Friday. Forty-one years.",
                 "mum" => after ? "Mum and me, 1951, with Grandma Agnes and Grandpa Tom." : "Mum and me at the seaside, 1951.",
                 "platform9" => after ? "Platform 9, 1921. Thomas is waving." : "The opening of Platform 9, 1921.",
-                "polaroid" => "A photograph of you, at this desk.",
+                "polaroid" => after ? "You, at this desk. Behind you: Grandma Agnes and Grandpa Tom." : "A photograph of you, at this desk. It came off the last train from Platform 9.",
                 _ => null,
             };
         }

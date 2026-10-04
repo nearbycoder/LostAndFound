@@ -131,6 +131,22 @@ namespace LostAndFound
             Cache[key] = m;
             return m;
         }
+
+        /// <summary>A quad in XY facing -z (billboards: point +z away from the camera).</summary>
+        public static Mesh QuadXY(float w, float h)
+        {
+            string key = $"qxy{w}{h}";
+            if (Cache.TryGetValue(key, out var m) && m != null) return m;
+            m = new Mesh { name = "quadxy" };
+            m.vertices = new[] { new Vector3(-w / 2, -h / 2, 0), new Vector3(w / 2, -h / 2, 0), new Vector3(w / 2, h / 2, 0), new Vector3(-w / 2, h / 2, 0) };
+            m.uv = new[] { new Vector2(0, 0), new Vector2(1, 0), new Vector2(1, 1), new Vector2(0, 1) };
+            m.triangles = new[] { 0, 2, 1, 0, 3, 2 };
+            m.normals = new[] { Vector3.back, Vector3.back, Vector3.back, Vector3.back };
+            m.RecalculateBounds();
+            m.RecalculateTangents();
+            Cache[key] = m;
+            return m;
+        }
     }
 
     public static class DeskMaterials

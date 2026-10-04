@@ -23,6 +23,8 @@ namespace LostAndFound
         {
             new Vector3(0.30f, 0.762f, 0.58f), new Vector3(0.12f, 0.762f, 0.66f), new Vector3(0.46f, 0.762f, 0.50f),
         };
+        /// <summary>Where objects kept on the desk itself (the Iron Drawer key) rest.</summary>
+        public static readonly Vector3 DeskSpot = new(-0.44f, 0.762f, 0.47f);
         public readonly Dictionary<string, ItemView> items = new();
         readonly List<ItemView> onMat = new();
         public ItemView OnTray { get; private set; }
@@ -122,7 +124,7 @@ namespace LostAndFound
             var byDrawer = new Dictionary<string, List<ItemView>>();
             foreach (var def in db.root.objects)
             {
-                if (def.storage == "desk") continue;
+                if (def.storage == "presented") continue;
                 bool sealedHere = state.ObjectLocation(def.id) == "sealed";
                 if (!state.InStorage(def, day) && !sealedHere) continue;
                 var view = ItemView.Create(def, transform);
@@ -137,6 +139,14 @@ namespace LostAndFound
                     view.transform.localPosition = iron.floor.localPosition + new Vector3(Random.Range(-0.08f, 0.08f), 0f, Random.Range(-0.1f, 0.1f));
                     view.transform.localRotation = Quaternion.Euler(0f, Random.Range(0f, 360f), 0f);
                     view.SetPickable(false);
+                    continue;
+                }
+                if (def.storage == "desk")
+                {
+                    view.tagView?.gameObject.SetActive(false);
+                    view.place = ItemPlace.Storage;
+                    view.transform.position = DeskSpot;
+                    view.transform.rotation = Quaternion.Euler(0f, 28f, 0f);
                     continue;
                 }
                 if (drawers.ContainsKey(def.storage))
@@ -251,6 +261,12 @@ namespace LostAndFound
             var tr = item.transform;
             item.place = ItemPlace.Storage;
             var d = drawers.TryGetValue(item.def.storage ?? "", out var dd) ? dd : null;
+            if (item.def.storage == "desk")
+            {
+                yield return FlyTo(item, DeskSpot, Quaternion.Euler(0f, 28f, 0f), 1f, 0.45f);
+                AudioDirector.PlayMaterial(item.def.sound, "put", 0.6f);
+                yield break;
+            }
             if (d != null)
             {
                 bool wasOpen = d.IsOpen;
@@ -331,14 +347,40 @@ namespace LostAndFound
         /// <summary>Gather stray items from the mat and tray back into storage (end of a case).</summary>
         public IEnumerator Tidy()
         {
-            var loose = onMat.ToList();
-            if (OnTray != null) loose.Add(OnTray);
+            var loose = onMat.Where(i => !i.presented).ToList();
+            if (OnTray != null && !OnTray.presented) loose.Add(OnTray);
             foreach (var it in loose)
             {
                 StartCoroutine(ReturnToStorage(it));
                 yield return new WaitForSeconds(0.12f);
             }
             if (loose.Count > 0) yield return new WaitForSeconds(0.7f);
+        }
+
+        /// <summary>A claimant slides a document under the glass; it lands on the mat for you to read.</summary>
+        public IEnumerator Present(ObjectDef def)
+        {
+            var v = ItemView.Create(def, transform);
+            v.presented = true;
+            v.ApplyStory(Director.I.State);
+            items[def.id] = v;
+            v.transform.position = tray.position + new Vector3(0f, 0.01f, 0.16f);
+            AudioDirector.Play("tray_slide", 0.6f);
+            AudioDirector.PlayMaterial(def.sound, "pick", 0.5f);
+            yield return Place(v, ItemPlace.Mat);
+        }
+
+        /// <summary>Hand every presented document back to the claimant.</summary>
+        public IEnumerator ReturnPresented(Vector3 handPos)
+        {
+            foreach (var v in items.Values.Where(i => i != null && i.presented && i.place != ItemPlace.Gone && i.place != ItemPlace.Iron).ToList())
+            {
+                if (InspectController.I.Held == v) InspectController.I.Release(ItemPlace.Mat);
+                while (InspectController.I.Held == v) yield return null;
+                yield return HandOver(v, handPos);
+                items.Remove(v.def.id);
+                Destroy(v.gameObject);
+            }
         }
 
         /// <summary>Slide the tray item under the glass to the commuter, who takes it.</summary>

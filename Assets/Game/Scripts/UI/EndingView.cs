@@ -33,9 +33,26 @@ namespace LostAndFound
 
             var title = UiKit.Label(panel, "Title", e != null ? e.title : "The End", Fonts.Title, 84f, new Color(0.96f, 0.9f, 0.78f), TextAlignmentOptions.TopLeft);
             title.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f)).Place(new Vector2(20f, 360f), new Vector2(820f, 120f));
-            string text = e != null ? string.Join("\n\n", e.lines) : "";
+            // "[condition]text" lines only appear if that thread of the story played out
+            var lines = new System.Collections.Generic.List<string>();
+            if (e != null)
+                foreach (var l in e.lines)
+                {
+                    if (l.StartsWith("[") && l.IndexOf(']') > 0)
+                    {
+                        int close = l.IndexOf(']');
+                        if (!d.State.Check(l.Substring(1, close - 1))) continue;
+                        lines.Add(l.Substring(close + 1));
+                    }
+                    else lines.Add(l);
+                }
+            string text = string.Join("\n", lines);
             var body = UiKit.Label(panel, "Body", text, Fonts.Body, 30f, new Color(0.88f, 0.82f, 0.72f), TextAlignmentOptions.TopLeft);
             body.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0f, 1f)).Place(new Vector2(24f, 230f), new Vector2(800f, 560f));
+            body.paragraphSpacing = 18f;
+            body.enableAutoSizing = true;
+            body.fontSizeMin = 20f;
+            body.fontSizeMax = 30f;
             body.maxVisibleCharacters = 0;
 
             yield return Tween.Run(1.5f, k => group.alpha = k, Ease.InOutSine, true);
@@ -55,7 +72,13 @@ namespace LostAndFound
             var b = UiKit.Button(panel, "Done", "Close the shutter  ›", Fonts.Title, 40f, () => done = true);
             b.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(420f, 70f), new Vector2(460f, 60f));
             b.normal = new Color(0.95f, 0.88f, 0.74f);
-            while (!done) yield return null;
+            float waited = 0f;
+            while (!done)
+            {
+                waited += Time.deltaTime;
+                if (Director.AutoAdvance && waited > 4f) done = true;
+                yield return null;
+            }
             yield return UIRoot.I.fader.FadeTo(1f, 1f);
             Object.Destroy(panel.gameObject);
             UIRoot.I.PopModal();

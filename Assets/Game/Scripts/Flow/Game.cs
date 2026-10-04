@@ -87,6 +87,8 @@ namespace LostAndFound
             var ui = new GameObject("UI");
             ui.transform.SetParent(transform, false);
             ui.AddComponent<UIRoot>();
+            ui.AddComponent<PauseMenu>();
+            ApplyDisplay();
 
             var deskGo = new GameObject("Desk");
             deskGo.transform.SetParent(transform, false);
@@ -111,7 +113,7 @@ namespace LostAndFound
         {
             Save = SaveGame.Load() ?? new SaveGame();
             string dayArg = Arg("-lafDay");
-            if (dayArg != null && int.TryParse(dayArg, out int day))
+            if (dayArg != null && int.TryParse(dayArg, out int day) && Arg("-lafAutopilot") == null)
             {
                 Save = new SaveGame { currentDay = day, unlockedDay = day, tutorialDone = day > 1 };
                 FastForward(day);
@@ -119,7 +121,37 @@ namespace LostAndFound
                 return;
             }
             if (Arg("-lafAutopilot") != null) return; // the autopilot starts the week itself
+            int pending = pendingDay;
+            pendingDay = 0;
+            if (pending > 0) { ReplayDay(pending); return; }
             ToTitle();
+        }
+
+        static int pendingDay;
+
+        /// <summary>Tear the whole game down and build it again: back to the title (day 0) or straight into a replay of a day.</summary>
+        public void Restart(int day)
+        {
+            Time.timeScale = 1f;
+            pendingDay = day;
+            var fresh = new GameObject("Game");
+            Destroy(gameObject);
+            fresh.AddComponent<Game>();
+        }
+
+        public void ReplayDay(int day)
+        {
+            Save = SaveGame.Load() ?? Save;
+            Director.I.Init(Db, Save);
+            if (Save.SnapshotFor(day) == null) { FastForward(day); }
+            Director.I.ReplayDay(day);
+        }
+
+        public static void ApplyDisplay()
+        {
+            if (Application.isEditor) return;
+            var mode = Settings.Fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
+            if (Screen.fullScreenMode != mode) Screen.fullScreenMode = mode;
         }
 
         /// <summary>Play earlier days with the solver's verdicts so a later day can start from a sensible state.</summary>
@@ -145,6 +177,14 @@ namespace LostAndFound
             Director.I.StartDay(day);
         }
 
+        /// <summary>Begin at a later day, earlier days played with the solver's verdicts.</summary>
+        public void StartFromDay(int day)
+        {
+            Save = new SaveGame { currentDay = day, unlockedDay = day, tutorialDone = true };
+            FastForward(day);
+            BeginWeek(day);
+        }
+
         public void NewWeek()
         {
             SaveGame.Delete();
@@ -154,8 +194,9 @@ namespace LostAndFound
 
         public void ToTitle()
         {
-            if (TitleScreen.Exists) TitleScreen.Show(this);
-            else BeginWeek(Save.currentDay);
+            if (Director.I != null && Director.I.Running) { Restart(0); return; }
+            Save = SaveGame.Load() ?? Save;
+            TitleScreen.Show(this);
         }
 
         static ContentRoot LoadContent()

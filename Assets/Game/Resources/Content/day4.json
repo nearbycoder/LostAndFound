@@ -1,0 +1,172 @@
+{
+  "days": [
+    {
+      "day": 4, "weekday": "Thursday", "date": "Thursday 18 October 1962", "title": "The Ring",
+      "rules": [8],
+      "morning": [
+        { "who": "gus", "text": "Morning! You'll never guess. Mrs Lowe's Jack came in on the 9.40 this morning. She was on the platform, waiting. Cried her eyes out, the pair of them.", "emote": "happy", "condition": "harrietPhoto=sealed" },
+        { "who": "gus", "text": "Funny thing. Mrs Lowe was on Platform 9 all yesterday morning with a photograph, waiting for the 9.40. Her Jack came in today. She'd gone home by then. Worn out, poor love.", "emote": "sad", "condition": "harrietPhoto=given" },
+        { "who": "gus", "text": "And look what turned up off Platform 9 last night. A little velvet box. It's in drawer A. It's... humming.", "emote": "surprised" },
+        { "who": "agnes", "text": "My lamp's yours now, love. Switch on the blue bulb (press L while you're holding something) and you'll see what ink tries to hide.\n\nEvery Ninefold ticket has its date in blue." }
+      ],
+      "cases": [
+        {
+          "id": "4.1", "claimants": ["sid"], "wants": "lunch_tin",
+          "intro": [
+            { "who": "sid", "text": "Mornin'! Big Sid. Platelayer. I've lost me {dinner|tin}.", "emote": "happy" },
+            { "who": "sid", "text": "Tin box, red. {Corned beef doorstep in it|sandwich}. Left it in the hut on Tuesday and some article's moved it." },
+            { "who": "sid", "text": "{My Mavis always puts a note in|note}. Don't tell the lads. I'll never hear the end of it.", "emote": "shy" }
+          ],
+          "claims": [
+            { "key": "tin", "text": "A red lunch tin", "checks": "visible" },
+            { "key": "sandwich", "text": "A corned beef sandwich inside", "checks": "detail:sandwich" },
+            { "key": "note", "text": "A note from his wife, Mavis", "checks": "detail:note" }
+          ],
+          "answers": [
+            { "detail": "sandwich", "text": "Corned beef. Thick as a sleeper. That's Mavis." },
+            { "detail": "note", "text": "\"Ask about the raise.\" Oh, Mavis. I'll ask. I'll ask today.", "emote": "shy" }
+          ],
+          "notMine": [ { "text": "That's not me dinner, pal." } ],
+          "verdicts": [
+            { "verdict": "return", "to": "sid", "grade": "best", "ledger": "The corned beef and Mavis's note. Sid got his dinner back, and asked about the raise.",
+              "reply": [ { "who": "sid", "text": "Lovely jubbly! Right. The raise. Here goes nothing.", "emote": "happy" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "Mavis's note was right there inside. It was Sid's.",
+              "reply": [ { "who": "sid", "text": "Me dinner, though!", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "Corned beef is many things, but not uncanny. It should have gone home.",
+              "reply": [ { "who": "sid", "text": "You've locked up me sandwich. That's cruel, that is.", "emote": "sad" } ] }
+          ]
+        },
+        {
+          "id": "4.2", "claimants": ["vell"], "wants": "ring_box", "presents": ["chit_vell"],
+          "intro": [
+            { "who": "vell", "text": "Thursday, as promised. I've come for {the ring|ring}. Gold. {\"A, always the 9:40, T\" inside the band|engraving}.", "emote": "sly" },
+            { "who": "vell", "text": "Mrs Pell held it for me. For years. There's her chit, in her own hand. You know her hand, don't you?" },
+            { "who": "vell", "text": "She'd want you to honour it. Family should honour family.", "emote": "sly" }
+          ],
+          "claims": [
+            { "key": "ring", "text": "A gold ring in a velvet box", "checks": "visible" },
+            { "key": "engraving", "text": "\"A, always the 9:40, T\" inside the band", "checks": "detail:engraving" }
+          ],
+          "answers": [
+            { "detail": "engraving", "text": "\"A, always the 9:40, T.\" Romantic, isn't it? Wasted on them." },
+            { "detail": "ticket", "text": "The 9.40. Everyone was on the 9.40, that morning." },
+            { "detail": "date", "text": "1921. A good year for me. Things were lost." }
+          ],
+          "notMine": [ { "text": "Don't be tiresome. The ring.", "emote": "sly" } ],
+          "verdicts": [
+            { "verdict": "refuse", "grade": "best", "ledger": "Mr Vell knew the engraving and brought a chit in Agnes's hand. Under the blue lamp it said NEVER TO VELL. The Grey Gentleman gets nothing.",
+              "reply": [ { "who": "vell", "text": "No. Of course. She always did say no.", "emote": "sly" }, { "who": "vell", "text": "Tomorrow, then. I'll bring the proper paperwork. For the drawer itself." } ] },
+            { "verdict": "seal", "grade": "ok", "ledger": "You kept the ring from Mr Vell. But it wasn't from tomorrow: it was from 1921, waiting for its owner. Now it's in the Iron Drawer.", "set": ["ring=sealed"],
+              "reply": [ { "who": "vell", "text": "The Iron Drawer. Where nobody gets it. That will do nicely, actually.", "emote": "happy" } ] },
+            { "verdict": "return", "to": "vell", "grade": "wrong", "ledger": "You gave the Grey Gentleman Agnes's ring. The chit said NEVER TO VELL, in blue.", "set": ["ring=vell", "vellItems+=1"],
+              "reply": [ { "who": "vell", "text": "Thank you.", "emote": "happy" }, { "who": "vell", "text": "Forty-one years she waited for this. And you just... handed it over." } ] }
+          ]
+        },
+        {
+          "id": "4.3", "claimants": ["lou", "spratt"], "wants": "violin_case",
+          "intro": [
+            { "who": "spratt", "text": "Vernon Spratt, violinist. That's {my violin case|case}. Black, fiddle-shaped. I left it at the Railway Arms on Tuesday night.", "emote": "sly" },
+            { "who": "spratt", "text": "{My name's on the label inside: V. Spratt|label}. Clear as day." },
+            { "who": "lou", "text": "Hey now. That's {my fiddle|case}, friend. Mmm. I think.", "emote": "happy" },
+            { "who": "lou", "text": "It was a long night. Real long. There's a... {a list? Songs? Taped in there somewhere|setlist}." },
+            { "who": "lou", "text": "You hear that? She's singing. She always sings when I'm close.", "emote": "surprised" }
+          ],
+          "claims": [
+            { "who": "spratt", "key": "case", "text": "A black, fiddle-shaped violin case", "checks": "visible" },
+            { "who": "spratt", "key": "label", "text": "\"V. Spratt\" on the label inside", "checks": "detail:label", "truthful": false },
+            { "who": "lou", "key": "case", "text": "His fiddle", "checks": "visible" },
+            { "who": "lou", "key": "setlist", "text": "A list of songs taped in it somewhere", "checks": "detail:setlist" }
+          ],
+          "answers": [
+            { "who": "spratt", "detail": "label", "text": "V. Spratt. In the f-hole. Look for yourself.", "truthful": false },
+            { "who": "lou", "detail": "label", "text": "Delacroix. New Orleans. My granddaddy put it there." },
+            { "who": "spratt", "detail": "setlist", "text": "The usual. Standards. Crowd-pleasers." },
+            { "who": "lou", "detail": "setlist", "text": "Last Train Home, always first. Then the Blues. Then Mabel's Waltz, for the old folks." }
+          ],
+          "notMine": [ { "who": "lou", "text": "That ain't her. She's a fiddle." } ],
+          "verdicts": [
+            { "verdict": "return", "to": "lou", "grade": "best", "ledger": "Lou's story was foggy, but the case hummed the moment he spoke, and the label said Delacroix. If it hums, it's home.",
+              "reply": [ { "who": "lou", "text": "There's my girl. Come to Lou.", "emote": "happy" }, { "who": "spratt", "text": "Worth a try.", "emote": "sly" } ] },
+            { "verdict": "return", "to": "spratt", "grade": "wrong", "ledger": "It hummed for Lou, not Spratt, and the label said L. Delacroix.", "set": ["violin=spratt"],
+              "reply": [ { "who": "spratt", "text": "Ha! Thank you kindly.", "emote": "happy" }, { "who": "lou", "text": "...She's crying, man. Can't you hear her?", "emote": "sad" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "It hummed for Lou. Things that hum know their owners.",
+              "reply": [ { "who": "lou", "text": "Aw, now. She's right there.", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "A humming violin is recognition, not danger. It should have gone home with Lou.",
+              "reply": [ { "who": "lou", "text": "You locked up my girl? Man.", "emote": "sad" } ] }
+          ]
+        },
+        {
+          "id": "4.4", "claimants": ["edie"], "wants": "record",
+          "intro": [
+            { "who": "edie", "text": "Darling! Edie Larkspur. You've seen my Viola, of course. Everyone has.", "emote": "happy" },
+            { "who": "edie", "text": "I've lost {a gramophone record|record}. {Lou's band|label}. He gave it to me. He hasn't yet, but he will, I can feel it." },
+            { "who": "edie", "text": "It came to the stage door by mistake and the doorman sent it here. Hand it over, there's a lamb." }
+          ],
+          "claims": [
+            { "key": "record", "text": "A gramophone record", "checks": "visible" },
+            { "key": "label", "text": "Lou Delacroix's band", "checks": "detail:label" }
+          ],
+          "answers": [
+            { "detail": "label", "text": "Lou Delacroix and the Ninefold Five. \"Last Train Home.\" He's going to be enormous." },
+            { "detail": "date", "text": "March? Darling, it's October. Oh. Oh!", "emote": "surprised" }
+          ],
+          "notMine": [ { "text": "Darling, no. A record. Round. Black." } ],
+          "verdicts": [
+            { "verdict": "seal", "grade": "best", "ledger": "It was Edie's (or will be). But the sleeve said recorded March 1963. Tomorrow can mean next year. Into the Iron Drawer.", "set": ["edieRecord=sealed"],
+              "reply": [ { "who": "edie", "text": "March! Then I shall simply have to wait for it. How thrilling.", "emote": "happy" } ] },
+            { "verdict": "return", "to": "edie", "grade": "wrong", "ledger": "The sleeve said March 1963. It came from tomorrow: it should have gone in the Iron Drawer.", "set": ["edieRecord=given"],
+              "reply": [ { "who": "edie", "text": "Divine! I shall play it until the needle wears through.", "emote": "happy" } ] },
+            { "verdict": "refuse", "grade": "ok", "ledger": "Right not to hand it over. But a record from next year belongs in the Iron Drawer.",
+              "reply": [ { "who": "edie", "text": "Refused! Me! Well, I never.", "emote": "angry" } ] }
+          ]
+        },
+        {
+          "id": "4.5", "claimants": ["thomas"], "wants": "ring_box",
+          "intro": [
+            { "who": "thomas", "text": "Hello again, miss. I said I'd come back. I'm looking for {a ring|ring}, in a little velvet box.", "emote": "shy" },
+            { "who": "thomas", "text": "It's engraved. {\"A, always the 9:40, T.\"|engraving} A for Agnes. That's her name." },
+            { "who": "thomas", "text": "I dropped it on {the 9.40 to Harwick, Friday the fourteenth of October|when}. Nineteen twenty-one." },
+            { "who": "thomas", "text": "Can you hear that? Is that... is that it?", "emote": "surprised" }
+          ],
+          "claims": [
+            { "key": "ring", "text": "A ring in a little velvet box", "checks": "visible" },
+            { "key": "engraving", "text": "Engraved: \"A, always the 9:40, T\"", "checks": "detail:engraving" },
+            { "key": "when", "text": "Dropped on the 9.40, Friday 14 October 1921", "checks": "tag.when" }
+          ],
+          "answers": [
+            { "detail": "engraving", "text": "A for Agnes. T for Thomas. Always the 9.40, because that's where I first saw her." },
+            { "detail": "ticket", "text": "First class. I'd saved for weeks. I wanted to arrive properly." },
+            { "detail": "date", "text": "The fourteenth of October, 1921. The day I meant to ask her." }
+          ],
+          "notMine": [ { "text": "No, miss. The little velvet box. Can't you hear it?" } ],
+          "missing": [
+            { "who": "thomas", "text": "Gone? To a gentleman in grey?", "emote": "sad", "condition": "ring=vell" },
+            { "who": "thomas", "text": "Locked away? Where nobody can reach it?", "emote": "sad", "condition": "ring=sealed" },
+            { "who": "thomas", "text": "Then I'll keep looking. I'm good at looking. I've had a lot of practice.", "emote": "sad" }
+          ],
+          "missingLedger": "Thomas came back for the ring, but it was gone.",
+          "verdicts": [
+            { "verdict": "return", "to": "thomas", "grade": "best", "ledger": "It hummed for Thomas. The engraving, the 1921 ticket, the date under the lamp: everything matched. After forty-one years, the ring went home.", "set": ["ring=thomas"],
+              "reply": [ { "who": "thomas", "text": "Oh.", "emote": "surprised" }, { "who": "thomas", "text": "Thank you, miss. Thank you. I'd best not keep her waiting. Not any longer.", "emote": "happy" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "It hummed the moment Thomas spoke. It was his. It was always his.",
+              "reply": [ { "who": "thomas", "text": "But it's singing. It knows me.", "emote": "sad" }, { "who": "thomas", "text": "I'll keep waiting, then. One of us always is." } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "It wasn't from tomorrow. It was from 1921, and its owner had come for it.", "set": ["ring=sealed"],
+              "reply": [ { "who": "thomas", "text": "Locked away. So close.", "emote": "sad" } ] }
+          ]
+        }
+      ],
+      "evening": [
+        { "who": "gus", "text": "Have you seen your photographs?", "emote": "surprised", "condition": "ring=thomas" },
+        { "who": "gus", "text": "That's Mr Hale. The old Station Master. Agnes's Tom. They were married forty-one years. I went to the party!", "emote": "happy", "condition": "ring=thomas" },
+        { "who": "gus", "text": "...Haven't they always been like that?", "emote": "surprised", "condition": "ring=thomas" },
+        { "who": "gus", "text": "Long day. That young fellow in the old suit went away without his ring. Looked like he'd been waiting a long time.", "emote": "sad", "condition": "!ring=thomas" },
+        { "who": "gus", "text": "Mr Vell was outside the barrier when I locked up. Just standing. Says he'll be in tomorrow, with paperwork." }
+      ],
+      "gazette": [
+        { "condition": "ring=thomas", "headline": "STATION MASTER'S WIDOW... NO, WAIT", "body": "Correction: in yesterday's edition the Gazette reported that Mr Thomas Hale, Station Master at Ninefold from 1930 to 1961, had died in 1921. The Gazette apologises. Mr and Mrs Hale will celebrate forty-one years of marriage this Sunday." },
+        { "condition": "ring=vell", "headline": "STATION CLOCKS STOP AT 9.40", "body": "Every clock at Ninefold Junction stopped at twenty to ten yesterday morning, and was found to be running backwards by the afternoon. Station staff describe the platforms as \"greyer, somehow\"." },
+        { "condition": "", "headline": "MISS LARKSPUR TO RECORD WITH BANDLEADER", "body": "Actress Edie Larkspur has denied rumours of a recording with jazz violinist Lou Delacroix. \"Not until March, darling,\" she told the Gazette, and then appeared surprised at herself." }
+      ]
+    }
+  ]
+}

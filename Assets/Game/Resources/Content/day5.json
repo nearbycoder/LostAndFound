@@ -1,0 +1,214 @@
+{
+  "days": [
+    {
+      "day": 5, "weekday": "Friday", "date": "Friday 19 October 1962", "title": "The Last Train",
+      "rules": [],
+      "morning": [
+        { "who": "gus", "text": "Last day of the week! Then a nice quiet Saturday, if the grey fellow lets us have one.", "emote": "happy" },
+        { "who": "gus", "text": "Snow globe in drawer C, birdcage on the shelf, and some spectacles you could chill milk with. Mind your fingers." },
+        { "who": "agnes", "text": "You don't need a rule today, love. You've got all of mine, and you've got your own good sense.\n\nHold the line. Don't lend the key.\n\n— Agnes Hale", "condition": "ring=thomas" },
+        { "who": "agnes", "text": "You don't need a rule today, love. You've got all of mine, and you've got your own good sense.\n\nHold the line. Don't lend the key.\n\n— A.P.", "condition": "!ring=thomas" }
+      ],
+      "cases": [
+        {
+          "id": "5.1", "claimants": ["plum"], "wants": "spectacles",
+          "intro": [
+            { "who": "plum", "text": "Good day to you. Plum. Ezra Plum. I appear to have mislaid {my spectacles|specs}, in their case.", "emote": "sad" },
+            { "who": "plum", "text": "I am, or was, {Optician to the Great Western|case}. I'd hoped to catch the Harwick train before they close the line." },
+            { "who": "plum", "text": "Close the line! Hah. They wouldn't dare. Is it cold in here, or is it me?", "emote": "surprised" }
+          ],
+          "claims": [
+            { "key": "specs", "text": "Spectacles in a case", "checks": "visible" },
+            { "key": "case", "text": "He's Optician to the Great Western", "checks": "detail:case" }
+          ],
+          "answers": [
+            { "detail": "lenses", "text": "Frosted? Oh, they're always like that now. Can't see a thing. That's rather the point." },
+            { "detail": "case", "text": "E. Plum, optician. 1889. My father's name on the brass plate, and then mine." }
+          ],
+          "notMine": [ { "text": "I can't see it, but I'm fairly sure that isn't my spectacles." } ],
+          "verdicts": [
+            { "verdict": "return", "to": "plum", "grade": "best", "ledger": "The window frosted for Mr Plum, and his frosted spectacles went with him. Cold things go to the cold.",
+              "reply": [ { "who": "plum", "text": "Ah. There you are. Everything's so much clearer.", "emote": "happy" }, { "who": "plum", "text": "Oh. Oh, I see. Well. I'd best go and catch my train." } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "The window frosted: Mr Plum had gone on ahead, and the cold spectacles were his.",
+              "reply": [ { "who": "plum", "text": "Ah. I'll wait, then. I seem to be good at that.", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "Frost isn't tomorrow. The cold spectacles belonged to the cold optician.",
+              "reply": [ { "who": "plum", "text": "Locked away? Well. I couldn't have seen them anyway.", "emote": "sad" } ] }
+          ]
+        },
+        {
+          "id": "5.2", "claimants": ["lark", "crane"], "wants": "birdcage",
+          "intro": [
+            { "who": "crane", "text": "Victor Crane again. That {brass birdcage, with the canary automaton|cage}, is mine. Victorian. Very valuable.", "emote": "sly" },
+            { "who": "crane", "text": "{My initials are engraved on the base. V.C.|plate}" },
+            { "who": "lark", "text": "Nonsense! Professor Lark, ornithology. That's {my canary|cage}. Her name is Philippa." },
+            { "who": "lark", "text": "{Wind her up and she sings three notes and a flat one|song}. She was never quite in tune. And {my initials are underneath, A.L.|plate}" }
+          ],
+          "claims": [
+            { "who": "lark", "key": "cage", "text": "A brass cage with a clockwork canary", "checks": "visible" },
+            { "who": "lark", "key": "song", "text": "She sings three notes and a flat one", "checks": "detail:song" },
+            { "who": "lark", "key": "plate", "text": "A.L. underneath", "checks": "detail:plate" },
+            { "who": "crane", "key": "cage", "text": "A brass birdcage with a canary automaton", "checks": "visible" },
+            { "who": "crane", "key": "plate", "text": "V.C. engraved on the base", "checks": "detail:plate", "truthful": false }
+          ],
+          "answers": [
+            { "who": "lark", "detail": "plate", "text": "A.L. Ambrose Lark. I had it engraved after the first time someone tried to steal her." },
+            { "who": "crane", "detail": "plate", "text": "V.C. Victor Crane. Obviously.", "truthful": false },
+            { "who": "lark", "detail": "song", "text": "Three notes and a flat one. I tried to fix it once. She sulked for a month." },
+            { "who": "crane", "detail": "song", "text": "It plays... music. Birdsong. Whatever automata play." }
+          ],
+          "notMine": [ { "who": "lark", "text": "Good heavens, no. A cage. With a bird in it." } ],
+          "verdicts": [
+            { "verdict": "return", "to": "lark", "grade": "best", "ledger": "The plate underneath said A.L., not V.C., and the Professor knew the song. The object decided.",
+              "reply": [ { "who": "lark", "text": "Philippa! Hello, old girl.", "emote": "happy" }, { "who": "crane", "text": "Pah.", "emote": "angry" } ] },
+            { "verdict": "return", "to": "crane", "grade": "wrong", "ledger": "The plate underneath said A.L. Crane only knew what he could see.", "set": ["birdcage=crane"],
+              "reply": [ { "who": "crane", "text": "Excellent. She'll fetch a pretty price.", "emote": "sly" }, { "who": "lark", "text": "Philippa...", "emote": "sad" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "The plate underneath said A.L. When two claim one thing, let the object decide.",
+              "reply": [ { "who": "lark", "text": "Refused! After all that!", "emote": "angry" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "A clockwork canary isn't dangerous. She should have gone home with the Professor.",
+              "reply": [ { "who": "lark", "text": "You can't lock up a songbird!", "emote": "angry" } ] }
+          ]
+        },
+        {
+          "id": "5.3", "claimants": ["pip"], "wants": "snow_globe",
+          "intro": [
+            { "who": "pip", "text": "Hiya, it's me again! Mr Hops says hello. Have you got {a snow globe|globe}?", "emote": "happy" },
+            { "who": "pip", "text": "It's {got the station in it|snow}. I bought it for Mum because she's poorly and she can't come out to see the trains." },
+            { "who": "pip", "text": "I don't remember buying it, actually. But I know I did. Is that weird?", "emote": "surprised" }
+          ],
+          "claims": [
+            { "key": "globe", "text": "A snow globe", "checks": "visible" },
+            { "key": "snow", "text": "The station is inside it", "checks": "detail:snow" }
+          ],
+          "answers": [
+            { "detail": "snow", "text": "The station! With snow! Mum'll love it." },
+            { "detail": "base", "text": "Souvenir of Ninefold. That's us!" },
+            { "detail": "date", "text": "December? That's ages away! That's nearly Christmas.", "emote": "surprised" }
+          ],
+          "notMine": [ { "text": "No, silly. A snow globe!" } ],
+          "verdicts": [
+            { "verdict": "seal", "grade": "best", "ledger": "It was Pip's present for her mum, but under the blue lamp the base said 21 December. It isn't lost yet. She'll buy it at Christmas.", "set": ["pipGlobe=sealed"],
+              "reply": [ { "who": "pip", "text": "The safe? Oh. Is it a Christmas present? Is that why?", "emote": "surprised" }, { "who": "pip", "text": "OK. I can wait. I'm good at waiting. Tobi isn't." } ] },
+            { "verdict": "return", "to": "pip", "grade": "wrong", "ledger": "Under the blue lamp the base said 21 December. It came from tomorrow: it belonged in the Iron Drawer.", "set": ["pipGlobe=given"],
+              "reply": [ { "who": "pip", "text": "YES! Thank you! Mum's going to cry. Happy crying.", "emote": "happy" } ] },
+            { "verdict": "refuse", "grade": "ok", "ledger": "Right not to hand it over. But something from December belongs in the Iron Drawer.",
+              "reply": [ { "who": "pip", "text": "Oh. OK. Bye, then.", "emote": "sad" } ] }
+          ]
+        },
+        {
+          "id": "5.4", "claimants": ["agnes_old"], "wants": "ring_box",
+          "intro": [
+            { "who": "agnes_old", "text": "Hello, love. Don't get up. I just wanted to see you at my desk. You look right there.", "emote": "happy" },
+            { "who": "agnes_old", "text": "Gus tells me a little velvet box came in this week. {A ring|ring}." },
+            { "who": "agnes_old", "text": "I think... {\"A, always the 9:40, T.\"|engraving} I think it was meant for me. A long time ago." }
+          ],
+          "claims": [
+            { "key": "ring", "text": "A ring in a velvet box", "checks": "visible" },
+            { "key": "engraving", "text": "\"A, always the 9:40, T\"", "checks": "detail:engraving" }
+          ],
+          "answers": [
+            { "detail": "engraving", "text": "A for Agnes. I waited on that platform every morning for a year." },
+            { "detail": "ticket", "text": "The 9.40. Every morning. He was never on it." },
+            { "detail": "date", "text": "1921. The fourteenth. I'd bought a new hat." }
+          ],
+          "notMine": [ { "text": "No, love. The little box." } ],
+          "missing": [
+            { "who": "agnes_old", "text": "It's gone, hasn't it. I can feel it. Like a draught.", "emote": "sad" },
+            { "who": "agnes_old", "text": "Never mind, love. I've waited this long. I'm very good at it." }
+          ],
+          "missingLedger": "Agnes came for the ring that should have been hers. It was gone.",
+          "verdicts": [
+            { "verdict": "return", "to": "agnes_old", "grade": "best", "ledger": "It hummed for Agnes. The ring was always meant for her. She put it on, forty-one years late.", "set": ["ring=agnes"],
+              "reply": [ { "who": "agnes_old", "text": "Oh. Oh, Tom.", "emote": "sad" }, { "who": "agnes_old", "text": "It still fits. Fancy that. Thank you, love." } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "It hummed for Agnes. It was meant for her.",
+              "reply": [ { "who": "agnes_old", "text": "No? All right, love. You know best now.", "emote": "sad" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "It wasn't from tomorrow. It was from 1921, and it was meant for Agnes.", "set": ["ring=sealed"],
+              "reply": [ { "who": "agnes_old", "text": "The Iron Drawer. Well. I did teach you that.", "emote": "sad" } ] }
+          ]
+        },
+        {
+          "id": "5.4a", "claimants": ["thomas_old"], "companions": ["agnes_old"], "wants": "umbrella_black", "altOf": "5.4", "condition": "ring=thomas",
+          "intro": [
+            { "who": "agnes_old", "text": "Hello, love! Don't get up. We were passing and Tom said, \"I've left my brolly at Lost Property again.\"", "emote": "happy" },
+            { "who": "thomas_old", "text": "Every week for thirty years, she says. {The black one|umbrella}. {My name's on the brass collar|stamp}. Station Master." },
+            { "who": "thomas_old", "text": "Funny. I feel like I've been away a long time. I haven't, have I, Agnes?", "emote": "surprised" },
+            { "who": "agnes_old", "text": "Not a day, love. Not a single day." }
+          ],
+          "claims": [
+            { "key": "umbrella", "text": "A black umbrella with a brass collar", "checks": "visible" },
+            { "key": "stamp", "text": "His name on the collar: Station Master", "checks": "detail:stamp" }
+          ],
+          "answers": [
+            { "detail": "stamp", "text": "T. Hale, Station Master. Agnes had it done for our anniversary." },
+            { "detail": "ferrule", "text": "A and T. I scratched that on the platform, the day we met." }
+          ],
+          "notMine": [ { "who": "thomas_old", "text": "No, no. The black one. Brass collar." } ],
+          "verdicts": [
+            { "verdict": "return", "to": "thomas_old", "grade": "best", "ledger": "The collar said T. HALE, STATION MASTER. It always had, now. The world had rewritten itself around a ring.",
+              "reply": [ { "who": "thomas_old", "text": "There she is. Same brolly, same desk, same girl.", "emote": "happy" }, { "who": "agnes_old", "text": "Come along, you old fool. The 9.40 won't wait.", "emote": "happy" } ] },
+            { "verdict": "refuse", "grade": "wrong", "ledger": "His name was on the collar. It was Thomas's.",
+              "reply": [ { "who": "thomas_old", "text": "Oh well. It's only an umbrella. I've got what matters.", "emote": "happy" } ] },
+            { "verdict": "seal", "grade": "wrong", "ledger": "Just an umbrella. It should have gone home with Thomas.",
+              "reply": [ { "who": "agnes_old", "text": "In my Iron Drawer? Really, love.", "emote": "surprised" } ] }
+          ]
+        },
+        {
+          "id": "5.5", "claimants": ["vell"], "wants": "iron_key", "presents": ["requisition_vell"],
+          "intro": [
+            { "who": "vell", "text": "Friday. The end of the week. The end of a great many things.", "emote": "sly" },
+            { "who": "vell", "text": "A requisition order, signed by the Station Master. I'm to collect {the watch, the compass, and the key to the Iron Drawer|key}." },
+            { "who": "vell", "text": "The key, please. It's right there by your hand. Just put it on the tray, and I'll go away forever. Isn't that what you want?" }
+          ],
+          "claims": [
+            { "key": "key", "text": "The Iron Drawer key (and the watch and compass)", "checks": "visible" }
+          ],
+          "answers": [
+            { "detail": "tag", "text": "\"Do not lend.\" I'm not borrowing it." }
+          ],
+          "notMine": [ { "text": "The key. Not that. The key.", "emote": "angry" } ],
+          "verdicts": [
+            { "verdict": "refuse", "grade": "best", "ledger": "A requisition signed by the Station Master. Under the blue lamp: dated tomorrow, and signed E. VELL. The Grey Gentleman gets nothing. Not even the time of day.",
+              "reply": [ { "who": "vell", "text": "No.", "emote": "angry" }, { "who": "vell", "text": "No, of course. You're hers, through and through.", "emote": "sly" }, { "who": "vell", "text": "Very well. There are other stations. Good evening." } ] },
+            { "verdict": "return", "to": "vell", "grade": "wrong", "ledger": "You gave the Grey Gentleman the key to the Iron Drawer. The tag said: Do not lend.", "set": ["ironKey=vell", "vellItems+=1"],
+              "reply": [ { "who": "vell", "text": "At last.", "emote": "happy" }, { "who": "vell", "text": "Forty-one years she kept me out. You lasted five days." } ] },
+            { "verdict": "seal", "grade": "ok", "ledger": "You kept the key from Mr Vell by locking it in the Iron Drawer itself. Agnes would have laughed. Refusing was enough.",
+              "reply": [ { "who": "vell", "text": "You've locked the key inside the drawer it opens. How... thorough.", "emote": "sly" } ] }
+          ]
+        }
+      ],
+      "evening": [
+        { "who": "gus", "text": "That's the week done. That's the last train." },
+        { "who": "gus", "text": "Same time Monday? Course it is. Can't run the place without you.", "emote": "happy" }
+      ],
+      "gazette": []
+    }
+  ],
+  "endings": [
+    { "id": "grey", "condition": "ring=vell", "title": "Grey Ninefold", "photo": "ending_grey",
+      "lines": [ "The colour went out of Ninefold one platform at a time.", "Mr Vell runs the Lost Property Office now. He keeps everything. Nothing ever goes home.", "Sometimes, on the 9.40, you can hear a young man asking for a ring." ] },
+    { "id": "grey", "condition": "ironKey=vell", "title": "Grey Ninefold", "photo": "ending_grey",
+      "lines": [ "Mr Vell opened the Iron Drawer on Saturday morning, and everything that should never come back came back.", "He runs the Lost Property Office now. He keeps everything. Nothing ever goes home.", "The clocks at Ninefold run backwards, and the paint is the colour of rain." ] },
+    { "id": "grey", "condition": "vellItems>=2", "title": "Grey Ninefold", "photo": "ending_grey",
+      "lines": [ "A little at a time, the Grey Gentleman collected the keys of Ninefold.", "He runs the Lost Property Office now. He keeps everything. Nothing ever goes home.", "The colour went out of the station one platform at a time." ] },
+    { "id": "nine40", "condition": "ring=thomas", "title": "The 9:40", "photo": "ending_nine40",
+      "lines": [
+        "On Saturday morning, everyone came to Platform 9 to see the 9.40 off: the whole week's worth of them.",
+        "[penhallowRest=yes]Lt. Penhallow posted his last letters by hand. Mabel was waiting at the end of the line.",
+        "[harrietPhoto=sealed]Harriet and Jack Lowe had their photograph taken on Platform 9. The clock said twenty to ten.",
+        "[edieRecord=sealed]Lou and Edie recorded \"Last Train Home\" in March. It went to number four.",
+        "[pipGlobe=sealed]Pip bought a snow globe for her mum on the twenty-first of December. Her mum got better.",
+        "[vellItems>=1]Mr Vell was seen on the far platform, a little greyer than before. Nobody waved.",
+        "Agnes and Thomas Hale stood at the front of the photograph, holding hands. Behind them, at the Lost Property window, there's you.",
+        "It runs in the family."
+      ] },
+    { "id": "longwait", "condition": "", "title": "The Long Wait", "photo": "ending_longwait",
+      "lines": [
+        "On Saturday, Agnes went down to Platform 9 at twenty to ten, as she has every morning since 1921.",
+        "[ring=agnes]She wore the ring. It still fits. She says Tom would have liked that.",
+        "[penhallowRest=yes]A bundle of old letters arrived at 14 Canal Row, still cold to the touch.",
+        "[harrietPhoto=sealed]Harriet and Jack Lowe had their photograph taken on Platform 9. The clock said twenty to ten.",
+        "[pipGlobe=sealed]Pip bought a snow globe for her mum at Christmas. Her mum got better.",
+        "The 9.40 came in. A young man in a flat cap was not on it.",
+        "Some things are lost a very long time. Agnes smiled, and waited, and went home for tea."
+      ] }
+  ]
+}

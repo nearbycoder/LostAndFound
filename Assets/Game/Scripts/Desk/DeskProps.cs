@@ -6,7 +6,7 @@ namespace LostAndFound
 {
     /// <summary>Places the desk props (lamp, stamps, slip, printer, bell, calendar, photographs...)
     /// and wires their behaviours. Positions are in booth space (player eye at 0, 1.26, -0.08).</summary>
-    public class DeskProps : MonoBehaviour
+    public partial class DeskProps : MonoBehaviour
     {
         public Lamp lamp;
         public Bell bell;
@@ -14,6 +14,10 @@ namespace LostAndFound
         public ClaimSlip slip;
         public readonly List<Stamp> stamps = new();
         public readonly List<PhotoFrame> photos = new();
+        /// <summary>The photograph of you at this desk that arrives off the last train on Monday.</summary>
+        public PhotoFrame polaroid;
+        static readonly Vector3 PolaroidPos = new(-0.43f, 0.7628f, 0.70f);
+        static readonly Quaternion PolaroidRot = Quaternion.Euler(0f, 24f, 0f);
         public DeskCalendar calendar;
         public Light lampLight, boothLight;
 
@@ -132,6 +136,22 @@ namespace LostAndFound
                 photos.Add(pf);
             }
 
+            // --- the Polaroid (hidden until it arrives at the end of Monday)
+            var pol = new GameObject("Polaroid");
+            pol.transform.SetParent(root, false);
+            pol.transform.position = PolaroidPos;
+            pol.transform.rotation = PolaroidRot;
+            var card = new GameObject("PHOTO");
+            card.transform.SetParent(pol.transform, false);
+            card.AddComponent<MeshFilter>().sharedMesh = ProcMesh.QuadXZ(0.088f, 0.107f);
+            card.AddComponent<MeshRenderer>();
+            var pbc = pol.AddComponent<BoxCollider>();
+            pbc.size = new Vector3(0.09f, 0.01f, 0.11f);
+            polaroid = pol.AddComponent<PhotoFrame>();
+            polaroid.Init("polaroid", card.transform);
+            photos.Add(polaroid);
+            pol.SetActive(false);
+
             // --- quiet set dressing
             Prop("TeaCup", new Vector3(0.42f, 0.76f, 0.40f), 30f, root);
             Prop("Inkwell", new Vector3(-0.18f, 0.76f, 0.80f), 0f, root);
@@ -192,6 +212,28 @@ namespace LostAndFound
             SetPhoto(to);
             StartCoroutine(Tween.Punch(transform, 0.08f, 0.4f));
             yield return Tween.Run(1.2f, k => MaterialLibrary.SetEmission(mat, new Color(1f, 0.85f, 0.6f) * (1 - k) * 1.5f), Ease.OutQuad);
+        }
+    }
+
+    public partial class DeskProps
+    {
+        /// <summary>The Polaroid slides out of the tray, lands on the desk, and the camera looks at it.</summary>
+        public System.Collections.IEnumerator ArrivePolaroid(Vector3 from)
+        {
+            var t = polaroid.transform;
+            polaroid.SetPhoto(Director.I.PhotoTexture("polaroid"));
+            t.gameObject.SetActive(true);
+            AudioDirector.Play("tray_slide", 0.6f);
+            yield return Tween.Run(0.9f, k =>
+            {
+                t.position = Vector3.Lerp(from, PolaroidPos, k) + Vector3.up * Mathf.Sin(k * Mathf.PI) * 0.08f;
+                t.rotation = Quaternion.Slerp(Quaternion.Euler(0f, -60f, 0f), PolaroidRot, k);
+            }, Ease.OutCubic);
+            AudioDirector.PlayMaterial("paper", "put", 0.6f);
+            CameraRig.I.Focus(PolaroidPos, Vector3.Lerp(PolaroidPos, CameraRig.I.eye, 0.45f) + Vector3.up * 0.04f, 38f);
+            yield return polaroid.Change(Director.I.PhotoTexture("polaroid"));
+            yield return new WaitForSeconds(1.6f);
+            CameraRig.I.ClearFocus();
         }
     }
 

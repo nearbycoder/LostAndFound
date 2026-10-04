@@ -1,0 +1,208 @@
+{
+  "objects": [
+    {
+      "id": "locket", "name": "Silver locket", "storage": "C", "arrives": 2, "sound": "metal", "owner": "cecily",
+      "tag": { "where": "Platform 3, under a bench", "when": "Mon 15 Oct, 5.20 pm", "train": "The 5.05 from Harwick", "note": "Ivy pattern. Lovely thing." },
+      "details": [
+        { "id": "ivy", "fact": "An ivy pattern engraved across the front.", "question": "What's engraved on the front?" },
+        { "id": "photo", "fact": "Inside the lid: a portrait of a smiling old lady.", "question": "Whose picture is inside?" },
+        { "id": "note", "fact": "A folded note inside: \"For Cecily, who never loses anything. — Gran\".", "question": "Is there anything written inside?" },
+        { "id": "hair", "kind": "secret", "fact": "A lock of hair, tied with blue thread." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "z", "amount": 165, "sound": "latch", "label": "Open the locket" } ]
+    },
+    {
+      "id": "pocket_watch", "name": "Silver pocket watch", "storage": "D", "arrives": 2, "sound": "metal", "trait": "tomorrow",
+      "tag": { "where": "Platform 9", "when": "Wed 17 Oct, 4.10 pm", "train": "", "note": "Wednesday?? Today's Tuesday. Ticking backwards, too. — G." },
+      "details": [
+        { "id": "hands", "fact": "The hands are running backwards.", "question": "Does it keep good time?" },
+        { "id": "engraving", "fact": "Engraved inside the lid: \"Station Master · Ninefold\".", "question": "Is there an inscription?" },
+        { "id": "gear", "kind": "secret", "fact": "Through the window in the back, one gear is engraved: IX." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 115, "sound": "latch", "label": "Open the case" } ]
+    },
+    {
+      "id": "toy_rabbit", "name": "Toy rabbit", "storage": "E", "arrives": 2, "sound": "cloth", "owner": "pip",
+      "tag": { "where": "The school train, carriage C", "when": "Mon 15 Oct, 3.40 pm", "train": "The school special", "note": "Well loved. Slightly damp." },
+      "details": [
+        { "id": "ear", "fact": "The left ear has been chewed short.", "question": "Is he in one piece?" },
+        { "id": "tag", "fact": "A name tag sewn under his foot: HOPS / OKAFOR.", "question": "Is his name on him anywhere?" },
+        { "id": "button", "kind": "secret", "fact": "One eye is a brown coat button, sewn on in a hurry." }
+      ]
+    },
+    {
+      "id": "briefcase", "name": "Leather briefcase", "storage": "Shelf_1b", "arrives": 2, "sound": "leather", "owner": "dora",
+      "tag": { "where": "The bar, Platform 1", "when": "Mon 15 Oct, 6.45 pm", "train": "", "note": "Smells of cress." },
+      "details": [
+        { "id": "form", "fact": "A racing form: Newmarket, the 2.30. Two horses circled.", "question": "What papers are inside?" },
+        { "id": "sandwich", "fact": "An egg-and-cress sandwich in greaseproof paper.", "question": "Was there any food in it?" },
+        { "id": "initials", "fact": "Initials stitched into the lid lining: D.F.", "question": "Are there initials anywhere?" },
+        { "id": "slip", "kind": "secret", "fact": "In the lid pocket: a winning betting slip, never cashed. £2 on Late Train, 5 to 1." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 100, "sound": "latch", "label": "Open the briefcase" } ]
+    },
+    {
+      "id": "wallet_black", "name": "Black wallet", "storage": "A", "arrives": 2, "sound": "leather",
+      "tag": { "where": "Reading room, Platform 4", "when": "Sun 14 Oct", "train": "", "note": "Empty, near enough." },
+      "details": [
+        { "id": "card", "fact": "A library card: M. Quill, reader no. 0471.", "question": "Is there a card inside?" },
+        { "id": "empty", "fact": "No money, no ticket. Nothing else at all.", "question": "Was there any money in it?" },
+        { "id": "iou", "kind": "secret", "fact": "Tucked deep in the note pocket: \"I.O.U. one queen. — A.\"" }
+      ],
+      "parts": [ { "node": "Flap", "kind": "hinge", "axis": "z", "amount": 175, "sound": "leather", "label": "Open the wallet" } ]
+    },
+    {
+      "id": "chess_set", "name": "Travel chess set", "storage": "F", "arrives": 2, "sound": "wood",
+      "tag": { "where": "The 7.10 to Harwick, first class", "when": "Mon 15 Oct", "train": "The 7.10", "note": "Game still going. Didn't touch it." },
+      "details": [
+        { "id": "game", "fact": "A game in progress. White is two moves from mate.", "question": "Who was winning?" },
+        { "id": "note", "fact": "Inside the lid: \"Your move, Arthur. — M.\"", "question": "Is there a note with it?" },
+        { "id": "knight", "kind": "secret", "fact": "One black knight has been carved from a wine cork." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 105, "sound": "hinge", "label": "Open the box" } ]
+    },
+    {
+      "id": "photograph", "name": "Photograph", "storage": "B", "arrives": 3, "sound": "paper", "trait": "tomorrow", "owner": "harriet",
+      "tag": { "where": "Platform 9, on the bench", "when": "Wed 17 Oct, 7.05 am", "train": "", "note": "That's Mrs Lowe, from Canal Row. With her Jack. — G." },
+      "details": [
+        { "id": "clock", "fact": "A couple holding each other on Platform 9. The station clock reads 9.40.", "question": "What's in the picture?" },
+        { "id": "stamp", "fact": "On the back, a developer's stamp: NINEFOLD STUDIO, Thurs 18 Oct 1962.", "question": "Is anything written on the back?" },
+        { "id": "figure", "kind": "secret", "fact": "Faint in the background, a young man in a flat cap is waving." }
+      ]
+    },
+    {
+      "id": "frosted_tin", "name": "Frosted biscuit tin", "storage": "Shelf_2c", "arrives": 3, "sound": "metal", "trait": "frost", "owner": "penhallow",
+      "tag": { "where": "Platform 9", "when": "(frozen solid)", "train": "", "note": "Cold as the grave. Won't thaw by the stove. — G." },
+      "details": [
+        { "id": "lid", "fact": "Painted on the lid: \"Lt. A. Penhallow · 1917\".", "question": "Is there a name on it?" },
+        { "id": "letters", "fact": "Letters tied with string, addressed to Miss Mabel Hart, 14 Canal Row.", "question": "Who are the letters to?" },
+        { "id": "harmonica", "fact": "A battered harmonica.", "question": "What else is inside?" },
+        { "id": "poppy", "kind": "secret", "fact": "A pressed poppy, still red." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "slide", "axis": "y", "amount": 0.07, "sound": "metal", "label": "Prise the lid off" } ]
+    },
+    {
+      "id": "lunch_tin", "name": "Workman's lunch tin", "storage": "Shelf_3c", "arrives": 3, "sound": "metal", "owner": "sid",
+      "tag": { "where": "The permanent way hut, Platform 7", "when": "Tue 16 Oct", "train": "", "note": "Heavy. Sandwich, I reckon. — G." },
+      "details": [
+        { "id": "sandwich", "fact": "A doorstep corned-beef sandwich.", "question": "What's in it for lunch?" },
+        { "id": "note", "fact": "A note: \"Sidney — ask about the raise! Love, Mavis xx\".", "question": "Is there a note inside?" },
+        { "id": "drawing", "kind": "secret", "fact": "Inside the lid, a child's drawing: DAD, and a very long train." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 110, "sound": "hinge", "label": "Open the lid" } ]
+    },
+    {
+      "id": "seashell", "name": "Seashell", "storage": "F", "arrives": 3, "sound": "ceramic",
+      "tag": { "where": "Platform 9", "when": "Tue 16 Oct", "train": "", "note": "Listen to it. Go on. — G." },
+      "details": [
+        { "id": "sea", "requires": "listen", "fact": "Held to your ear: the sea. Then, very faintly, an announcement: \"Platform nine...\"", "question": "Does it make a sound?" },
+        { "id": "sand", "kind": "secret", "fact": "Fine white sand in the spiral, from a beach that isn't there any more." }
+      ],
+      "parts": [ { "node": "", "kind": "listen", "sound": "sea", "reveals": "sea", "label": "Hold it to your ear" } ]
+    },
+    {
+      "id": "ring_box", "name": "Ring in a velvet box", "storage": "A", "arrives": 4, "sound": "cloth", "trait": "hum", "owner": "thomas|agnes_old",
+      "tag": { "where": "Platform 9", "when": "Fri 14 Oct 1921, 9.40 am", "train": "The 9.40", "note": "Says 1921. I checked it twice. — G." },
+      "details": [
+        { "id": "engraving", "fact": "Engraved inside the band: \"A — always the 9:40 — T\".", "question": "Is it engraved?" },
+        { "id": "ticket", "fact": "Under the box, a ticket: Ninefold to Harwick, first class, the 9.40.", "question": "Which train were you on?" },
+        { "id": "date", "requires": "uv", "fact": "Under the blue lamp, the ticket's date: 14.X.21.", "question": "When did you lose it?" },
+        { "id": "flower", "kind": "secret", "fact": "A pressed forget-me-not, tucked under the cushion." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 105, "sound": "latch", "label": "Open the box" } ]
+    },
+    {
+      "id": "violin_case", "name": "Violin case", "storage": "Shelf_3b", "arrives": 4, "sound": "leather", "trait": "hum", "owner": "lou",
+      "tag": { "where": "The Railway Arms, back room", "when": "Wed 17 Oct, 1.15 am", "train": "", "note": "Hums in a minor key. — G." },
+      "details": [
+        { "id": "label", "fact": "Through the f-hole, a label: \"L. Delacroix, New Orleans\".", "question": "Is there a maker's label?" },
+        { "id": "setlist", "fact": "Taped inside the lid, a set list: Last Train Home, Ninefold Blues, Mabel's Waltz.", "question": "What's taped inside?" },
+        { "id": "mother", "kind": "secret", "fact": "A photograph of an elderly woman tucked into the lid. On it: \"Mama\"." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 100, "sound": "latch", "label": "Open the case" } ]
+    },
+    {
+      "id": "record", "name": "Gramophone record", "storage": "D", "arrives": 4, "sound": "paper", "trait": "tomorrow", "owner": "edie",
+      "tag": { "where": "Platform 9", "when": "Thu 18 Oct, 6.30 am", "train": "", "note": "Never heard of this one. — G." },
+      "details": [
+        { "id": "label", "fact": "The label: Lou Delacroix & the Ninefold Five, \"Last Train Home\".", "question": "Who's on the record?" },
+        { "id": "date", "fact": "On the back of the sleeve: \"Recorded at Ninefold Studios, March 1963\".", "question": "When was it recorded?" },
+        { "id": "signature", "kind": "secret", "fact": "Signed on the sleeve: \"To Edie, my leading lady — L.\"" }
+      ]
+    },
+    {
+      "id": "opera_glove", "name": "Long opera glove", "storage": "B", "arrives": 4, "sound": "cloth",
+      "tag": { "where": "The theatre special, first class", "when": "Wed 17 Oct, 11.50 pm", "train": "", "note": "Just the one. — G." },
+      "details": [
+        { "id": "monogram", "fact": "Embroidered at the cuff: E.L.", "question": "Are there initials on it?" },
+        { "id": "lipstick", "fact": "A lipstick mark on one finger.", "question": "Is it marked at all?" },
+        { "id": "petal", "kind": "secret", "fact": "A rose petal, tucked into the cuff." }
+      ]
+    },
+    {
+      "id": "spectacles", "name": "Spectacles in a case", "storage": "E", "arrives": 5, "sound": "leather", "trait": "frost", "owner": "plum",
+      "tag": { "where": "Platform 9", "when": "(frosted over)", "train": "", "note": "Lenses won't clear. Tried my hanky. — G." },
+      "details": [
+        { "id": "lenses", "fact": "The lenses are frosted over, and so cold they sting.", "question": "Are the lenses all right?" },
+        { "id": "case", "fact": "Inside the lid: \"E. Plum · Optician to the Great Western · 1889\".", "question": "Is there a name in the case?" },
+        { "id": "timetable", "kind": "secret", "fact": "Folded under the spectacles: a Great Western timetable, winter 1903." }
+      ],
+      "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 110, "sound": "latch", "label": "Open the case" } ]
+    },
+    {
+      "id": "birdcage", "name": "Brass birdcage", "storage": "Shelf_1c", "arrives": 5, "sound": "metal", "owner": "lark",
+      "tag": { "where": "Waiting room, by the stove", "when": "Thu 18 Oct, 8.15 pm", "train": "", "note": "There's a key at the back. — G." },
+      "details": [
+        { "id": "song", "requires": "wind", "fact": "Wound up, the canary sings three notes, then a fourth, slightly flat.", "question": "What does it do?" },
+        { "id": "plate", "fact": "A brass plate underneath: A.L.", "question": "Is anything engraved on it?" },
+        { "id": "feather", "kind": "secret", "fact": "A real canary feather on the cage floor." }
+      ],
+      "parts": [
+        { "node": "Key", "kind": "spin", "axis": "z", "amount": 720, "sound": "wind", "reveals": "song", "label": "Wind the key" },
+        { "node": "Door", "kind": "hinge", "axis": "y", "amount": -100, "sound": "hinge", "label": "Open the little door" }
+      ]
+    },
+    {
+      "id": "snow_globe", "name": "Snow globe", "storage": "C", "arrives": 5, "sound": "glass", "trait": "tomorrow", "owner": "pip",
+      "tag": { "where": "Platform 9", "when": "Thu 18 Oct, 5.55 pm", "train": "", "note": "Pretty. Shake it. — G." },
+      "details": [
+        { "id": "snow", "requires": "shake", "fact": "Snow swirls over a tiny Ninefold Station.", "question": "What's inside it?" },
+        { "id": "base", "fact": "Painted on the base: \"Souvenir of Ninefold\".", "question": "Is there writing on it?" },
+        { "id": "date", "requires": "uv", "fact": "Under the blue lamp, a date on the base: Fri 21 Dec 1962.", "question": "When did you get it?" },
+        { "id": "figure", "kind": "secret", "fact": "A tiny figure stands at the Lost Property window. Waiting." }
+      ],
+      "parts": [ { "node": "", "kind": "shake", "sound": "snow", "reveals": "snow", "label": "Give it a shake" } ]
+    },
+    {
+      "id": "iron_key", "name": "Iron Drawer key", "storage": "desk", "arrives": 1, "sound": "metal",
+      "tag": { "where": "", "when": "", "train": "", "note": "" },
+      "details": [
+        { "id": "tag", "fact": "A tag on a red ribbon: \"Iron Drawer. Do not lend. — A.P.\"", "question": "Whose key is this?" },
+        { "id": "year", "kind": "secret", "fact": "Scratched into the bow: 1921." }
+      ]
+    },
+    {
+      "id": "chit_vell", "name": "Mr Vell's chit", "storage": "presented", "arrives": 1, "sound": "paper",
+      "details": [
+        { "id": "text", "fact": "A chit in Agnes's hand: \"Hold for Mr V. — A. Pell\".", "question": "Who wrote this chit?" },
+        { "id": "hidden", "requires": "uv", "fact": "Under the blue lamp, in the same hand: \"NEVER TO VELL — A.P.\"", "question": "Did Mrs Pell write anything else on it?" },
+        { "id": "back", "kind": "secret", "fact": "On the back, the faintest smell of lavender." }
+      ]
+    },
+    {
+      "id": "certificate_crane", "name": "Certificate of descent", "storage": "presented", "arrives": 1, "sound": "paper",
+      "details": [
+        { "id": "text", "fact": "A certificate: Victor Crane is the great-grandson of the late Lt. A. Penhallow.", "question": "Where did this certificate come from?" },
+        { "id": "ink", "kind": "secret", "fact": "The registry stamp smudges under your thumb. The ink is still wet." }
+      ]
+    },
+    {
+      "id": "requisition_vell", "name": "Requisition order", "storage": "presented", "arrives": 1, "sound": "paper",
+      "details": [
+        { "id": "text", "fact": "A requisition: release to bearer the Station Master's watch, the brass compass and the Iron Drawer key.", "question": "Who signed this order?" },
+        { "id": "hidden", "requires": "uv", "fact": "Under the blue lamp: \"dated Sat 20 Oct 1962 · signed: E. VELL\".", "question": "When was this signed?" },
+        { "id": "seal", "kind": "secret", "fact": "The station seal is printed upside down." }
+      ]
+    }
+  ]
+}
