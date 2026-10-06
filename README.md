@@ -279,15 +279,17 @@ Since v0.1.0 (not released yet; see [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
 - Hints and the inspect bar are legible over the claim slip (6.5:1 contrast, from about 1:1).
 - Agnes's rules are on a card on the desk (hover it, or press `R` at any time), and the inspect bar and Day Ledger count your findings.
 - 42 unit tests; a macOS build target, app icon and bundle identifier; a release packaging script; a *Picture quality* setting.
-- Round 2: shelves that never overflow (an umbrella stand, and Gus's basement for unclaimed strays); *Continue* resumes mid-day; the Curiosities page; a *Large text* option; gamepad support. There are now 45 unit tests.
+- Round 2: shelves that never overflow (an umbrella stand, and Gus's basement for unclaimed strays); *Continue* resumes mid-day; the Curiosities page; a *Large text* option; gamepad support.
+- Round 3: **Agnes's nudges** for a stuck player (`H` or the d-pad's left): step by step, ending with a glint on the spot a click would find. The Linux download is **22% smaller** (111 MB zipped, from 143 MB) through compressed meshes. A WebGL build can be made and measured (`build-webgl`, not released). The test tools can no longer touch your real save or settings. There are now 53 unit tests.
 
 Known gaps and rough edges:
 - Characters are modelled from the waist up (they're always behind the counter, and every photograph hides them below the waist). Animation is procedural; there are no skeletal rigs.
 - The synthesised music and voices are charming but not studio quality.
 - Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here.
 - Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
-- How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations.
-- The trailer and the screenshots above were captured before these fixes (the trailer's umbrellas still lie on the shelf, and its lunch tin was sealed).
+- How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations. Agnes's nudges now lead a stuck player to every deciding detail, but only the AutoPilot has followed them so far.
+- WebGL is a measured spike, not a release: the title loads (an 89 MB download), but its frame rate on a real GPU is unmeasured, depth of field is missing, and audio and browser saves need work. See [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+- The trailer and the screenshots above were captured before these fixes (the trailer's umbrellas still lie on the shelf, its lunch tin was sealed, and there are no nudges).
 
 ## License
 

@@ -435,3 +435,49 @@ anything that changes how the game looks or plays out.
 **Acceptance:** the Linux zip shrinks measurably. The audit still passes 84/84 details with no overlap
 warnings, and before-and-after screenshots of the ledger and a close-up object look the same.
 **Verify:** zip sizes, the audit, screenshots.
+
+## Round 3 results (6 Oct 2026)
+
+R3-A to R3-E all landed on `improvements-3`. R3-B and R3-C share their code, so they're one commit.
+Screenshots are in [`media/improvements/round3/`](media/improvements/round3/). Final checks on the final
+build: Linux build and validator pass (0 issues); 53/53 unit tests; the audit passes (84/84 details, lowest
+the ring's UV date at 14.1%, 0 overlap warnings, 0 storage problems). All four AutoPilot policies pass: `best` (24/24,
+*The 9:40*), `worst` (*Grey Ninefold*), `wait` (*The Long Wait*) and `refuse`. The nudge tour and the
+padtest pass too. Every player run printed `[guard] real save and settings untouched`.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R3-A. Tool runs never touch the real save or settings** | Every built-player command in `Tools/unity.sh` runs with `XDG_CONFIG_HOME` under `Logs/config/<command>/`. Unity's prefs go there, and so do any persistentDataPath writes. The real folder is hashed before and after, and the run fails with `[guard] … CHANGED` if anything there changed. | A probe run and every run since: the real save and prefs hashes are unchanged, and the scratch prefs appear under `Logs/`. A fake "real" folder modified during a run made the guard fail with status 99. |
+| **R3-B. Agnes's nudges** | `H` (d-pad left) during a claim pins a nudge at the right of the screen without blocking clicks. It gets more specific with each press, through *find*, *examine*, *ask* and *decide*, then how stamping works. The hint bar offers a nudge after 90 s without progress; a Settings toggle turns the offer off. The note steps down below a lingering speech bubble and hides while someone is speaking. All 210 nudges on the best path are in [nudges.md](nudges.md), for review. | 8 new EditMode tests (53 in all). Every claim of the `best` and `worst` weeks is followed nudge by nudge to a decision, in keyboard and pad wording. The tests check that only known rules are cited, no unfound fact is quoted and no stamp is named, and that the decision nudge agrees with `Rules.Solve`. A deliberate leak (an unfound fact in a nudge) failed 6 tests. `Tools/unity.sh nudgetour` asked for all 210 in the player and still finished 24/24 on *The 9:40*. It saw the offer after 90 s. The padtest's d-pad left gives "Try the drawers on your left (LB)". The tour passes at 1280×720 with Large text too. |
+| **R3-C. "Show me"** | The last nudge of a stage lights up the drawer, then the object. For a detail, it lights up the lid or catch that reveals it, or puts a glint on the spot. The glint uses the same distance, facing and occlusion test as a click, so it only shows where a click works. | The tour followed every *examine* nudge: **21 details found by clicking where the glint was** (in a frame it was showing), **2 by working the part that lit up**. Each glint stayed lit 30 of 30 frames held still. The ring ticket's UV date, the audit's hardest detail, was found the same way (`case4.5_nudge_glint_date.jpg`). |
+| **R3-D. WebGL spike** | `Tools/unity.sh build-webgl` and `Tools/serve_webgl.py`. Measured: about **20 minutes** to build here (IL2CPP and emscripten, under load). An **89 MB download** (Brotli: data 81.6 MB, wasm 7.3 MB, 159 MB decompressed; before R3-E's compression). The title loads and draws correctly in headless Chrome about 3 s after the page on localhost. That browser renders with **SwiftShader (software)**, at 0.5 fps, so **real-GPU frame rate is unmeasured**. Things that break or need work: URP's depth-of-field shaders are stripped (no film blur), audio logs `getFrequency() is not supported for compressed sound`, the music sources warn about their filters, and saves go to the browser's IndexedDB, which nobody has checked. The build also rewrites URP's prefiltering in `Mobile_RPAsset.asset` and leaves a `Data/` folder at the project root; both were reverted and removed, and the method's comment says to. | Build log, file sizes, a server log of the requests, and `webgl_title_swiftshader.jpg`. The Linux build afterwards: 283 MB, validator clean, smoke run 0 exceptions, nothing left modified in git. |
+| **R3-E. Smaller download** | Models import with medium mesh compression, and the paper and card UI textures as BC7 (cursors stay exact). Meshes in the build go from 86.5 to 30.9 MB, and the **Linux zip from 142.8 to 111.0 MB (−22%)**. | The audit is unchanged (84/84, lowest 14.1%, 0 overlaps). The `best` AutoPilot and the nudge tour pass with every glint steady. Side-by-side crops of the record, the birdcage and the ledger look the same (`smaller_download_*_before_after.jpg`). |
+
+### Recommendation on WebGL (for the owner)
+Worth a second, GPU-backed look, not a release yet. The download is reasonable (about 89 MB, smaller again
+after R3-E), and the title works. But nothing here can measure real frame rate, the film look loses its depth
+of field, the audio warnings need chasing, and browser saves need testing. The next step is someone opening
+the build in desktop Chrome or Firefox with a GPU (`python3 Tools/serve_webgl.py Builds/WebGL`, then
+`http://127.0.0.1:8764`) and playing Monday. Hosting it anywhere is the owner's call.
+
+### Found along the way
+- **The padtest failed three times in a row on a busy machine** (load average 30–40): once a press of A on
+  the bell went unseen, and twice a d-pad press didn't dismiss Agnes's first note. Its presses now last at
+  least three frames as well as 0.12 s, and it saves a screenshot and the UI state when it fails. It then
+  passed four times, including twice at load 112. The note failure was never reproduced, so its cause isn't proven.
+- During one baseline comparison the guard itself was stashed. That run used the real prefs folder: the
+  `prefs` file's contents were unchanged (same hash) and its timestamp was restored from a backup.
+  `TestResults.xml` in that folder is rewritten by the editor's test runner on every `Tools/unity.sh test`.
+  That's Unity's test framework, not the game's save or settings.
+- The guard covers built players, not the editor. Batch editor runs (`build-linux`, `test`) rewrite the real
+  `prefs` file with **identical contents**: same hash, new timestamp. The guard can't redirect the editor
+  without risking its licence files, which live under the same config folder. The save file was never
+  touched. Both timestamps were put back from a backup at the end.
+
+### Still open after round 3
+- Nudges have only been read by their author and followed by the AutoPilot. Whether their tone and pacing
+  help a real stuck player needs a person. [nudges.md](nudges.md) is there for a read-through.
+- WebGL frame rate on a real GPU, audio, browser saves (above). Gamepad on real hardware, macOS on a Mac,
+  Windows (blocked on the module), and a human playtest are all still open.
+- The trailer and README screenshots predate rounds 1–3.
+- Voice and music quality (ranked item 14) is still for a dedicated round.
