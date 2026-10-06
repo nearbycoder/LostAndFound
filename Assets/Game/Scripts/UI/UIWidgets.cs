@@ -466,9 +466,19 @@ namespace LostAndFound
             this.item = item;
             shownFound = -1;
             title.text = Title();
-            string lamp = Lamp.I != null && Lamp.I.uvUnlocked ? "   ·   L  BLUE LAMP" : "";
-            controls.text = $"DRAG  TURN   ·   SCROLL  CLOSER   ·   RIGHT CLICK  PUT DOWN   ·   T  ON THE TRAY{lamp}";
+            controls.text = ControlsText();
             partHint.text = "";
+        }
+
+        bool padShown;
+
+        string ControlsText()
+        {
+            padShown = GamepadInput.Active;
+            bool lampOn = Lamp.I != null && Lamp.I.uvUnlocked;
+            return GamepadInput.Prompt(
+                $"DRAG  TURN   ·   SCROLL  CLOSER   ·   RIGHT CLICK  PUT DOWN   ·   T  ON THE TRAY{(lampOn ? "   ·   L  BLUE LAMP" : "")}",
+                $"RIGHT STICK  TURN   ·   TRIGGERS  CLOSER   ·   A  OPEN / NOTE   ·   B  PUT DOWN   ·   X  ON THE TRAY{(lampOn ? "   ·   D-PAD UP  BLUE LAMP" : "")}");
         }
 
         public void SetPartHint(string s) => partHint.text = s ?? "";
@@ -498,6 +508,7 @@ namespace LostAndFound
             a = Mathf.MoveTowards(a, on ? 1f : 0f, Time.unscaledDeltaTime * 5f);
             group.alpha = a;
             transform.localScale = Vector3.one * UiKit.TextScale;
+            if (on && padShown != GamepadInput.Active) controls.text = ControlsText();   // the hands changed controls
             if (on && item != null && Findings(item.def).found != shownFound) title.text = Title();
         }
     }

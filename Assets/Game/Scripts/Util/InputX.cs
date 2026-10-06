@@ -38,7 +38,7 @@ namespace LostAndFound
             var kb = Keyboard.current;
             foreach (var k in Watched)
             {
-                bool now = kb != null && kb[k].isPressed;
+                bool now = (kb != null && kb[k].isPressed) || GamepadInput.KeyHeld(k);
                 bool prev = keys.TryGetValue(k, out var s) && s.now;
                 keys[k] = (now, prev);
             }

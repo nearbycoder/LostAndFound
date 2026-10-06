@@ -604,14 +604,14 @@ namespace LostAndFound
                 bool discoveredAny = wallet.def.CaseDetails.Any(d => IsDiscovered(wallet.def, d));
                 if (phase != Phase.Investigate) h = null;
                 else if (InspectController.I.Held == wallet)
-                    h = discoveredAny ? "Good. Press T to put it on the counter tray." : "Drag to turn it over. Click the clasp to open it, and look closely.";
+                    h = discoveredAny ? GamepadInput.Prompt("Good. Press T to put it on the counter tray.", "Good. Press X to put it on the counter tray.") : GamepadInput.Prompt("Drag to turn it over. Click the clasp to open it, and look closely.", "Turn it over with the right stick. Press A on the clasp to open it, and look closely.");
                 else if (Desk.I.OnTray == wallet)
                 {
                     h = "Pick up the green RETURN stamp and stamp the claim slip.";
                     Glow(Desk.I.props.stamps[0].HighlightRenderers);
                 }
                 else if (CameraRig.I.view != View.Cabinet && wallet.place == ItemPlace.Storage)
-                    h = "Walter's tag says drawer A. Turn left to the drawers  (A or ←)";
+                    h = GamepadInput.Prompt("Walter's tag says drawer A. Turn left to the drawers  (A or ←)", "Walter's tag says drawer A. Turn left to the drawers  (LB)");
                 else if (drawer != null && !drawer.IsOpen && wallet.place == ItemPlace.Storage)
                 {
                     h = "Open drawer A.";

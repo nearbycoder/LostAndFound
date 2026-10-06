@@ -31,7 +31,7 @@ namespace LostAndFound
         public bool Focused => focused;
 
         public override CursorKind Cursor => CursorKind.Look;
-        public override string Hint => focused ? null : "Read the claim slip  [Tab]";
+        public override string Hint => focused ? null : GamepadInput.Prompt("Read the claim slip  [Tab]", "Read the claim slip  [View]");
 
         public static ClaimSlip Create(Transform parent, Vector3 pos, float yaw)
         {

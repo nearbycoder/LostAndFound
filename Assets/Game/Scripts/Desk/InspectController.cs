@@ -158,6 +158,9 @@ namespace LostAndFound
                 if (InputX.KeyHeld(Key.W)) angularVel.x += 260f * Time.deltaTime;
                 if (InputX.KeyHeld(Key.S)) angularVel.x -= 260f * Time.deltaTime;
             }
+            // the right stick turns it as a drag would (right = drag right, up = drag up)
+            Vector2 rs = GamepadInput.RightStick;
+            angularVel += new Vector3(rs.y, -rs.x, 0f) * 420f * Settings.MouseSensitivity * Time.deltaTime;
             if (InputX.RightDown) { Release(ItemPlace.Mat); return; }
 
             Vector2 mp = mouse.position.ReadValue();

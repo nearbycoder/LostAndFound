@@ -17,6 +17,7 @@
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
 #   Tools/unity.sh audit           hold every object in the hand and check each hidden detail can be clicked;
 #                                  coverage in Screenshots/hotspots/coverage.txt, pictures of any below the bar
+#   Tools/unity.sh padtest         play Monday's first case with only a virtual gamepad; screenshots in Screenshots/padtest/
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #   Tools/unity.sh film <name> [player args]
@@ -62,6 +63,13 @@ case "${1:-open}" in
                  -logFile "$PROJECT/Logs/audit.log"
                grep -a "\[Audit\]" "$PROJECT/Logs/audit.log" | grep -v "^\[Audit\]   picture" | tail -n 3
                grep -a -q "\[Audit\] PASS" "$PROJECT/Logs/audit.log" ;;
+  padtest)     [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               rm -rf "$PROJECT/Screenshots/padtest"; mkdir -p "$PROJECT/Screenshots/padtest"
+               timeout -s KILL 600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafGamepadTest "$PROJECT/Screenshots/padtest" -lafDay 1 \
+                 -lafSave "$PROJECT/Screenshots/padtest/save.json" -lafNoMusic -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/padtest.log"
+               grep -a "\[PadTest\]\|\[Pad\]" "$PROJECT/Logs/padtest.log"
+               grep -a -q "\[PadTest\] PASS" "$PROJECT/Logs/padtest.log" ;;
   trailer)     [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
                timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
@@ -90,5 +98,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|padtest|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

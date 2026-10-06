@@ -10,7 +10,7 @@ namespace LostAndFound
     {
         public Transform plunger;
         public override CursorKind Cursor => CursorKind.Bell;
-        public override string Hint => Director.I != null && Director.I.CanRing ? "Ring for the next claimant  [Space]" : null;
+        public override string Hint => Director.I != null && Director.I.CanRing ? GamepadInput.Prompt("Ring for the next claimant  [Space]", "Ring for the next claimant  [A]") : null;
         public override bool Interactive => base.Interactive && Director.I != null && Director.I.CanRing;
 
         public override void OnClick() => Ring();
@@ -47,7 +47,7 @@ namespace LostAndFound
         float flicker;
 
         public override CursorKind Cursor => CursorKind.Hand;
-        public override string Hint => uvUnlocked ? (UV ? "Switch the blue filter off  [L]" : "Switch on Agnes's blue filter  [L]") : "Agnes's lamp";
+        public override string Hint => uvUnlocked ? (UV ? GamepadInput.Prompt("Switch the blue filter off  [L]", "Switch the blue filter off  [D-pad up]") : GamepadInput.Prompt("Switch on Agnes's blue filter  [L]", "Switch on Agnes's blue filter  [D-pad up]")) : "Agnes's lamp";
 
         void Awake() => I = this;
 

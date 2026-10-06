@@ -54,6 +54,7 @@ namespace LostAndFound
             Db = new ContentDb(LoadContent());
             gameObject.AddComponent<AudioDirector>();
             gameObject.AddComponent<CursorController>();
+            gameObject.AddComponent<GamepadInput>();
 
             // camera
             var rig = new GameObject("CameraRig");
@@ -111,6 +112,7 @@ namespace LostAndFound
             if (Arg("-lafSmoke") != null) gameObject.AddComponent<SmokeTest>();
             if (Arg("-lafDemo") != null) gameObject.AddComponent<DemoRecorder>();
             if (Arg("-lafAuditHotspots") != null) gameObject.AddComponent<HotspotAudit>();
+            if (Arg("-lafGamepadTest") != null) gameObject.AddComponent<GamepadTest>();
         }
 
         void Start()
