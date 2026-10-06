@@ -268,3 +268,68 @@ and the filmed play's lid handling.
 - How findable the details are **for people** is still untested. The audit proves reachability, not how quickly someone finds them.
 - macOS is unverified on hardware. Windows is blocked on the module. Gamepad, mid-day resume, the Curio Ledger and text size are next in the ranked list above.
 - The trailer and README screenshots predate these fixes. The trailer's Thursday was filmed with the sealed lunch tin.
+
+## Round 2 scope (6 Oct 2026)
+
+Five items, in order of risk (gamepad last). Branch `improvements-2`, one commit per item.
+Screenshots go in [`media/improvements/round2/`](media/improvements/round2/).
+
+### R2-A. Shelves that never overflow (round 1's open issue)
+If you refuse everything, the shelves overflow: the suitcase overlaps the violin case and the
+briefcase overlaps the birdcage. Those pairs are never needed on the same day, so:
+- **Unclaimed strays go to the basement.** Once every case that wants an object is past, the object
+  stops appearing in storage from the next morning, and Gus mentions it. Decoys (never claimed) stay
+  all week, because they're what you search past. The object's recorded location doesn't change, so
+  story conditions are unaffected.
+- **The umbrellas move clear of the Iron Drawer.** At 0.87 m they're longer than their board, so the
+  spare length runs out of the side of the cabinet, where the side panel hides it from the shelf view.
+
+**Acceptance:** with nothing returned (the audit's fullest case), `Tools/unity.sh audit` reports
+**0 overlap warnings** and 0 problems on every day. A unit test checks that no object leaves before its
+last case and decoys never leave. All three AutoPilot policies still pass with their endings.
+**Verify:** audit log, tests, AutoPilot, and screenshots of the shelf on Thursday and Friday plus the
+counter view (no umbrella ends showing).
+
+### R2-B. "Continue" resumes mid-day
+Quitting after case 3 of 5 currently replays the morning and all three cases.
+- The save records how many of today's cases are done. *Continue* restores the state after the last
+  verdict and goes straight to the next case (today's rules and story visuals included).
+  *Start the day again* and *Choose a Day* still begin from the morning snapshot.
+
+**Acceptance:** quit after case 2 of Tuesday (AutoPilot `-lafQuitAfter 2.2`), relaunch with
+*Continue* (`-lafContinue`): case 2.3 is the first case played, Tuesday's morning isn't replayed,
+and the week ends 24/24 on *The 9:40*. Unit tests cover the save bookkeeping.
+**Verify:** the two AutoPilot logs, tests, and the AutoPilot's screenshot of the first resumed case.
+
+### R2-C. The Curio Ledger
+The title says "Curiosities found: N of 25", but you can't see which. A **Curiosities** page off the
+title lists all 25 objects. Found secrets are written out in full. Missing ones show the object and
+the day it turns up, so a replay has a target without the secret being spoiled.
+
+**Acceptance:** the page's count matches the title's and the save; it fits 25 rows at 1280×720.
+A unit test covers the counting.
+**Verify:** screenshot with a save holding some secrets (from a filmed day), and tests.
+
+### R2-D. Larger text option
+Settings, "Text size: Normal / Large". Large scales the screen-space reading UI by 1.25×:
+dialogue, hint bar, inspect bar, tag card, Agnes's notes and the rules card.
+
+**Acceptance:** at 1280×720 on Large, the dialogue, a tag card, the inspect bar and the hint are all
+on screen, unclipped and unoverlapped. The setting applies at once and persists.
+**Verify:** screenshots at Normal and Large (AutoPilot with a non-saving `-lafTextSize` override).
+
+### R2-E. Gamepad support
+The Input System is installed, but the game is mouse and keyboard only.
+- The left stick drives an on-screen cursor (drawn by the game, with the same context icons), which
+  slows near anything clickable.
+- A = click / pick up, B = put down / back, X = on the tray, Y = Agnes's rules, the right stick turns
+  the held object, the triggers lean in and out, LB/RB turn to the drawers and shelf, View = slip,
+  Menu = pause, the d-pad's up = blue lamp.
+- The mouse takes over again the moment it moves.
+
+**Acceptance:** a scripted run with a **virtual** Input System gamepad, and no mouse or keyboard
+events, completes Monday's first case: ring, open drawer A, pick up the wallet, open it, find the
+photo, put it on the tray, stamp RETURN. It logs PASS with the right verdict. The README lists the
+controls. **No physical controller is available here, so it's untested on real hardware**, and the
+README says so.
+**Verify:** the run's log and screenshots of the gamepad cursor.
