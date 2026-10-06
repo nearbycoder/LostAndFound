@@ -246,7 +246,7 @@ namespace LostAndFound
                 var l = UiKit.Label(card.transform, label, label, Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
                 l.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(300f, 44f));
                 var s = PaperSlider.Create(card.transform, new Vector2(380f, y), 420f, Mathf.InverseLerp(min, max, get()), v => set(Mathf.Lerp(min, max, v)));
-                y -= 58f;
+                y -= 56f;
             }
             void Toggle(string label, System.Func<bool> get, System.Action<bool> set)
             {
@@ -255,7 +255,7 @@ namespace LostAndFound
                 b = UiKit.Button(card.transform, label, Text(), Fonts.Body, 30f, () => { set(!get()); b.label.text = Text(); });
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 54f;
+                y -= 52f;
             }
             Slider("Volume", 0f, 1f, () => Settings.MasterVolume, v => Settings.MasterVolume = v);
             Slider("Music", 0f, 1f, () => Settings.MusicVolume, v => Settings.MusicVolume = v);
@@ -276,9 +276,10 @@ namespace LostAndFound
                 b = UiKit.Button(card.transform, "Quality", Text(), Fonts.Body, 30f, () => { Settings.PictureQuality = (Settings.PictureQuality + 2) % 3; b.label.text = Text(); });
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 54f;
+                y -= 52f;
             }
             Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
+            Toggle("Offer Agnes's nudges when stuck (H)", () => Settings.OfferNudges, v => Settings.OfferNudges = v);
 
             var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, () =>
             {

@@ -84,10 +84,17 @@ namespace LostAndFound
                 // a finding about some other object still goes on the slip, so the player can ask about it
                 ClaimSlip.I.AddClue(o.id + ":" + d.id, $"{o.name}: {FactText(o, d)}");
             }
+            if (Current != null) OnClaimProgress();
         }
 
-        public void OnItemInspected(ItemView item) { }
-        public void OnTrayChanged(ItemView item) { }
+        public void OnItemInspected(ItemView item)
+        {
+            if (Current == null) return;
+            if (item.def.id == Current.wants) wantedSeen = true;
+            OnClaimProgress();
+        }
+
+        public void OnTrayChanged(ItemView item) { if (Current != null) OnClaimProgress(); }
 
         // ------------------------------------------------------------------ day flow
 
@@ -277,6 +284,7 @@ namespace LostAndFound
 
             phase = Phase.Investigate;
             UIRoot.I.hint.Set(string.IsNullOrEmpty(c.hint) ? null : c.hint);
+            BeginNudges(c);
             while (true)
             {
                 while (!committed) yield return null;
@@ -412,6 +420,8 @@ namespace LostAndFound
         public void Ask(string detailId)
         {
             if (phase != Phase.Investigate || asking || Current == null) return;
+            askedThisCase.Add(detailId);
+            OnClaimProgress();
             StartCoroutine(AskRoutine(detailId));
         }
 
@@ -465,6 +475,7 @@ namespace LostAndFound
             committedWho = who;
             committed = true;
             phase = Phase.Resolving;
+            OnClaimProgress();
         }
 
         IEnumerator Resolve(CaseDef c, Verdict v, int whoIdx, System.Action<bool> done)

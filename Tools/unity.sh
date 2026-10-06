@@ -17,6 +17,8 @@
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
 #   Tools/unity.sh audit           hold every object in the hand and check each hidden detail can be clicked;
 #                                  coverage in Screenshots/hotspots/coverage.txt, pictures of any below the bar
+#   Tools/unity.sh nudgetour [speed] [w] [h] [player args]  play the week asking Agnes for every nudge and doing what they say (glints clicked,
+#                                  parts worked); log in Logs/nudgetour.log, screenshots in Screenshots/nudgetour/
 #   Tools/unity.sh padtest         play Monday's first case with only a virtual gamepad; screenshots in Screenshots/padtest/
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
@@ -78,6 +80,12 @@ case "${1:-open}" in
   autopilot)   rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                player autopilot timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
                  -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
+  nudgetour)   rm -rf "$PROJECT/Screenshots/nudgetour"; mkdir -p "$PROJECT/Screenshots/nudgetour"
+               player nudgetour timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/nudgetour" -lafNudgeTour \
+                 -lafSave "$PROJECT/Screenshots/nudgetour/save.json" -lafSpeed "${2:-4}" -lafNoMusic -lafNoVsync -screen-width "${3:-1600}" -screen-height "${4:-900}" -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/nudgetour.log" "${@:5}"
+               grep -a "\[Tour\]\|\[Auto\] week\|\[Auto\] problem\|\[Auto\] PASS\|\[Auto\] FAIL" "$PROJECT/Logs/nudgetour.log" | tail -n 12
+               grep -a -q "\[Auto\] PASS" "$PROJECT/Logs/nudgetour.log" ;;
   audit)       mkdir -p "$PROJECT/Screenshots/hotspots"
                player audit timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAuditHotspots "$PROJECT/Screenshots/hotspots" \
                  -lafSave "$PROJECT/Screenshots/hotspots/save.json" -lafNoMusic -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 \
@@ -115,5 +123,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|padtest|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

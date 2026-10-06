@@ -57,12 +57,21 @@ namespace LostAndFound
 
         void Shot(string name) => ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"{shots++:00}_{name}.png"));
 
+        /// <summary>Press and release a button. Held for a few frames as well as a little time, so the game sees it even
+        /// when the machine is busy and a frame takes longer than the press (the test's presses used to go missing then).</summary>
         IEnumerator Press(GamepadButton b, float hold = 0.12f)
         {
             st = st.WithButton(b, true);
-            yield return new WaitForSecondsRealtime(hold);
+            yield return Hold(hold);
             st = st.WithButton(b, false);
-            yield return new WaitForSecondsRealtime(0.2f);
+            yield return Hold(0.2f);
+        }
+
+        static IEnumerator Hold(float seconds)
+        {
+            float end = Time.realtimeSinceStartup + seconds;
+            int f0 = Time.frameCount;
+            while (Time.realtimeSinceStartup < end || Time.frameCount - f0 < 3) yield return null;
         }
 
         /// <summary>Push the left stick towards a screen point until the cursor sits on it (a player's thumb, closed loop).</summary>
@@ -135,6 +144,8 @@ namespace LostAndFound
         IEnumerator Fail(string why)
         {
             Debug.Log($"[PadTest] FAIL: {why} (other keyboard/mouse events: {foreign})");
+            Debug.Log($"[PadTest]   at the time: pad active {GamepadInput.Active}, dialogue shown {UIRoot.I.dialogue.Shown} typing {UIRoot.I.dialogue.Typing} waiting {UIRoot.I.dialogue.Waiting}, note open {UIRoot.I.note.Open}, modal {UIRoot.ModalOpen}, frame {Time.frameCount}, {Time.realtimeSinceStartup:0}s");
+            Shot("fail");
             yield return new WaitForSecondsRealtime(0.5f);
             Application.Quit();
         }
@@ -167,6 +178,18 @@ namespace LostAndFound
                 yield return new WaitForSecondsRealtime(0.5f);
             }
             if (!d.CanUseStamps) { yield return Fail("the claimant never finished"); yield break; }
+
+            // d-pad left: a nudge from Agnes, in gamepad words; again for the next one
+            yield return Press(GamepadButton.DpadLeft);
+            yield return Until(() => UIRoot.I.nudge.Shown, 2f);
+            if (!UIRoot.I.nudge.Shown || d.NudgesTaken != 1) { yield return Fail("d-pad left didn't give a nudge"); yield break; }
+            yield return Press(GamepadButton.DpadLeft);
+            yield return Until(() => d.NudgesTaken == 2, 2f);
+            string nudge = UIRoot.I.nudge.Text;
+            Debug.Log($"[PadTest] d-pad left twice: {d.NudgesTaken} nudges, the second: {nudge}");
+            if (d.NudgesTaken != 2 || !nudge.Contains("LB")) { yield return Fail("the second nudge didn't come, or doesn't name the pad's button"); yield break; }
+            yield return new WaitForSecondsRealtime(0.6f);
+            Shot("nudge");
 
             // LB: turn to the drawers; open A; pick up the wallet
             yield return Press(GamepadButton.LeftShoulder);

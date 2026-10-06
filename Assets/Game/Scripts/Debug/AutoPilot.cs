@@ -25,6 +25,11 @@ namespace LostAndFound
         int startDay = 1;
         int shotRulesDay;
         bool basementShot, noteShot;
+        /// <summary>-lafNudgeTour: play each claim as a stuck player would, asking Agnes for every nudge at each stage and
+        /// doing what the last one says (find it where it glows, click where it glints, ask what it says to ask).</summary>
+        bool tour;
+        int tourNudges, tourGlints, tourParts;
+        Quaternion[] tourTurns;
 
         void Start()
         {
@@ -35,6 +40,19 @@ namespace LostAndFound
             Application.logMessageReceived += OnLog;
             Director.I.Autopilot = true;
             policy = Game.Arg("-lafPolicy") ?? "best";
+            tour = Game.Arg("-lafNudgeTour") != null;
+            if (tour)
+            {
+                var rng = new System.Random(9);
+                tourTurns = new Quaternion[800];
+                for (int i = 0; i < tourTurns.Length; i++)
+                {
+                    // uniform random rotations (Shoemake), seeded so the tour is repeatable
+                    double u1 = rng.NextDouble(), u2 = rng.NextDouble() * System.Math.PI * 2, u3 = rng.NextDouble() * System.Math.PI * 2;
+                    double a = System.Math.Sqrt(1 - u1), b = System.Math.Sqrt(u1);
+                    tourTurns[i] = new Quaternion((float)(a * System.Math.Sin(u2)), (float)(a * System.Math.Cos(u2)), (float)(b * System.Math.Sin(u3)), (float)(b * System.Math.Cos(u3)));
+                }
+            }
             Time.timeScale = float.TryParse(Game.Arg("-lafSpeed") ?? "", out float sp) ? sp : 2f;
             // -lafContinue: pick up the saved week, as the title's Continue does (after a -lafQuitAfter run)
             if (Game.Arg("-lafContinue") != null) { startDay = Mathf.Max(1, Game.I.Save.currentDay); Game.I.ContinueWeek(); }
@@ -114,6 +132,7 @@ namespace LostAndFound
             int skipped = played.Count(r => r.grade == "skip" && !handled.Contains(r.caseId) && d.Db.root.days.Any(day => day.day >= startDay && day.cases.Any(c => c.id == r.caseId)));
             cases += skipped;
             Debug.Log($"[Auto] week done: {cases} cases, {best} best, {skipped} skipped, ending {d.Save.ending}, {problems.Count} problems, {Time.realtimeSinceStartup - t0:0}s");
+            if (tour) Debug.Log($"[Tour] {tourNudges} nudges asked for; {tourGlints} details found by clicking the glint, {tourParts} by working the part that lit up");
             var all = d.State.records.Where(r => r.grade != "skip").ToList();
             Debug.Log($"[Auto] the week's record (this run and any before it): {all.Count(r => r.grade == "best")} best of {all.Count} decided");
             foreach (var p in problems) Debug.Log("[Auto] problem: " + p);
@@ -172,8 +191,23 @@ namespace LostAndFound
             var def = d.Db.Object(c.wants);
             Desk.I.items.TryGetValue(c.wants ?? "", out var item);
 
+            if (tour)
+            {
+                yield return TourCase(d, c, item, def);
+                bool toTray = dec.verdict != Verdict.Refuse;
+                if (item != null && InspectController.I.Held == null && toTray && Desk.I.OnTray != item)
+                {
+                    InspectController.I.Begin(item);
+                    while (InspectController.I.Held != item || InspectController.I.Busy) yield return null;
+                }
+                if (InspectController.I.Held != null)
+                {
+                    InspectController.I.Release(toTray ? ItemPlace.Tray : ItemPlace.Storage);
+                    while (InspectController.I.Held != null) yield return null;
+                }
+            }
             // look the object over: open it, find every case detail (under the lamp if need be)
-            if (item != null && item.place == ItemPlace.Storage)
+            else if (item != null && item.place == ItemPlace.Storage)
             {
                 InspectController.I.Begin(item);
                 while (InspectController.I.Held != item || InspectController.I.Busy) yield return null;
@@ -219,6 +253,157 @@ namespace LostAndFound
             }
             yield return new WaitForSeconds(1.2f);
             Shot($"case{c.id}_verdict");
+        }
+
+        // ------------------------------------------------------------------ the nudge tour
+
+        static readonly HashSet<string> TourShots = new() { "1.1", "1.3", "1.4", "2.2", "4.2", "5.2", "5.3" };
+
+        IEnumerator TourCase(Director d, CaseDef c, ItemView item, ObjectDef def)
+        {
+            var insp = InspectController.I;
+            bool shots = TourShots.Contains(c.id);
+            if (c.id == "1.2")
+            {
+                // a player who sits there: the hint bar offers a nudge after a while
+                Director.OfferInTests = true;
+                float until = Time.time + Director.OfferAfter + 10f;
+                while (!d.OfferingNudge && Time.time < until) yield return null;
+                Director.OfferInTests = false;
+                if (!d.OfferingNudge) problems.Add($"case {c.id}: no nudge offered after {Director.OfferAfter:0}s");
+                else Debug.Log($"[Tour] case {c.id}: offered a nudge after {Director.OfferAfter:0}s without progress");
+                yield return new WaitForSecondsRealtime(0.4f);
+                Shot($"case{c.id}_nudge_offer");
+            }
+            var seen = new List<NudgeStage>();
+            for (int guard = 0; guard < 16; guard++)
+            {
+                var list = d.CurrentNudges();
+                if (list == null || list.Count == 0) { problems.Add($"case {c.id}: no nudges"); yield break; }
+                var stage = list[0].stage;
+                seen.Add(stage);
+                Nudge n = null;
+                for (int i = 0; i < list.Count; i++)
+                {
+                    n = d.GiveNudge();
+                    tourNudges++;
+                    if (n == null || n.text != list[i].text) { problems.Add($"case {c.id}: nudge {i + 1} of {stage} came out as {n?.text}"); yield break; }
+                    yield return null;
+                    if (shots && stage == NudgeStage.Decide && i == Mathf.Max(0, list.Count - 2))
+                    {
+                        // the specific one: what to compare
+                        yield return new WaitForSecondsRealtime(0.7f);
+                        Shot($"case{c.id}_nudge_decide");
+                        yield return null;   // the capture happens at the end of the frame: before the next nudge
+                    }
+                }
+                yield return new WaitForSecondsRealtime(0.5f);
+                if (item == null || stage == NudgeStage.Decide) break;
+
+                if (stage == NudgeStage.Find)
+                {
+                    string want = item.drawer != null && !item.drawer.IsOpen ? "drawer" : "item";
+                    if (d.ShowingWhere != want) problems.Add($"case {c.id}: the find nudge lit up {d.ShowingWhere ?? "nothing"}, not the {want}");
+                    else Debug.Log($"[Tour] case {c.id}: find → the {want} glows");
+                    if (shots && c.id is "1.1" or "1.3" or "1.4")
+                    {
+                        CameraRig.I.SetView(item.drawer != null ? View.Cabinet : item.def.storage == "desk" ? View.Counter : View.Shelf);
+                        yield return new WaitForSecondsRealtime(1.2f);
+                        Shot($"case{c.id}_nudge_find");
+                        yield return null;
+                    }
+                    insp.Begin(item);
+                    while (insp.Held != item || insp.Busy) yield return null;
+                    continue;
+                }
+
+                if (stage == NudgeStage.Ask)
+                {
+                    if (shots) { Shot($"case{c.id}_nudge_ask"); yield return null; }
+                    d.Ask(n.detailId);
+                    yield return null;
+                    while (!d.CanUseStamps) yield return null;
+                    Debug.Log($"[Tour] case {c.id}: asked about {n.detailId}");
+                    continue;
+                }
+
+                // Examine: do what the nudges said, then find it where the last one points
+                var det = def.Detail(n.detailId);
+                if (insp.Held != item)
+                {
+                    insp.Begin(item);
+                    while (insp.Held != item || insp.Busy) yield return null;
+                }
+                yield return FindByNudge(d, c, item, det, shots);
+                if (!d.IsDiscovered(def, det)) yield break;
+            }
+            Debug.Log($"[Tour] case {c.id}: {string.Join(" → ", seen)}");
+            if (c.id == "4.5" && item != null)
+            {
+                // the hardest detail in the audit (the ring ticket's date, under the lamp) isn't needed for a hum, so
+                // point at it the same way and check the glint finds it
+                if (insp.Held != item) { insp.Begin(item); while (insp.Held != item || insp.Busy) yield return null; }
+                var date = def.Detail("date");
+                if (date != null && !d.IsDiscovered(def, date)) yield return FindByNudge(d, c, item, date, true, true);
+            }
+        }
+
+        /// <summary>Open it and switch on the lamp if the nudge said so, then either work the part that lights up, or turn
+        /// the object until the glint appears and click on the glint.</summary>
+        IEnumerator FindByNudge(Director d, CaseDef c, ItemView item, DetailDef det, bool shot, bool direct = false)
+        {
+            var insp = InspectController.I;
+            var part = item.parts.FirstOrDefault(p => p.def.reveals == det.id);
+            if (det.requires == "uv" && !Lamp.I.UV) Lamp.I.ToggleUV();
+            if (part == null)
+                foreach (var p in item.parts.Where(p => p.def.kind is "hinge" or "slide" && !p.open)) insp.OperateForDemo(p);
+            yield return new WaitForSecondsRealtime(0.8f);
+
+            if (part != null)
+            {
+                if (d.ShowingWhere != "part") problems.Add($"case {c.id}: the nudge for {det.id} lit up {d.ShowingWhere ?? "nothing"}, not the part");
+                if (shot) { Shot($"case{c.id}_nudge_part_{det.id}"); yield return null; }
+                insp.OperateForDemo(part);
+                float until = Time.realtimeSinceStartup + 6f;
+                while (!d.IsDiscovered(item.def, det) && Time.realtimeSinceStartup < until) yield return null;
+                if (d.IsDiscovered(item.def, det)) { tourParts++; Debug.Log($"[Tour] case {c.id}: {det.id}: the part lit up → worked it → discovered"); }
+                else problems.Add($"case {c.id}: working the lit part didn't reveal {det.id}");
+                yield break;
+            }
+
+            if (direct) insp.Pointing = det;
+            else if (d.ShowingWhere != "glint") problems.Add($"case {c.id}: the nudge for {det.id} is showing {d.ShowingWhere ?? "nothing"}, not a glint");
+            // turn it, as a player would, until the glint shows
+            bool posed = false;
+            foreach (float z in new[] { 1f, 1.3f })
+            {
+                foreach (var q in tourTurns)
+                {
+                    insp.PoseInHand(item, q, z);
+                    Physics.SyncTransforms();
+                    if (insp.GlintAt(item, det, out _)) { insp.HoldAt(q, z); posed = true; break; }
+                }
+                if (posed) break;
+            }
+            if (!posed) { problems.Add($"case {c.id}: no turn of {item.def.id} shows a glint on {det.id}"); yield break; }
+            float wait = Time.realtimeSinceStartup + 3f;
+            yield return new WaitForSecondsRealtime(0.6f);
+            while (!UIRoot.I.nudgeGlint.Showing && Time.realtimeSinceStartup < wait) yield return null;
+            if (!UIRoot.I.nudgeGlint.Showing) { problems.Add($"case {c.id}: the glint for {det.id} never showed"); yield break; }
+            // held still, does it stay lit? (it should, unless the spot sits right at the edge of view)
+            int lit = 0;
+            for (int f = 0; f < 30; f++) { if (UIRoot.I.nudgeGlint.Showing) lit++; yield return null; }
+            Debug.Log($"[Tour] case {c.id}: {det.id}: glint lit {lit} of 30 frames held still");
+            if (shot) Shot($"case{c.id}_nudge_glint_{det.id}");
+            yield return null;
+            // click where the glint is, in a frame it's showing (it goes out whenever a click there wouldn't land)
+            wait = Time.realtimeSinceStartup + 3f;
+            while (!UIRoot.I.nudgeGlint.Showing && Time.realtimeSinceStartup < wait) yield return null;
+            var got = UIRoot.I.nudgeGlint.Showing ? insp.ClickForDemo(UIRoot.I.nudgeGlint.ScreenPos) : null;
+            if (direct) insp.Pointing = null;
+            if (got == det) { tourGlints++; Debug.Log($"[Tour] case {c.id}: {det.id}: glint → clicked → discovered"); }
+            else problems.Add($"case {c.id}: clicking the glint for {det.id} found {got?.id ?? "nothing"}");
+            yield return new WaitForSecondsRealtime(0.3f);
         }
 
         void OnDestroy() => Application.logMessageReceived -= OnLog;

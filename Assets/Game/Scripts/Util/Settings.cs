@@ -27,6 +27,8 @@ namespace LostAndFound
         public static bool Fullscreen { get => B("fullscreen", false); set => SetB("fullscreen", value); }
         /// <summary>0 Normal, 1 Large: the reading UI (dialogue, hints, tags, notes) at 1.25x.</summary>
         public static int TextSize { get => Mathf.Clamp(Mathf.RoundToInt(F("textsize", 0f)), 0, 1); set => SetF("textsize", Mathf.Clamp(value, 0, 1)); }
+        /// <summary>After a while stuck on a claim, the hint bar offers one of Agnes's nudges (H works either way).</summary>
+        public static bool OfferNudges { get => B("offernudges", true); set => SetB("offernudges", value); }
         /// <summary>0 Low, 1 Medium, 2 High (see GraphicsQuality).</summary>
         public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 2); set => SetF("quality", Mathf.Clamp(value, 0, 2)); }
     }

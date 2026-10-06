@@ -19,7 +19,7 @@ namespace LostAndFound
         static readonly Key[] Watched =
         {
             Key.Space, Key.Enter, Key.Escape, Key.Tab, Key.A, Key.D, Key.Q, Key.E, Key.W, Key.S, Key.T, Key.L,
-            Key.LeftArrow, Key.RightArrow, Key.Backspace, Key.F1, Key.F12, Key.M, Key.R,
+            Key.LeftArrow, Key.RightArrow, Key.Backspace, Key.F1, Key.F12, Key.M, Key.R, Key.H,
         };
 
         void Awake() => inst = this;

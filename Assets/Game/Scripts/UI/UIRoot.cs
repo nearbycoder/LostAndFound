@@ -25,6 +25,8 @@ namespace LostAndFound
         public Fader fader;
         public TurnArrows arrows;
         public RulesPeek rulesPeek;
+        public NudgeNote nudge;
+        public NudgeGlint nudgeGlint;
         int modalCount;
 
         public void PushModal() => modalCount++;
@@ -59,12 +61,14 @@ namespace LostAndFound
 
             arrows = TurnArrows.Create(root);
             hotspotMarker = HotspotMarker.Create(root);
+            nudgeGlint = NudgeGlint.Create(root);
             discovery = DiscoveryFX.Create(root);
             tagCard = TagCard.Create(root);
             rulesPeek = RulesPeek.Create(root);
             inspectBar = InspectBar.Create(root);
             hint = HintBar.Create(root);
             dialogue = DialogueBox.Create(root);
+            nudge = NudgeNote.Create(root);
             note = NotePopup.Create(root);
             fader = Fader.Create(root);
             dayCard = DayCard.Create(root);

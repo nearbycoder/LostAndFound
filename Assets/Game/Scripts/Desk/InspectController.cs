@@ -30,6 +30,10 @@ namespace LostAndFound
 
         public const float SparkleRadius = 90f, ClickRadius = 46f;
 
+        /// <summary>The hidden detail one of Agnes's nudges is pointing at. It glints whenever a click on that spot would
+        /// find it: the same distance, facing and occlusion tests as <see cref="NearDetail"/>.</summary>
+        public DetailDef Pointing { get; set; }
+
         void Awake() => I = this;
 
         Vector2 pan;
@@ -122,6 +126,7 @@ namespace LostAndFound
             var item = Held;
             UIRoot.I?.inspectBar.Hide();
             UIRoot.I?.hotspotMarker.Hide();
+            UIRoot.I?.nudgeGlint.Hide();
             PostFX.I?.SetInspect(false);
             CursorController.Want(CursorKind.Default);
             var placing = Desk.I.Place(item, to);
@@ -135,6 +140,7 @@ namespace LostAndFound
 
         void Update()
         {
+            UpdatePointing();
             if (Held == null || Busy) return;
             heldTime += Time.deltaTime;
             var item = Held;
@@ -229,6 +235,50 @@ namespace LostAndFound
             float bob = Settings.ReduceMotion ? 0f : Mathf.Sin(Time.time * 1.3f) * 0.0018f;
             Vector3 target = HandPosition() + cam.transform.up * bob - tr.rotation * (item.centerOffset * scale);
             tr.position = MathX.Damp(tr.position, target, 14f, dt);
+        }
+
+        void UpdatePointing()
+        {
+            var d = Pointing;
+            if (d != null && Held != null && !Busy && !UIRoot.ModalOpen && GlintAt(Held, d, out Vector3 sp)) UIRoot.I?.nudgeGlint.Show(sp);
+            else UIRoot.I?.nudgeGlint.Hide();
+        }
+
+        /// <summary>Where on screen a click would find <paramref name="d"/> on the held item right now, if anywhere.</summary>
+        public bool GlintAt(ItemView item, DetailDef d, out Vector3 screen)
+        {
+            screen = default;
+            if (Director.I == null || item.def.Detail(d.id) != d || Director.I.IsDiscovered(item.def, d)) return false;
+            if (d.requires == "uv" && (Lamp.I == null || !Lamp.I.UV)) return false;
+            var hs = item.Hotspot(d);
+            if (hs == null) return false;
+            screen = cam.WorldToScreenPoint(hs.position);
+            if (screen.z <= 0 || screen.x < 0 || screen.y < 0 || screen.x > Screen.width || screen.y > Screen.height) return false;
+            return NearDetail(item, screen, false, out float px, out _) == d && px <= ClickRadius;
+        }
+
+        /// <summary>Hold the item still at this turn (relative to the eye) and zoom: the nudge tour, having found a turn
+        /// that shows a detail, holds it there as a player would.</summary>
+        public void HoldAt(Quaternion turn, float atZoom = 1f)
+        {
+            holdRot = turn;
+            angularVel = Vector3.zero;
+            zoom = atZoom;
+            pan = Vector2.zero;
+        }
+
+        /// <summary>Work a lid or catch as a click on it would (the nudge tour).</summary>
+        public void OperateForDemo(ItemPart part) { if (Held != null && part.owner == Held) OperatePart(part); }
+
+        /// <summary>A click on the held item at this screen point, as the player's click is handled: the detail under it
+        /// if one is in reach. Returns what it found (the nudge tour clicks where the glint is).</summary>
+        public DetailDef ClickForDemo(Vector2 screen)
+        {
+            if (Held == null) return null;
+            var d = NearDetail(Held, screen, false, out float px, out Vector3 world);
+            if (d == null || px > ClickRadius) return null;
+            Discover(d, world);
+            return d;
         }
 
         string PartLabel(ItemPart p)

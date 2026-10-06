@@ -222,6 +222,9 @@ namespace LostAndFound
         }
 
         public bool Shown => shown;
+        /// <summary>The bubble on screen (Agnes's nudge note steps out of its way).</summary>
+        public RectTransform Panel => panel;
+        public float Alpha => group != null ? group.alpha : 0f;
 
         /// <summary>What the box is saying (the AutoPilot waits for particular lines).</summary>
 
@@ -477,8 +480,8 @@ namespace LostAndFound
             padShown = GamepadInput.Active;
             bool lampOn = Lamp.I != null && Lamp.I.uvUnlocked;
             return GamepadInput.Prompt(
-                $"DRAG  TURN   ·   SCROLL  CLOSER   ·   RIGHT CLICK  PUT DOWN   ·   T  ON THE TRAY{(lampOn ? "   ·   L  BLUE LAMP" : "")}",
-                $"RIGHT STICK  TURN   ·   TRIGGERS  CLOSER   ·   A  OPEN / NOTE   ·   B  PUT DOWN   ·   X  ON THE TRAY{(lampOn ? "   ·   D-PAD UP  BLUE LAMP" : "")}");
+                $"DRAG  TURN   ·   SCROLL  CLOSER   ·   RIGHT CLICK  PUT DOWN   ·   T  ON THE TRAY{(lampOn ? "   ·   L  BLUE LAMP" : "")}   ·   H  NUDGE",
+                $"RIGHT STICK  TURN   ·   TRIGGERS  CLOSER   ·   A  OPEN / NOTE   ·   B  PUT DOWN   ·   X  ON THE TRAY{(lampOn ? "   ·   D-PAD UP  BLUE LAMP" : "")}   ·   D-PAD LEFT  NUDGE");
         }
 
         public void SetPartHint(string s) => partHint.text = s ?? "";

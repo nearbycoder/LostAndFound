@@ -10,7 +10,8 @@ namespace LostAndFound
     /// can click), and drives a virtual mouse: A and B are its left and right buttons, the triggers its scroll
     /// wheel. So everything that reads the mouse (picking, inspecting, the slip, the stamps, the menus) works
     /// unchanged. The other buttons stand in for keys through InputX: LB/RB turn, X the tray, Y the rules, View the
-    /// slip, Menu pauses, the d-pad's up the blue lamp, down rings the bell or moves the dialogue on. The right
+    /// slip, Menu pauses, the d-pad's up the blue lamp, down rings the bell or moves the dialogue on, left asks Agnes for a
+    /// nudge. The right
     /// stick turns a held object. Touch the real mouse and it takes over again.
     /// </summary>
     [DefaultExecutionOrder(-2000)]   // before InputX samples the frame
@@ -153,6 +154,7 @@ namespace LostAndFound
                 Key.Escape => pad.startButton.isPressed,
                 Key.L => pad.dpad.up.isPressed,
                 Key.Space => pad.dpad.down.isPressed,
+                Key.H => pad.dpad.left.isPressed,
                 _ => false,
             };
         }

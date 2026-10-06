@@ -47,6 +47,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Agnes's blue lamp (from Thursday) | `L` while holding something |
 | Ring for the next claimant / advance dialogue | Click the bell or `Space` / click or `Enter` |
 | Read Agnes's rules | Hover her card beside the claim slip, or `R` at any time (`R` or `Esc` puts them back) |
+| Stuck? A nudge from Agnes | `H` during a claim (press again for a stronger one) |
 | Pause, settings, Agnes's rules, restart the day | `Esc` |
 
 **With a gamepad** (Xbox-style layout; tested only with a virtual Input System gamepad, as no physical controller was to hand):
@@ -62,9 +63,12 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Turn a held object · lean in or out | Right stick · RT / LT |
 | Ring for the next claimant / move the dialogue on | D-pad down |
 | Agnes's blue lamp | D-pad up |
+| A nudge from Agnes | D-pad left |
 | Read the claim slip · pause | View · Menu |
 
 Pick up the mouse and it takes over again at once. There's no touch support.
+
+**Stuck?** Press `H` (d-pad left) during a claim for a nudge from Agnes, pinned at the right of the screen. It doesn't block anything. Each press goes a step further for wherever you've got to: finding the object, examining it, asking about it, deciding. The last nudge of each step shows you: the drawer or the object glows, or a glint marks the hidden detail once a click there would find it. Nudges only cite rules you've been given, never quote a finding you haven't found, and never say which stamp to use. After 90 seconds on a claim without progress, the hint bar offers one (*Offer Agnes's nudges when stuck* in Settings turns the offer off). Every nudge on the best path through the week is listed in [docs/nudges.md](docs/nudges.md) (spoilers).
 
 *Continue* on the title picks up where you left off, mid-day included: at the next claimant, with the morning already done.
 
@@ -185,10 +189,11 @@ All generated assets are committed, so you only need to regenerate them if you c
 
 | Check | Command | What it proves |
 |---|---|---|
-| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 45 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, the save file's round trip (including mid-day progress, and old saves), strays only leaving after their last case, and the Curiosities count. |
+| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 53 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, the save file's round trip (including mid-day progress, and old saves), strays only leaving after their last case, the Curiosities count, and Agnes's nudges (every claim of the `best` and `worst` weeks followed nudge by nudge to a decision, with keyboard and gamepad wording: only rules already handed over, no unfound finding quoted, no stamp named, and the decision nudge agreeing with the solver). |
 | **Content validator** | runs in every `build-linux`, or `Tools/unity.sh run LostAndFound.EditorTools.BuildScript.ValidateContent` | The rules solver, using only what's discoverable at the desk, derives each case's authored best verdict. Current result: 28 objects, 5 days, 25 cases, 0 issues. |
 | **AutoPilot** | `Tools/unity.sh autopilot [speed] [startDay] [best\|worst\|wait\|refuse]` | The built player plays the whole week through the real desk systems, with a screenshot of every case (plus each day's rules card and first tag). `best` gets 24/24 and *The 9:40*; `worst` gives Vell everything and reaches *Grey Ninefold*; `wait` refuses Thomas the ring and reaches *The Long Wait*; `refuse` refuses everything (the fullest the shelves get, and Gus's basement trips). With the player's `-lafQuitAfter <case>` and then `-lafContinue`, it checks that *Continue* resumes mid-day. Results are in `Logs/autopilot.log`. |
-| **Gamepad test** | `Tools/unity.sh padtest` | Plays Monday's first case with only a virtual Input System gamepad (cursor, right stick, buttons), counts any keyboard or mouse events during play (there should be none), then checks that moving a mouse takes control back. |
+| **Gamepad test** | `Tools/unity.sh padtest` | Plays Monday's first case with only a virtual Input System gamepad (cursor, right stick, buttons, and the d-pad's left for two nudges in pad wording), counts any keyboard or mouse events during play (there should be none), then checks that moving a mouse takes control back. |
+| **Nudge tour** | `Tools/unity.sh nudgetour [speed] [w] [h] [player args]` | The AutoPilot plays the week as a stuck player: at every stage of every claim it asks for every nudge, then does what they say. It picks up what glows, works the part that lights up, turns the object until the glint appears and clicks on the glint, and asks what it's told to ask. It checks the glint only shows where a click finds the detail, and that the hint bar offers a nudge after 90 s idle. Log in `Logs/nudgetour.log`. |
 | **Hotspot audit** | `Tools/unity.sh audit` (table in `Screenshots/hotspots/coverage.txt`) | Holds every object as the inspect view does, lids shut and open, through 1,500 orientations at two zooms, and asks the game's own picking code whether each hidden detail could be clicked. Then, for every day with nothing yet returned (the fullest storage gets), it checks that every stored object has a real slot and can be hovered from its shelf or open drawer. Fails if any detail or object falls under 10%, and saves a picture of each detail that does. |
 | **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0, 1 or 2 overrides the picture quality for that run only. |
 | **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. |
