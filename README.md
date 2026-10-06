@@ -46,6 +46,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Ask about a finding | Click it on the slip |
 | Agnes's blue lamp (from Thursday) | `L` while holding something |
 | Ring for the next claimant / advance dialogue | Click the bell or `Space` / click or `Enter` |
+| Read Agnes's rules | Hover her card beside the claim slip, or `R` at any time (`R` or `Esc` puts them back) |
 | Pause, settings, Agnes's rules, restart the day | `Esc` |
 
 Mouse and keyboard only for now: there is no gamepad or touch support.
@@ -54,7 +55,7 @@ Mouse and keyboard only for now: there is no gamepad or touch support.
 
 ### Agnes's rules
 
-They arrive through the week as notes in Agnes's handwriting, most of them in the morning, and you can reread them from the pause menu.
+They arrive through the week as notes in Agnes's handwriting, most of them in the morning. The ones you've been given so far are on her card beside the claim slip: hover it to read them, or press `R` at any time, even with something in your hands. They're also in the pause menu.
 
 1. Every stray has a tag. A real owner knows where and when they lost it.
 2. Trust the object, not the story. Liars only know what they can see. Ask about what's hidden.
@@ -71,7 +72,7 @@ They arrive through the week as notes in Agnes's handwriting, most of them in th
 
 <img src="docs/media/screenshot_drawers.jpg" alt="Drawer A open, with the wallet's intake tag swung up" width="49%"> <img src="docs/media/screenshot_inspect.jpg" alt="The brown wallet open in the hands, a discovery being written on the slip" width="49%">
 
-Six drawers, three shelves and the Iron Drawer. Every stray has a manila **intake tag** that says where it was found, when and on which train, and the porter's notes. Pick the object up and it comes to your hands under the lamp. Drag to turn it, scroll to lean in, and open its lid, latch or clasp. A magnifier glints when you're near a **hidden detail**, such as a name strip inside an umbrella, a photo of a dachshund called Biscuit, or a date stamped on the back of a photograph. Each discovery is written onto the claim slip.
+Six drawers, three shelves and the Iron Drawer. Every stray has a manila **intake tag** that says where it was found, when and on which train, and the porter's notes. Pick the object up and it comes to your hands under the lamp. Drag to turn it, scroll to lean in, and open its lid, latch or clasp. A magnifier glints when you're near a **hidden detail**, such as a name strip inside an umbrella, a photo of a dachshund called Biscuit, or a date stamped on the back of a photograph. Each discovery is written onto the claim slip, and the object's name in your hands shows how many of its findings you've noted (secrets aren't counted). The evening ledger records the same for every case.
 
 ### Catch the liars
 

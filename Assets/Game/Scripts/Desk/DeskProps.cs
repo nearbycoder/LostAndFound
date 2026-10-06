@@ -141,7 +141,7 @@ namespace LostAndFound
             var cal = Prop("Calendar", new Vector3(-0.30f, 0.76f, 0.86f), 12f, root);
             calendar = cal.AddComponent<DeskCalendar>();
             calendar.Init(cal.transform);
-            rulesCard = DeskRulesCard.Create(root, new Vector3(-0.45f, 0.7612f, 0.68f), -16f);
+            rulesCard = DeskRulesCard.Create(root, new Vector3(0.27f, 0.7632f, 0.60f), 8f);   // on the felt by the slip, under the bell
 
             // --- photographs (the trailer moment changes every one of them)
             var frames = new (string model, Vector3 pos, float yaw, string id)[]
@@ -311,7 +311,7 @@ namespace LostAndFound
         }
     }
 
-    /// <summary>Agnes's rules on a card by the lamp, the way she kept them: hover to read, click (or R) to hold it up.</summary>
+    /// <summary>Agnes's rules on a card beside the slip, the way she kept them: hover to read, click (or R) to hold it up.</summary>
     public class DeskRulesCard : Interactable
     {
         const float W = 0.082f, H = 0.108f;

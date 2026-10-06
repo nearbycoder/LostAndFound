@@ -104,20 +104,23 @@ namespace LostAndFound
             cases++;
             float slow = Director.Cinematic ? 3f : 1f;   // filmed runs take their time
             yield return new WaitForSeconds(0.3f * slow);
+            yield return new WaitForSecondsRealtime(0.4f);   // let hints and UI finish fading in at any -lafSpeed
             Shot($"case{c.id}_window");
             if (!Director.Cinematic && shotRulesDay != d.Day)
             {
-                // the rules known by the first case of each day: Agnes's card by the lamp, held up on Friday
+                // the rules known by the first case of each day: Agnes's card on the desk, held up on Friday
                 shotRulesDay = d.Day;
                 UIRoot.I.rulesPeek.Show();
                 yield return new WaitForSecondsRealtime(0.5f);
                 Shot($"day{d.Day}_rules_card");
+                yield return null;   // the capture happens at the end of the frame: keep the card up until then
                 UIRoot.I.rulesPeek.Hide();
                 if (d.Day == d.Db.DayCount)
                 {
                     RulesCard.Show();
                     yield return new WaitForSecondsRealtime(0.4f);
                     Shot($"day{d.Day}_rules_open");
+                    yield return null;
                     RulesCard.Hide();
                 }
                 yield return new WaitForSecondsRealtime(0.3f);
