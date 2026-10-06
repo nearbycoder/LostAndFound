@@ -25,6 +25,8 @@ namespace LostAndFound
         };
         /// <summary>Where objects kept on the desk itself (the Iron Drawer key) rest.</summary>
         public static readonly Vector3 DeskSpot = new(-0.44f, 0.762f, 0.47f);
+        /// <summary>On the floor between the desk's end and the side wall, beside the shelves.</summary>
+        public static readonly Vector3 UmbrellaStandPos = new(1.16f, 0f, 0.43f);
         public readonly Dictionary<string, ItemView> items = new();
         readonly List<ItemView> onMat = new();
         public ItemView OnTray { get; private set; }
@@ -76,6 +78,17 @@ namespace LostAndFound
             {
                 iron = SetupDrawer(ironT, "Iron", Vector3.left, 0.22f, true);
                 iron.locked = true;
+            }
+            // the umbrellas are longer than any board: they stand in a stand on the floor beside the shelves,
+            // handle up, leaning a little apart
+            Vector3 stand = UmbrellaStandPos + new Vector3(0f, 0.47f, 0f);   // an umbrella's middle, its tip on the stand's floor
+            Quaternion upright = Quaternion.AngleAxis(90f, Vector3.forward) * Quaternion.AngleAxis(90f, Vector3.up);
+            foreach (var (name, dz, lean) in new[] { ("Stand_a", 0.035f, 6f), ("Stand_b", -0.035f, -6f) })
+            {
+                var slot = new GameObject(name).transform;
+                slot.SetParent(transform, false);
+                slot.SetPositionAndRotation(stand + new Vector3(0f, 0f, dz), Quaternion.AngleAxis(lean, Vector3.right) * upright);
+                shelfSlots[name] = slot;
             }
             // the top of the Iron Drawer is a shelf too: the middle board beside it can't take more than the
             // umbrellas, so the two small tins sit up here (and ride along when it slides out)
@@ -141,6 +154,7 @@ namespace LostAndFound
                 if (def.storage == "presented") continue;
                 bool sealedHere = state.ObjectLocation(def.id) == "sealed";
                 if (!state.InStorage(def, day) && !sealedHere) continue;
+                if (!sealedHere && db.Archived(def, day)) continue;   // its claimants have been and gone: down to the basement
                 var view = ItemView.Create(def, transform);
                 view.ApplyStory(state);
                 items[def.id] = view;
@@ -202,10 +216,21 @@ namespace LostAndFound
             if (anchor == null) anchor = shelfSlots.Values.FirstOrDefault();
             v.shelfAnchor = anchor;
             v.transform.SetParent(anchor, false);
-            v.transform.position = anchor.position + new Vector3(v.def.shelfShiftX, v.def.shelfShiftY, v.def.shelfShiftZ);
-            v.transform.localRotation = Quaternion.Euler(0f, -90f + v.def.shelfTurn, 0f);
+            ShelfPose(v, anchor, out var pos, out var rot);
+            v.transform.SetPositionAndRotation(pos, rot);
+            if (InStand(anchor)) v.tagView?.gameObject.SetActive(false);   // the hover card still shows its tag
             v.tagView?.PlaceBeside(new Vector3(0.0f, 0.001f, -0.12f), Random.Range(-25f, 25f));
         }
+
+        /// <summary>Where a shelf object rests: its slot, nudged and turned as its content says (the umbrella stand's
+        /// slots are turned so an umbrella stands up in them, handle uppermost).</summary>
+        static void ShelfPose(ItemView v, Transform anchor, out Vector3 pos, out Quaternion rot)
+        {
+            pos = anchor.position + new Vector3(v.def.shelfShiftX, 0f, v.def.shelfShiftZ);
+            rot = anchor.rotation * Quaternion.Euler(0f, -90f + v.def.shelfTurn, 0f);
+        }
+
+        static bool InStand(Transform anchor) => anchor != null && anchor.name.StartsWith("Stand_");
 
         public void PickUp(ItemView item) => InspectController.I.Begin(item);
 
@@ -305,11 +330,13 @@ namespace LostAndFound
             {
                 shelfSlots.TryGetValue(item.def.storage ?? "", out var anchor);
                 anchor ??= shelfSlots.Values.First();
-                yield return FlyTo(item, anchor.position, anchor.rotation * Quaternion.Euler(0f, -90f, 0f), 1f, 0.55f);
+                item.shelfAnchor = anchor;
+                ShelfPose(item, anchor, out var pos, out var rot);
+                yield return FlyTo(item, pos, rot, 1f, 0.55f);
                 item.transform.SetParent(anchor, true);
                 AudioDirector.PlayMaterial(item.def.sound, "put", 0.6f);
             }
-            if (item.tagView != null) item.tagView.gameObject.SetActive(true);
+            if (item.tagView != null) item.tagView.gameObject.SetActive(!InStand(item.shelfAnchor));
         }
 
         /// <summary>Swivel to the shelf, open the Iron Drawer, drop the item in, slam and lock.</summary>

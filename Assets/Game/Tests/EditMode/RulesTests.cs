@@ -127,6 +127,25 @@ namespace LostAndFound.Tests
             Assert.AreEqual("Mr Vell", Db.Commuter("vell").ShortName);
         }
 
+        [Test]
+        public void StraysGoToTheBasementOnlyAfterTheirLastCase()
+        {
+            foreach (var o in Db.root.objects)
+            {
+                int last = Db.LastNeededDay(o.id);
+                for (int day = 1; day <= Db.DayCount; day++)
+                {
+                    bool gone = Db.Archived(o, day);
+                    if (last == 0 || o.storage is "desk" or "presented") Assert.IsFalse(gone, $"{o.id} is never claimed (or isn't stored): it stays all week");
+                    else Assert.AreEqual(day > last, gone, $"{o.id} on day {day} (last wanted on day {last})");
+                }
+            }
+            // the pairs that would share a shelf if everything were refused never coexist
+            Assert.IsTrue(Db.Archived(Db.Object("suitcase"), 4), "the suitcase is gone before the violin case arrives");
+            Assert.IsTrue(Db.Archived(Db.Object("briefcase"), 5), "the briefcase is gone before the birdcage arrives");
+            Assert.IsFalse(Db.Archived(Db.Object("umbrella_black"), 5), "Thomas still needs his umbrella on Friday");
+        }
+
         // ------------------------------------------------------------------ the solver
 
         static IEnumerable<string> BestPathCases() => Play(Policy.Best).played.Select(p => p.c.id);

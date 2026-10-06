@@ -176,6 +176,8 @@ namespace LostAndFound
                 for (int i = 0; i < shelf.Count; i++)
                     for (int j = i + 1; j < shelf.Count; j++)
                     {
+                        // umbrellas share the stand, leaning apart: their boxes overlap by design
+                        if (shelf[i].shelfAnchor.name.StartsWith("Stand_") && shelf[j].shelfAnchor.name.StartsWith("Stand_")) continue;
                         Bounds a = Box(shelf[i]), b = Box(shelf[j]);
                         a.Expand(-0.01f);
                         b.Expand(-0.01f);
@@ -184,6 +186,8 @@ namespace LostAndFound
 
                 CameraRig.I.SetView(View.Shelf, true);
                 yield return new WaitForSeconds(0.8f);
+                ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"shelf_day{day}.png"));   // the fullest the shelf gets that day
+                yield return null;
                 foreach (var v in shelf)
                 {
                     var bx = Box(v);

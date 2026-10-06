@@ -141,6 +141,7 @@ namespace LostAndFound
             var cal = Prop("Calendar", new Vector3(-0.30f, 0.76f, 0.86f), 12f, root);
             calendar = cal.AddComponent<DeskCalendar>();
             calendar.Init(cal.transform);
+            Prop("UmbrellaStand", Desk.UmbrellaStandPos, 0f, root);
             rulesCard = DeskRulesCard.Create(root, new Vector3(0.27f, 0.7632f, 0.60f), 8f);   // on the felt by the slip, under the bell
 
             // --- photographs (the trailer moment changes every one of them)

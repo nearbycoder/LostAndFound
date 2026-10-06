@@ -128,9 +128,19 @@ namespace LostAndFound
             yield return UIRoot.I.fader.FadeTo(0f, 1.2f);
 
             // the morning: Gus drops off the night's intake, Agnes's note for the day
-            if (DayDef.morning.Any(l => l.who == "gus" && State.Check(l.condition))) yield return Visit("gus", true);
+            bool gus = DayDef.morning.Any(l => l.who == "gus" && State.Check(l.condition));
+            if (gus) yield return Visit("gus", true);
             foreach (var line in DayDef.morning)
                 yield return SayLine(line, null);
+            // and takes yesterday's unclaimed strays down to the basement
+            var strays = Db.root.objects.Where(o => State.InStorage(o, day) && Db.Archived(o, day) && !Db.Archived(o, day - 1)).ToList();
+            if (strays.Count > 0)
+            {
+                Debug.Log($"[Day] {day}: down to the basement: {string.Join(", ", strays.Select(o => o.id))}");
+                if (!gus) yield return Visit("gus", true);
+                string what = strays.Count == 1 ? $"the {strays[0].name.ToLowerInvariant()}" : $"{Count(strays.Count)} of yesterday's strays";
+                yield return SayLine(new LineDef { who = "gus", text = $"Nobody came back for {what}, so I've taken {(strays.Count == 1 ? "it" : "them")} down to the basement. Makes a bit of room on the shelves." }, null);
+            }
             if (window.Count > 0) yield return LeaveAll();
             foreach (int rid in DayDef.rules)
                 yield return ShowRule(rid);
@@ -173,6 +183,8 @@ namespace LostAndFound
             foreach (var w in date.Split(' ')) if (int.TryParse(w, out int n) && n < 32) return n;
             return 15;
         }
+
+        static string Count(int n) => n switch { 2 => "two", 3 => "three", 4 => "four", 5 => "five", 6 => "six", _ => n.ToString() };
 
         static string ToWords(int d) => d switch { 1 => "One", 2 => "Two", 3 => "Three", 4 => "Four", 5 => "Five", _ => d.ToString() };
 

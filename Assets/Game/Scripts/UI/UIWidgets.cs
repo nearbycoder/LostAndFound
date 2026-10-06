@@ -221,6 +221,10 @@ namespace LostAndFound
 
         public bool Shown => shown;
 
+        /// <summary>What the box is saying (the AutoPilot waits for particular lines).</summary>
+
+        public string Text => body != null ? body.text : "";
+
         void LateUpdate()
         {
             if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));

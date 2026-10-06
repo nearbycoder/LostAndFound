@@ -27,7 +27,6 @@ namespace LostAndFound
         public float shelfTurn;        // extra yaw on the shelf (degrees), so a long thing can lie across the board
         public float shelfShiftX;      // nudge along the shelf's depth (+ = further back), metres
         public float shelfShiftZ;      // nudge along the shelf (+ = towards the window), metres
-        public float shelfShiftY;      // raise it (resting on its neighbour), metres
         public int arrives = 1;        // day the object first appears in storage
         public string trait = "";      // "", hum, frost, tomorrow
         public string owner = "";      // commuter id the object belongs to (hum target)
@@ -262,6 +261,28 @@ namespace LostAndFound
         }
 
         /// <summary>Rules known by the start of a case (morning rules of every day so far plus earlier case unlocks).</summary>
+        /// <summary>The last day any case (alternates and documents included) asks for this object; 0 if none ever does.</summary>
+        public int LastNeededDay(string objectId)
+        {
+            int last = 0;
+            foreach (var d in root.days)
+                foreach (var c in d.cases)
+                    if (c.wants == objectId || c.presents.Contains(objectId)) last = Math.Max(last, d.day);
+            return last;
+        }
+
+        /// <summary>
+        /// Gone down to the basement: once every case that claims an object is past, an unclaimed stray stops
+        /// taking up storage from the next morning (the shelves can't hold the whole week otherwise). Decoys,
+        /// which no case claims, stay all week. Its recorded location is left alone.
+        /// </summary>
+        public bool Archived(ObjectDef def, int day)
+        {
+            if (def.storage is "desk" or "presented") return false;
+            int last = LastNeededDay(def.id);
+            return last > 0 && day > last;
+        }
+
         /// <summary>Every rule handed over on the days before <paramref name="day"/> (morning notes and mid-shift ones).</summary>
         public HashSet<int> RulesBefore(int day)
         {

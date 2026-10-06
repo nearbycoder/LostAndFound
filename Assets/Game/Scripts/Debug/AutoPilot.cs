@@ -19,10 +19,12 @@ namespace LostAndFound
         readonly List<string> problems = new();
         int cases;
         /// <summary>-lafPolicy best (default) | worst (a wrong verdict wherever there is one, to walk the other
-        /// branches) | wait (best, but Thomas is refused the ring: the Long Wait).</summary>
+        /// branches) | wait (best, but Thomas is refused the ring: the Long Wait) | refuse (refuse everything:
+        /// the fullest the shelves get, and Gus's trips to the basement).</summary>
         string policy = "best";
         int startDay = 1;
         int shotRulesDay;
+        bool basementShot;
 
         void Start()
         {
@@ -41,6 +43,7 @@ namespace LostAndFound
 
         void OnLog(string msg, string stack, LogType type)
         {
+            if (msg.Contains("down to the basement")) basementShot = true;
             if (type == LogType.Exception || type == LogType.Error) problems.Add($"{type}: {msg.Split('\n')[0]}");
         }
 
@@ -72,6 +75,15 @@ namespace LostAndFound
                     lastLedgerDay = d.Day;
                     yield return new WaitForSecondsRealtime(2.2f);
                     Shot($"day{d.Day}_ledger");
+                }
+                if (basementShot)
+                {
+                    // Gus is about to say where yesterday's strays went: catch him saying it
+                    basementShot = false;
+                    float until = Time.realtimeSinceStartup + 15f;
+                    while (!UIRoot.I.dialogue.Text.Contains("basement") && Time.realtimeSinceStartup < until) yield return null;
+                    yield return new WaitForSecondsRealtime(0.5f);
+                    Shot($"day{d.Day}_basement");
                 }
                 if (d.ChangingPhotos)
                 {
@@ -126,6 +138,8 @@ namespace LostAndFound
                 yield return new WaitForSecondsRealtime(0.3f);
             }
             var dec = Rules.Solve(d.Db, d.Day, c, d.State);
+            if (policy == "refuse")
+                dec = new Decision { verdict = Verdict.Refuse, reason = "policy: refuse everything" };
             if (policy == "wait" && c.id == "4.5")
                 dec = new Decision { verdict = Verdict.Refuse, reason = "policy: the long wait" };
             if (policy == "worst")

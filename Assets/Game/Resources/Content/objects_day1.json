@@ -21,7 +21,7 @@
       ]
     },
     {
-      "id": "umbrella_duck", "name": "Green umbrella with a duck handle", "storage": "Shelf_2a", "shelfShiftX": -0.045, "arrives": 1, "sound": "cloth",
+      "id": "umbrella_duck", "name": "Green umbrella with a duck handle", "storage": "Stand_a", "arrives": 1, "sound": "cloth",
       "tag": { "where": "Platform 5", "when": "Sun 14 Oct, evening", "train": "The 6.15 from Harwick", "note": "Carved duck's-head handle." },
       "details": [
         { "id": "namestrip", "fact": "A name strip hidden under the strap: B. BRAMBLE.", "question": "Is there a name on it anywhere?" },
@@ -31,7 +31,7 @@
       "parts": [ { "node": "Strap", "kind": "hinge", "axis": "x", "amount": -140, "sound": "cloth", "label": "Undo the strap" } ]
     },
     {
-      "id": "umbrella_black", "name": "Black umbrella", "storage": "Shelf_2b", "shelfShiftX": 0.03, "shelfShiftY": 0.06, "arrives": 1, "sound": "cloth",
+      "id": "umbrella_black", "name": "Black umbrella", "storage": "Stand_b", "arrives": 1, "sound": "cloth",
       "tag": { "where": "Platform 1", "when": "Sat 13 Oct", "train": "", "note": "Good quality. Brass collar." },
       "details": [
         { "id": "stamp", "fact": "Stamped into the brass collar: NINEFOLD RLY.", "question": "Are there any markings on it?",
@@ -40,7 +40,7 @@
       ]
     },
     {
-      "id": "suitcase", "name": "Battered brown suitcase", "storage": "Shelf_3a", "arrives": 1, "sound": "leather",
+      "id": "suitcase", "name": "Battered brown suitcase", "storage": "Shelf_3a", "shelfShiftZ": -0.11, "arrives": 1, "sound": "leather",
       "trait": "hum", "owner": "odile",
       "tag": { "where": "Platform 9", "when": "(date smudged)", "train": "Unknown", "note": "It hums. Not my imagination. — G." },
       "details": [

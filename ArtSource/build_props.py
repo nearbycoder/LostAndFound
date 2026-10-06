@@ -278,6 +278,20 @@ def ledger():
     return m.build()
 
 
+def umbrella_stand():
+    """A glazed bottle-green umbrella stand with brass bands, open at the top: the umbrellas live here,
+    beside the shelves (they are longer than any board)."""
+    m = Model("UmbrellaStand")
+    glaze = mat("ceramic", "2F5A46")
+    # one closed profile: out along the foot, up the outside, over the rolled lip, down the inside
+    prof = [(0.0, 0.0), (0.104, 0.0), (0.112, 0.012), (0.106, 0.05), (0.104, 0.40), (0.112, 0.445),
+            (0.118, 0.456), (0.115, 0.466), (0.104, 0.466), (0.096, 0.45), (0.094, 0.05), (0.09, 0.03), (0.0, 0.03)]
+    m.add(lathe(prof, (0, 0, 0), segments=48), glaze)
+    for y in (0.06, 0.40):
+        m.add(torus((0, y, 0), 0.107, 0.004, axis="y", segments=48), BRASS)
+    return m.build()
+
+
 BUILDERS = {
     "Lamp": lamp,
     "StampRack": stamp_rack,
@@ -295,6 +309,7 @@ BUILDERS = {
     "TeaCup": teacup,
     "Inkwell": inkwell,
     "Ledger": ledger,
+    "UmbrellaStand": umbrella_stand,
 }
 
 
