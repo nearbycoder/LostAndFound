@@ -44,7 +44,7 @@ namespace LostAndFound
                 if (rec == null) continue;
                 var def = d.Db.Object(c.wants);
                 var who = string.Join(" & ", c.claimants.Select(id => d.Db.Commuter(id)?.name ?? id));
-                string verdict = rec.verdict switch { "return" => "Returned" + (string.IsNullOrEmpty(rec.to) ? "" : " to " + (d.Db.Commuter(rec.to)?.name.Split(' ')[0] ?? "")), "seal" => "Sealed in the Iron Drawer", "missing" => "Not here", _ => "Refused" };
+                string verdict = rec.verdict switch { "return" => "Returned" + (string.IsNullOrEmpty(rec.to) ? "" : " to " + (d.Db.Commuter(rec.to)?.ShortName ?? "")), "seal" => "Sealed in the Iron Drawer", "missing" => "Not here", _ => "Refused" };
                 var line = UiKit.Label(book.transform, "Line", $"<font=\"SpecialElite\"><size=70%>{who.ToUpperInvariant()}</size></font>   {(def != null ? def.name : "<i>nothing in storage</i>")}   <color=#5a4a40>—  {verdict}</color>", Fonts.Hand, 36f, UiKit.Ink, TextAlignmentOptions.TopLeft);
                 line.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(90f, y), new Vector2(-320f, 44f));
                 var why = UiKit.Label(book.transform, "Why", rec.ledger ?? "", Fonts.Body, 24f, UiKit.InkSoft, TextAlignmentOptions.TopLeft);

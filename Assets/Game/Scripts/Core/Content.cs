@@ -94,6 +94,20 @@ namespace LostAndFound
         public float height = 1f;      // scale
         public string shrug = "";      // fallback answer when asked about something they don't know
         public string ModelName => string.IsNullOrEmpty(model) ? id : model;
+
+        static readonly string[] Titles = { "Mr", "Mrs", "Miss", "Prof.", "Lt.", "Constable", "Corporal" };
+
+        /// <summary>How the slip and the ledger refer to them: "Walter", "Mrs Marsh", "Prof. Lark", "Sid".</summary>
+        public string ShortName
+        {
+            get
+            {
+                var w = (name ?? id ?? "").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (w.Length == 0) return id;
+                if (w.Length > 1 && Array.IndexOf(Titles, w[0]) >= 0) return w[0] + " " + w[^1];
+                return w[0] == "Big" && w.Length > 1 ? w[1] : w[0];
+            }
+        }
     }
 
     [Serializable]

@@ -117,6 +117,16 @@ namespace LostAndFound.Tests
             }
         }
 
+        [Test]
+        public void ShortNamesKeepTitlesAndDropNicknames()
+        {
+            Assert.AreEqual("Walter", Db.Commuter("walter").ShortName);
+            Assert.AreEqual("Mrs Marsh", Db.Commuter("odile").ShortName);
+            Assert.AreEqual("Prof. Lark", Db.root.commuters.First(c => c.name == "Prof. Ambrose Lark").ShortName);
+            Assert.AreEqual("Sid", Db.root.commuters.First(c => c.name == "Big Sid Mulroney").ShortName);
+            Assert.AreEqual("Mr Vell", Db.Commuter("vell").ShortName);
+        }
+
         // ------------------------------------------------------------------ the solver
 
         static IEnumerable<string> BestPathCases() => Play(Policy.Best).played.Select(p => p.c.id);

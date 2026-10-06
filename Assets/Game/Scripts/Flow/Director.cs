@@ -224,12 +224,12 @@ namespace LostAndFound
                     foreach (var cl in c.claims.Where(x => x.key == k && (string.IsNullOrEmpty(x.who) || x.who == line.who)))
                         if (written.Add(cl.who + "/" + cl.key))
                         {
-                            ClaimSlip.I.AddClaim(cl.text, Db.Commuter(cl.who)?.name.Split(' ')[0]);
+                            ClaimSlip.I.AddClaim(cl.text, Db.Commuter(cl.who)?.ShortName);
                             yield return new WaitForSeconds(0.12f);
                         }
             }
             foreach (var cl in c.claims)
-                if (written.Add(cl.who + "/" + cl.key)) ClaimSlip.I.AddClaim(cl.text, Db.Commuter(cl.who)?.name.Split(' ')[0]);
+                if (written.Add(cl.who + "/" + cl.key)) ClaimSlip.I.AddClaim(cl.text, Db.Commuter(cl.who)?.ShortName);
 
             // already-known findings about this object go straight onto the slip
             if (item != null)
