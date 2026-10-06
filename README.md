@@ -127,7 +127,9 @@ Every evening the **Day Ledger** marks each case against the rules and explains 
 2. Unzip it and run `LostAndFound.x86_64` (`chmod +x LostAndFound.x86_64` first if your unzip tool dropped the permission).
 3. On a Wayland desktop, if the window doesn't appear, run it with `SDL_VIDEODRIVER=wayland ./LostAndFound.x86_64`.
 
-The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/`. There's no Windows or macOS build yet. The project has no Linux-specific code, but building for those platforms hasn't been tried.
+The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/`. If it runs slowly, try a lower *Picture quality* in Settings.
+
+**macOS and Windows:** there's no download for either yet. A universal (Intel and Apple silicon) macOS app can be built from source with `Tools/unity.sh build-mac`, but it **hasn't been run on a Mac**. It isn't signed or notarised, so macOS will refuse to open it until you right-click it and choose *Open* (or run `xattr -dr com.apple.quarantine "LostAndFound.app"`). On a Mac the app is called "Lost and Found". The Windows build is wired up (`Tools/unity.sh build-windows`) but needs Unity's Windows Build Support module, which the machine this was made on doesn't have, so it has never been built.
 
 ## Build from source
 
@@ -139,9 +141,12 @@ The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/uni
 python3.11 -m venv --system-site-packages .venv
 .venv/bin/pip install pillow scipy scikit-image==0.24.0
 
-# open the project in the editor, or build the Linux player headless
+# open the project in the editor, or build a player headless (each build also validates all content)
 Tools/unity.sh                 # GUI editor
-Tools/unity.sh build-linux     # -> Builds/Linux/LostAndFound.x86_64 (also validates all content)
+Tools/unity.sh build-linux     # -> Builds/Linux/LostAndFound.x86_64
+Tools/unity.sh build-mac       # -> Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
+Tools/unity.sh build-windows   # -> Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
+python3 Tools/package_release.py   # zip whatever's built into dist/LostAndFound-v<version>-<platform>.zip
 ```
 
 `Tools/unity.sh` assumes the editor is at `~/Unity/Hub/Editor/6000.6.2f1/Editor/Unity` (set `UNITY=` to override). Unity 6000.6 links against `libxml2.so.2`; on distros that only ship `libxml2.so.16`, put a copy of the legacy library in `.unity-libs/` and the script will add it to the loader path.
@@ -156,18 +161,19 @@ All generated assets are committed, so you only need to regenerate them if you c
 | The commuters | `blender -b -P ArtSource/build_people.py` |
 | Photographs (raw renders, then ageing) | `blender -b -P ArtSource/render_photos.py`, then `.venv/bin/python Tools/textures/finish_photos.py` |
 | Material, UI and item textures | `.venv/bin/python Tools/textures/gen_textures.py` and `gen_item_textures.py` |
+| The app icon | `.venv/bin/python Tools/textures/gen_icon.py` |
 | Sound effects, voices, ambience; music | `.venv/bin/python Tools/audio/gen_sfx.py`; `gen_music.py` |
 
 ### Validation and automated play
 
-There are no unit tests yet (the `Assets/Game/Tests/EditMode` assembly is empty). Instead, there are four checks:
-
 | Check | Command | What it proves |
 |---|---|---|
+| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 42 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, and the save file's round trip. |
 | **Content validator** | runs in every `build-linux`, or `Tools/unity.sh run LostAndFound.EditorTools.BuildScript.ValidateContent` | The rules solver, using only what's discoverable at the desk, derives each case's authored best verdict. Current result: 28 objects, 5 days, 25 cases, 0 issues. |
 | **AutoPilot** | `Tools/unity.sh autopilot [speed] [startDay] [best\|worst\|wait]` | The built player plays the whole week through the real desk systems, with a screenshot of every case. `best` gets 24/24 and *The 9:40*; `worst` gives Vell everything and reaches *Grey Ninefold*; `wait` refuses Thomas the ring and reaches *The Long Wait*. Results are in `Logs/autopilot.log`. |
-| **Smoke test** | `Tools/unity.sh smoke 30` | Frame times and errors over a hands-free run. |
-| **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. |
+| **Hotspot audit** | `Tools/unity.sh audit` (table in `Screenshots/hotspots/coverage.txt`) | Holds every object as the inspect view does, lids shut and open, through 1,500 orientations at two zooms, and asks the game's own picking code whether each hidden detail could be clicked. Then, for every day with nothing yet returned (the fullest storage gets), it checks that every stored object has a real slot and can be hovered from its shelf or open drawer. Fails if any detail or object falls under 10%, and saves a picture of each detail that does. |
+| **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0, 1 or 2 overrides the picture quality for that run only. |
+| **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. |
 
 ### The trailer and README media
 
@@ -190,7 +196,9 @@ Assets/Game/Scripts/      C# (one assembly, LostAndFound; editor tools in Assets
   People/                 procedural commuter animation
   UI/                     code-built uGUI: dialogue, notes, ledger, title, pause, settings, ending
   Audio/, Visuals/, Util/ mixing, materials, fonts, post-processing, tweening, input
-  Debug/                  SmokeTest, AutoPilot (plays the whole week), DemoRecorder (filmed play)
+  Debug/                  SmokeTest, AutoPilot (plays the whole week), DemoRecorder (filmed play), HotspotAudit
+Assets/Game/Tests/EditMode/  unit tests (NUnit, run with Tools/unity.sh test)
+Assets/Game/Icon/         the app icon (generated)
 Assets/Game/Resources/
   Content/*.json          every object, commuter, rule, day, case, line of dialogue, gazette and ending
   Models/                 FBX exported from Blender (booth, props, 28 objects, 25 people)
@@ -198,8 +206,8 @@ Assets/Game/Resources/
   Audio/, Music/          synthesised WAVs
   Fonts/                  OFL / Apache fonts (licences in docs/licenses)
 ArtSource/                Blender build scripts (lib/laf.py helpers, lib/sdf.py sculpting), fonts, booth.blend
-Tools/                    unity.sh, texture/photo/audio generators, editor test helpers, make_trailer.py
-docs/                     BRIEF.md (the original brief), PLAN.md (design and technical plan), licences, media
+Tools/                    unity.sh, texture/photo/audio/icon generators, editor test helpers, make_trailer.py, package_release.py
+docs/                     BRIEF.md (the original brief), PLAN.md (design and technical plan), IMPROVEMENTS.md, licences, media
 ```
 
 ## Tech highlights
@@ -240,12 +248,20 @@ Design, code, models, textures, photographs, sound and music were all made for t
 
 v0.1.0 is the complete first version: all five days, 25 cases, three endings, menus, settings, save and replay. It's been played end to end by the AutoPilot on every branch and, for days at a time, through simulated mouse and keyboard; it has not had broad human playtesting yet.
 
+Since v0.1.0 (not released yet; see [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)):
+- **Fairness fixes.** The lunch tin's rim was modelled as a solid slab that sealed it shut, so its sandwich and note (the evidence for Thursday's first case) couldn't be seen, and the frosted tin was stored inside the hatbox, where Wednesday's two cases couldn't pick it up. Both are fixed, along with other shelf and drawer overlaps. The new hotspot audit checks every hidden detail and every stored object, and the filmed play now finds all 53 details it looks for across the week by hand. The original takes needed the recorder's fallback 16 times.
+- Hints and the inspect bar are legible over the claim slip (6.5:1 contrast, from about 1:1).
+- Agnes's rules are on a card on the desk (hover it, or press `R` at any time), and the inspect bar and Day Ledger count your findings.
+- 42 unit tests; a macOS build target, app icon and bundle identifier; a release packaging script; a *Picture quality* setting.
+
 Known gaps and rough edges:
 - Characters are modelled from the waist up (they're always behind the counter, and every photograph hides them below the waist). Animation is procedural; there are no skeletal rigs.
 - The synthesised music and voices are charming but not studio quality.
-- Linux build only so far; no gamepad, touch or localisation.
-- A few hotspots (for example the duck umbrella's chipped beak) sit where they're hard to bring into view, and the filmed play needed several turns to find them.
-- No unit tests: correctness is checked by the content validator, the AutoPilot and the filmed play described above.
+- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here. There's no gamepad, touch or localisation.
+- How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations.
+- If you refuse everything, the shelves overflow. On Thursday and Friday the suitcase and the violin case overlap, as do the briefcase and the birdcage on Friday, and the two umbrellas are longer than their shelf, so they poke through the Iron Drawer and the side of the cabinet. Everything stays clickable (the audit checks), but it looks wrong.
+- Quitting in the middle of a day and choosing *Continue* replays that day from the morning.
+- The trailer and the screenshots above were captured before these fixes.
 
 ## License
 

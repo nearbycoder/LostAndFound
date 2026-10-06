@@ -243,3 +243,28 @@ machine, the smoke run's fps on Low is measurably higher than on High.
   to publish. Signing needs an Apple Developer account.
 - **WebGL:** worth a measurement spike in a later round?
 - Releases stay unpublished. This round only builds and packages locally.
+
+## Round 1 results (6 Oct 2026)
+
+All six items shipped on `improvements`. Screenshots are in [`media/improvements/`](media/improvements/).
+Final checks on the final build: Linux build and validator pass (0 issues). The AutoPilot passes
+`best` (24/24, *The 9:40*), `worst` (*Grey Ninefold*) and `wait` (*The Long Wait*) with 0 problems.
+`Tools/unity.sh test` passes 42/42, and `Tools/unity.sh audit` passes.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **A. Every hidden detail reachable** | The audit found the real problems, which weren't the ones the filmed takes had flagged. **The lunch tin was sealed shut** by a solid rim slab, so its sandwich and note (case 4.1's evidence) were never visible. **The frosted tin was stored in a slot the shelf doesn't have**, so it landed inside the hatbox and couldn't be picked up (cases 3.3 and 3.5). The violin case lay over the lunch tin, and in a full drawer the spectacles hid behind the toy rabbit. Glass blocked the snow globe's figure. All are fixed. The filmed play now aims at each detail through the real picking code and checks that a lid actually opened. | Audit: 84/84 details ≥ 10% of orientations (lowest: the ring ticket's UV date, 14.1%); every stored object on every day hoverable from ≥ 10% (lowest: the black umbrella, 22%). Re-filmed all five days: **53 details found by hand, 0 fallbacks, 0 missed pick-ups**. The original takes logged 16. Before and after: `lunch_tin_*.jpg`, `shelf_thursday_*.jpg`, `shelf_wednesday_after.jpg`. |
+| **B. Legible hints over the slip** | A dark pill sized to the text behind the hint, the object's name, the part hint and the controls. | Contrast of the text against the median of the region behind it, on AutoPilot screenshots: case 1.3 hint 1.0 → **6.5:1**; case 2.2 title 1.1 → **5.7:1**, hint 1.5 → **8.7:1**; case 4.5 title 1.1 → **5.6:1**. `hint_*.jpg`, `inspect_title_*.jpg`. |
+| **C. Rules and findings at hand** | Agnes's card on the felt beside the slip: hover to read, click or `R` to hold it up (`R`/`Esc` puts it back, without also putting the object down). It lists only the rules actually handed over; between cases, the old pause-menu card listed rules from cases not yet played (rules 2 and 3 on Monday morning). "findings n of m" on the inspect bar; per-case and per-day counts in the ledger. | AutoPilot screenshots of the card on each day's first case (Monday shows rule 1 only; Friday shows all 8), plus a filmed frame of the counter. `rules_card_*.jpg`, `findings_counter.jpg`, `ledger_findings.jpg`. |
+| **D. Unit tests** | 42 EditMode tests (the acceptance asked for at least 15), about 0.2 s plus editor start-up. Ending choice and scoring moved into `Rules`. | `Logs/test-results.xml`: 42 passed. Making case 1.3's best verdict wrong in a scratch edit failed 4 tests; the content was restored afterwards. |
+| **E. macOS build and packaging** | Bundle id `com.nearbycoder.lostandfound`, generated app icon, `build-mac`, `build-windows` (fails clearly without the module), and `Tools/package_release.py`. | `build-mac` succeeds (297 MB). The executable is a universal Mach-O (x86_64 + arm64); `Info.plist` has the id, version 0.1.0 and the icon (checked with `plistlib`); the `.icns` contains the new icon at 128–1024 px. The Linux zip, unzipped with `unzip`, runs a clean smoke test. **Not run on a Mac.** |
+| **F. Picture quality** | Low / Medium / High in Settings: render scale, shadow resolution and softness, anti-aliasing, and depth of field on Low. | Uncapped smoke runs on this machine (load average 24–34 from other sessions): High 134 and 123 fps, Medium 160, Low 220 and 212, 0 errors. The setting switches live mid-run and the next launch starts on it (the prefs file was backed up and restored afterwards). `quality_*.jpg`, `settings_picture_quality.jpg`. |
+
+Also fixed along the way: names on the slip and in the ledger ("Returned to Mr" is now "Returned to Mr Plum"),
+and the filmed play's lid handling.
+
+### Still open
+- **Shelf space at maximum occupancy.** If the player refuses everything, the shelves can't hold it all: the suitcase overlaps the violin case (Thursday and Friday), the briefcase overlaps the birdcage (Friday), and the umbrellas, longer than their board, poke through the Iron Drawer and the cabinet side. These were there before this round. Everything stays clickable (the audit checks), but fixing the look needs new shelf geometry in `build_booth.py` (for example an umbrella stand), which was bigger than this round.
+- How findable the details are **for people** is still untested. The audit proves reachability, not how quickly someone finds them.
+- macOS is unverified on hardware. Windows is blocked on the module. Gamepad, mid-day resume, the Curio Ledger and text size are next in the ranked list above.
+- The trailer and README screenshots predate these fixes. The trailer's Thursday was filmed with the sealed lunch tin.
