@@ -31,7 +31,7 @@
       ]
     },
     {
-      "id": "briefcase", "name": "Leather briefcase", "storage": "Shelf_1b", "arrives": 2, "sound": "leather", "owner": "dora",
+      "id": "briefcase", "name": "Leather briefcase", "storage": "Shelf_1b", "shelfTurn": 90, "shelfShiftZ": -0.06, "arrives": 2, "sound": "leather", "owner": "dora",
       "tag": { "where": "The bar, Platform 1", "when": "Mon 15 Oct, 6.45 pm", "train": "", "note": "Smells of cress." },
       "details": [
         { "id": "form", "fact": "A racing form: Newmarket, the 2.30. Two horses circled.", "question": "What papers are inside?" },
@@ -82,7 +82,7 @@
       "parts": [ { "node": "Lid", "kind": "slide", "axis": "y", "amount": 0.07, "sound": "metal", "label": "Prise the lid off" } ]
     },
     {
-      "id": "lunch_tin", "name": "Workman's lunch tin", "storage": "Shelf_3c", "arrives": 3, "sound": "metal", "owner": "sid",
+      "id": "lunch_tin", "name": "Workman's lunch tin", "storage": "Shelf_2d", "arrives": 3, "sound": "metal", "owner": "sid",
       "tag": { "where": "The permanent way hut, Platform 7", "when": "Tue 16 Oct", "train": "", "note": "Heavy. Sandwich, I reckon. — G." },
       "details": [
         { "id": "sandwich", "fact": "A doorstep corned-beef sandwich.", "question": "What's in it for lunch?" },
@@ -150,7 +150,7 @@
       "parts": [ { "node": "Lid", "kind": "hinge", "axis": "x", "amount": 110, "sound": "latch", "label": "Open the case" } ]
     },
     {
-      "id": "birdcage", "name": "Brass birdcage", "storage": "Shelf_1c", "arrives": 5, "sound": "metal", "owner": "lark",
+      "id": "birdcage", "name": "Brass birdcage", "storage": "Shelf_1c", "shelfShiftZ": -0.05, "arrives": 5, "sound": "metal", "owner": "lark",
       "tag": { "where": "Waiting room, by the stove", "when": "Thu 18 Oct, 8.15 pm", "train": "", "note": "There's a key at the back. — G." },
       "details": [
         { "id": "song", "requires": "wind", "fact": "Wound up, the canary sings three notes, then a fourth, slightly flat.", "question": "What does it do?" },

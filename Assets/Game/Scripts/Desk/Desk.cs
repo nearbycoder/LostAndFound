@@ -77,6 +77,20 @@ namespace LostAndFound
                 iron = SetupDrawer(ironT, "Iron", Vector3.left, 0.22f, true);
                 iron.locked = true;
             }
+            // the top of the Iron Drawer is a shelf too: the middle board beside it can't take more than the
+            // umbrellas, so the two small tins sit up here (and ride along when it slides out)
+            if (iron != null && shelfSlots.TryGetValue("Shelf_2b", out var mid))
+            {
+                Vector3 top = mid.position + new Vector3(0f, 0.302f, 0f);
+                foreach (var (name, dz) in new[] { ("Shelf_2c", -0.43f), ("Shelf_2d", -0.21f) })
+                {
+                    if (shelfSlots.ContainsKey(name)) continue;
+                    var slot = new GameObject(name).transform;
+                    slot.SetParent(iron.transform, true);
+                    slot.SetPositionAndRotation(top + new Vector3(0f, 0f, dz), mid.rotation);
+                    shelfSlots[name] = slot;
+                }
+            }
 
             props = gameObject.AddComponent<DeskProps>();
             props.Build(this);
@@ -158,6 +172,11 @@ namespace LostAndFound
             }
             foreach (var kv in byDrawer)
             {
+                // low things at the front, tall ones behind them, so nothing hides behind a taller neighbour
+                // when you look down into the open drawer (the spectacles case behind the toy rabbit did)
+                var order = kv.Value.Select((v, i) => (v, i, h: v.GetComponent<BoxCollider>().size.y)).OrderBy(x => x.h).ThenBy(x => x.i).Select(x => x.v).ToList();
+                kv.Value.Clear();
+                kv.Value.AddRange(order);
                 var d = drawers[kv.Key];
                 for (int i = 0; i < kv.Value.Count; i++)
                 {
@@ -183,8 +202,8 @@ namespace LostAndFound
             if (anchor == null) anchor = shelfSlots.Values.FirstOrDefault();
             v.shelfAnchor = anchor;
             v.transform.SetParent(anchor, false);
-            v.transform.localPosition = Vector3.zero;
-            v.transform.localRotation = Quaternion.Euler(0f, -90f, 0f);
+            v.transform.position = anchor.position + new Vector3(v.def.shelfShiftX, v.def.shelfShiftY, v.def.shelfShiftZ);
+            v.transform.localRotation = Quaternion.Euler(0f, -90f + v.def.shelfTurn, 0f);
             v.tagView?.PlaceBeside(new Vector3(0.0f, 0.001f, -0.12f), Random.Range(-25f, 25f));
         }
 

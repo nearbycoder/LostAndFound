@@ -82,11 +82,14 @@ namespace LostAndFound
         public static bool Clicked => InputX.LeftDown;
         public static bool RightClicked => InputX.RightDown;
 
-        public Interactable Pick(out RaycastHit best)
+        public Interactable Pick(out RaycastHit best) => PickAt(MousePos, out best);
+
+        /// <summary>What a click at this screen point would land on (the storage audit asks this too).</summary>
+        public Interactable PickAt(Vector2 screen, out RaycastHit best)
         {
             best = default;
             if (cam == null) return null;
-            var ray = cam.ScreenPointToRay(MousePos);
+            var ray = cam.ScreenPointToRay(screen);
             int n = Physics.RaycastNonAlloc(ray, hits, 6f, ~0, QueryTriggerInteraction.Collide);
             System.Array.Sort(hits, 0, n, HitComparer.Instance);
             Interactable found = null;

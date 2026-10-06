@@ -786,8 +786,12 @@ def lunch_tin():
     m = Model("lunch_tin")
     base = sdf.subtract(sdf.rbox((0, H1 / 2, 0), (W / 2, H1 / 2, D / 2), 0.006), sdf.rbox((0, H1 / 2 + 0.003, 0), (W / 2 - 0.0025, H1 / 2, D / 2 - 0.0025), 0.004))
     m.add(sdf.mesh(base, (-W / 2 - 0.004, -0.004, -D / 2 - 0.004), (W / 2 + 0.004, H1 + 0.004, D / 2 + 0.004), 0.0012, smooth=1, tris=8000), TIN)
-    # a rolled rim and the latch at the front
-    m.add(rrect_slab((0, H1 - 0.0015, 0), W + 0.002, D + 0.002, 0.003, 0.007, plane="xz", bevel=0.001), TIN_D)
+    # a rolled rim round the open top (four strips: a solid slab here would seal the tin shut) and the latch at the front
+    RW = 0.004
+    for sz in (-1, 1):
+        m.add(cbox((0, H1 - 0.0015, sz * (D / 2 + 0.001 - RW / 2)), (W + 0.002, 0.003, RW), bevel=0.001), TIN_D)
+    for sx in (-1, 1):
+        m.add(cbox((sx * (W / 2 + 0.001 - RW / 2), H1 - 0.0015, 0), (RW, 0.003, D + 0.002), bevel=0.001), TIN_D)
     m.add(cbox((0, H1 - 0.008, -D / 2 - 0.0015), (0.016, 0.012, 0.003), bevel=0.001), STEEL)
     # a doorstep corned-beef sandwich and Mavis's note
     for yb in (0.004, 0.024):

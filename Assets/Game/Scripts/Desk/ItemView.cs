@@ -286,6 +286,15 @@ namespace LostAndFound
             else AudioDirector.Play(open ? s + "_open" : s + "_close", 0.7f, Random.Range(0.94f, 1.06f));
         }
 
+        /// <summary>Jump straight to open or closed, without the spring (the hotspot audit).</summary>
+        public void Snap(bool to)
+        {
+            open = to;
+            spring.value = to ? 1f : 0f;
+            spring.velocity = 0f;
+            Apply();
+        }
+
         void Update()
         {
             if (def.kind is "shake" or "listen" or "play") return;   // the inspect controller animates these
@@ -296,6 +305,11 @@ namespace LostAndFound
                 spring.Step(target, 1.2f, 1f, Time.deltaTime);
             }
             else spring.Step(target, 3.4f, 0.6f, Time.deltaTime);
+            Apply();
+        }
+
+        void Apply()
+        {
             float v = spring.value;
             switch (def.kind)
             {

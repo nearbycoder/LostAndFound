@@ -163,6 +163,7 @@ namespace LostAndFound
             pipe.Close();
             pipe = null;
             ffmpeg.WaitForExit();
+            Debug.Log($"[Demo] details found by hand: {detailsByHand}, needed the fallback: {detailsFallback}");
             Debug.Log($"[Demo] done: {frames} frames ({frames / (float)Fps:0.0}s), ffmpeg exit {ffmpeg.ExitCode}");
             markers?.Close();
             Application.Quit();
@@ -497,9 +498,11 @@ namespace LostAndFound
             yield return Finish();
         }
 
-        /// <summary>Turn the held object until a part faces us, then click it.</summary>
+        /// <summary>Turn the held object until a part faces us, then click it. A lid is clicked again until it's
+        /// open: a click near a detail on the lid notes the detail instead, as it would for a player.</summary>
         IEnumerator FindPart(ItemView item, ItemPart part)
         {
+            bool lid = part.def.kind is "hinge" or "slide";
             for (int tries = 0; tries < 8; tries++)
             {
                 var r = part.GetComponentInChildren<Renderer>();
@@ -509,18 +512,29 @@ namespace LostAndFound
                     yield return GlideTo(c, 0.7f);
                     yield return Hold(0.5f);
                     yield return Click();
-                    yield break;
+                    if (!lid) yield break;
+                    yield return Hold(0.7f);
+                    if (part.open) yield break;
+                    continue;
                 }
                 yield return TurnSome(tries);
             }
         }
 
+        int detailsByHand, detailsFallback;
+
+        /// <summary>Turn the object so the detail faces us (leaning a little differently each try in case
+        /// something's in the way), and click it once the game's own picking would take the click.</summary>
         IEnumerator FindDetail(ItemView item, DetailDef d, Transform hs)
         {
-            for (int tries = 0; tries < 10; tries++)
+            float[] lean = { 0f, 22f, -22f, 40f, -40f, 12f, -12f, 55f };
+            for (int tries = 0; tries < lean.Length; tries++)
             {
-                if (Director.I.IsDiscovered(item.def, d)) yield break;
-                if (Facing(item, hs))
+                if (Director.I.IsDiscovered(item.def, d)) { detailsByHand++; yield break; }
+                // a stray click may have shut the lid: open it again before looking inside
+                foreach (var p in item.parts.Where(p => p.def.kind is "hinge" or "slide" && !p.open).ToList())
+                    yield return FindPart(item, p);
+                if (Clickable(item, d, hs))
                 {
                     // sweep in so the glint shows, then click on it
                     yield return Glide(() => ToScreen(hs.position) + new Vector2(70f, -40f), 0.6f);
@@ -529,11 +543,35 @@ namespace LostAndFound
                     yield return Hold(0.45f);
                     yield return Click();
                     yield return Hold(1.8f);
-                    if (Director.I.IsDiscovered(item.def, d)) yield break;
+                    if (Director.I.IsDiscovered(item.def, d)) { detailsByHand++; yield break; }
                 }
-                yield return TurnSome(tries);
+                yield return TurnToward(hs, lean[tries]);
             }
+            detailsFallback++;
             Debug.LogWarning($"[Demo] couldn't find {d.id}");
+        }
+
+        bool Clickable(ItemView item, DetailDef d, Transform hs)
+        {
+            Vector2 s = ToScreen(hs.position);
+            if (s.x < 60 || s.y < 60 || s.x > Screen.width - 60 || s.y > Screen.height - 60) return false;
+            return InspectController.I.NearDetail(item, s, false, out float px, out _) == d && px <= InspectController.ClickRadius;
+        }
+
+        /// <summary>Drag sideways, then up or down, by the mouse travel that turns the hotspot's outward side
+        /// to the eye (plus a lean). Inspect turns about the camera's up and right axes by 0.42 x sensitivity
+        /// degrees per pixel.</summary>
+        IEnumerator TurnToward(Transform hs, float lean)
+        {
+            var cam = Camera.main.transform;
+            float sens = 0.42f * Settings.MouseSensitivity;
+            yield return Glide(() => new Vector2(Screen.width * 0.44f, Screen.height * 0.45f), 0.35f);
+            Vector3 n = cam.InverseTransformDirection(hs.up);
+            float yaw = Mathf.Atan2(n.x, -n.z) * Mathf.Rad2Deg;
+            if (Mathf.Abs(yaw) > 6f) yield return Drag(new Vector2(Mathf.Clamp(-yaw / sens, -420f, 420f), 0f), 0.5f);
+            n = cam.InverseTransformDirection(hs.up);
+            float pitch = -Mathf.Atan2(n.y, new Vector2(n.x, n.z).magnitude) * Mathf.Rad2Deg + lean;
+            if (Mathf.Abs(pitch) > 6f) yield return Drag(new Vector2(0f, Mathf.Clamp(pitch / sens, -420f, 420f)), 0.5f);
         }
 
         IEnumerator TurnSome(int i)
@@ -541,18 +579,6 @@ namespace LostAndFound
             Vector2[] turns = { new(160f, 0f), new(0f, 120f), new(160f, 0f), new(0f, -200f), new(-220f, 60f), new(0f, 160f), new(200f, 0f), new(0f, -120f) };
             yield return Glide(() => new Vector2(Screen.width * 0.44f, Screen.height * 0.45f), 0.35f);
             yield return Drag(turns[i % turns.Length], 0.5f);
-        }
-
-        bool Facing(ItemView item, Transform hs)
-        {
-            var cam = Camera.main;
-            Vector3 to = hs.position - cam.transform.position;
-            float dist = to.magnitude;
-            if (Vector3.Dot(hs.up, -to / dist) < 0.3f) return false;
-            Vector2 s = ToScreen(hs.position);
-            if (s.x < 60 || s.y < 60 || s.x > Screen.width - 60 || s.y > Screen.height - 60) return false;
-            var hits = Physics.RaycastAll(cam.transform.position, to / dist, dist - 0.004f, ~0, QueryTriggerInteraction.Ignore);
-            return !hits.Any(h => h.collider.transform.IsChildOf(item.transform));
         }
 
         static bool RayHits(ItemView item, Vector2 screen, Transform part)

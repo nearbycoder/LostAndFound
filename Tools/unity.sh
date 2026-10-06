@@ -13,6 +13,8 @@
 #   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
 #   Tools/unity.sh autopilot [speed] [day] [best|worst|wait]
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
+#   Tools/unity.sh audit           hold every object in the hand and check each hidden detail can be clicked;
+#                                  coverage in Screenshots/hotspots/coverage.txt, pictures of any below the bar
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #   Tools/unity.sh film <name> [player args]
@@ -46,6 +48,13 @@ case "${1:-open}" in
                rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                exec timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
                  -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
+  audit)       [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+               mkdir -p "$PROJECT/Screenshots/hotspots"
+               timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAuditHotspots "$PROJECT/Screenshots/hotspots" \
+                 -lafSave "$PROJECT/Screenshots/hotspots/save.json" -lafNoMusic -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/audit.log"
+               grep -a "\[Audit\]" "$PROJECT/Logs/audit.log" | grep -v "^\[Audit\]   picture" | tail -n 3
+               grep -a -q "\[Audit\] PASS" "$PROJECT/Logs/audit.log" ;;
   trailer)     [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
                timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
@@ -74,5 +83,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]|autopilot|audit|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

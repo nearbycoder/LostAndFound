@@ -24,6 +24,10 @@ namespace LostAndFound
         public string name;
         public string model;           // FBX name under Resources/Models/Objects (defaults to id)
         public string storage;         // drawer letter A-F, shelf slot (Shelf_1a...), "desk", or "presented" (brought by a claimant)
+        public float shelfTurn;        // extra yaw on the shelf (degrees), so a long thing can lie across the board
+        public float shelfShiftX;      // nudge along the shelf's depth (+ = further back), metres
+        public float shelfShiftZ;      // nudge along the shelf (+ = towards the window), metres
+        public float shelfShiftY;      // raise it (resting on its neighbour), metres
         public int arrives = 1;        // day the object first appears in storage
         public string trait = "";      // "", hum, frost, tomorrow
         public string owner = "";      // commuter id the object belongs to (hum target)

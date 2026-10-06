@@ -82,8 +82,7 @@ namespace LostAndFound
             PostFX.I?.SetInspect(true);
             UIRoot.I?.inspectBar.Show(item);
 
-            float r = item.def.inspectScale > 0 ? item.def.inspectScale : 0.075f;
-            targetScale = Mathf.Clamp(r / item.radius, 0.2f, 3.5f);
+            targetScale = HoldScale(item);
             zoom = 1f;
             pan = Vector2.zero;
             // present the object tilted towards the eye: its top faces us a little
@@ -289,20 +288,29 @@ namespace LostAndFound
         {
             bestPx = float.MaxValue;
             bestWorld = default;
-            DetailDef best = null;
             if (Director.I == null) return null;
-            foreach (var d in Held.def.details)
+            return NearDetail(Held, mouse, false, out bestPx, out bestWorld);
+        }
+
+        /// <summary>The undiscovered detail of <paramref name="item"/> nearest the cursor that can be seen from the eye.
+        /// <paramref name="audit"/> ignores what's been discovered and treats the blue lamp as on (the hotspot audit).</summary>
+        public DetailDef NearDetail(ItemView item, Vector2 mouse, bool audit, out float bestPx, out Vector3 bestWorld)
+        {
+            bestPx = float.MaxValue;
+            bestWorld = default;
+            DetailDef best = null;
+            foreach (var d in item.def.details)
             {
-                if (Director.I.IsDiscovered(Held.def, d)) continue;
-                if (d.requires == "uv" && (Lamp.I == null || !Lamp.I.UV)) continue;
+                if (!audit && Director.I.IsDiscovered(item.def, d)) continue;
+                if (!audit && d.requires == "uv" && (Lamp.I == null || !Lamp.I.UV)) continue;
                 if (d.requires is "wind" or "listen" or "shake" or "play") continue; // revealed by parts
-                var hs = Held.Hotspot(d);
+                var hs = item.Hotspot(d);
                 if (hs == null) continue;
                 Vector3 sp = cam.WorldToScreenPoint(hs.position);
                 if (sp.z <= 0) continue;
                 float px = Vector2.Distance(mouse, sp);
                 if (px > SparkleRadius || px >= bestPx) continue;
-                if (Occluded(hs)) continue;
+                if (Occluded(item, hs)) continue;
                 bestPx = px;
                 best = d;
                 bestWorld = hs.position;
@@ -312,7 +320,7 @@ namespace LostAndFound
 
         /// <summary>A hotspot counts as visible if nothing of the item sits between it and the eye,
         /// and its outward axis (the empty's local up) roughly faces the camera.</summary>
-        bool Occluded(Transform hs)
+        bool Occluded(ItemView item, Transform hs)
         {
             Vector3 eye = cam.transform.position;
             Vector3 to = hs.position - eye;
@@ -322,9 +330,45 @@ namespace LostAndFound
             int n = Physics.RaycastNonAlloc(eye, to / dist, hits, dist - 0.004f, ~0, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < n; i++)
             {
-                if (hits[i].collider.transform.IsChildOf(Held.transform)) return true;
+                if (hits[i].collider.transform.IsChildOf(item.transform) && !SeeThrough(hits[i])) return true;
             }
             return false;
+        }
+
+        /// <summary>Glass, frost and hidden-ink overlays don't hide what's behind them (the figure inside the
+        /// snow globe). Works per triangle, since one mesh can carry glass and opaque materials.</summary>
+        static bool SeeThrough(RaycastHit h)
+        {
+            if (h.collider is not MeshCollider mc || mc.sharedMesh == null || !mc.TryGetComponent<Renderer>(out var r)) return false;
+            var mesh = mc.sharedMesh;
+            int index = h.triangleIndex * 3, sub = -1;
+            for (int s = 0; s < mesh.subMeshCount; s++)
+            {
+                var d = mesh.GetSubMesh(s);
+                if (index >= d.indexStart && index < d.indexStart + d.indexCount) { sub = s; break; }
+            }
+            var mats = r.sharedMaterials;
+            var m = sub >= 0 && sub < mats.Length ? mats[sub] : (mats.Length == 1 ? mats[0] : null);
+            return m != null && m.renderQueue >= (int)UnityEngine.Rendering.RenderQueue.Transparent;
+        }
+
+        /// <summary>How much an object is scaled up when held, so small things fill the hand.</summary>
+        public static float HoldScale(ItemView item)
+        {
+            float r = item.def.inspectScale > 0 ? item.def.inspectScale : 0.075f;
+            return Mathf.Clamp(r / item.radius, 0.2f, 3.5f);
+        }
+
+        /// <summary>Put an item exactly where it would settle in the hand at this turn and zoom (the hotspot audit).</summary>
+        public void PoseInHand(ItemView item, Quaternion turn, float atZoom)
+        {
+            float s = HoldScale(item);
+            var t = cam.transform;
+            Vector3 hand = t.position + t.forward * (distance / atZoom) + t.up * -0.018f;
+            var tr = item.transform;
+            tr.localScale = Vector3.one * s;
+            tr.rotation = t.rotation * turn;
+            tr.position = hand - tr.rotation * (item.centerOffset * s);
         }
 
         ItemPart PartUnderMouse(Vector2 mp)
