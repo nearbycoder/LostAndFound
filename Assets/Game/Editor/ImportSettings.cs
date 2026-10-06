@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,6 +7,18 @@ namespace LostAndFound.EditorTools
     /// <summary>Import rules for generated assets: Blender FBX, synthesized audio, generated textures.</summary>
     public class ImportSettings : AssetPostprocessor
     {
+        /// <summary>Re-run these rules over the models and UI textures after changing them (a fresh clone imports with them
+        /// anyway): Tools/unity.sh run LostAndFound.EditorTools.ImportSettings.ReimportModelsAndUi</summary>
+        public static void ReimportModelsAndUi()
+        {
+            var paths = AssetDatabase.FindAssets("", new[] { "Assets/Game/Resources/Models", "Assets/Game/Resources/Textures/UI" })
+                .Select(AssetDatabase.GUIDToAssetPath).Where(p => !AssetDatabase.IsValidFolder(p)).Distinct().ToList();
+            AssetDatabase.StartAssetEditing();
+            try { foreach (var p in paths) AssetDatabase.ImportAsset(p, ImportAssetOptions.ForceUpdate); }
+            finally { AssetDatabase.StopAssetEditing(); }
+            Debug.Log($"[Import] reimported {paths.Count} models and UI textures");
+        }
+
         void OnPreprocessModel()
         {
             if (!assetPath.Contains("/Resources/Models/")) return;
@@ -23,7 +36,8 @@ namespace LostAndFound.EditorTools
             m.isReadable = true;                       // runtime MeshColliders for inspect raycasts
             m.importNormals = ModelImporterNormals.Import;
             m.importTangents = ModelImporterTangents.CalculateMikk;
-            m.meshCompression = ModelImporterMeshCompression.Off;
+            // quantised vertices: about half the download, checked by the hotspot audit and side-by-side screenshots
+            m.meshCompression = ModelImporterMeshCompression.Medium;
             m.materialImportMode = ModelImporterMaterialImportMode.ImportStandard;
         }
 
@@ -66,7 +80,8 @@ namespace LostAndFound.EditorTools
                 t.wrapMode = TextureWrapMode.Clamp;
                 t.alphaIsTransparency = true;
                 t.npotScale = TextureImporterNPOTScale.None;
-                t.textureCompression = TextureImporterCompression.Uncompressed;
+                // cursors are read on the CPU and stay exact; paper and cards compress to BC7 without visible loss
+                t.textureCompression = file.StartsWith("cursor_") ? TextureImporterCompression.Uncompressed : TextureImporterCompression.CompressedHQ;
                 if (file.StartsWith("cursor_")) t.isReadable = true;
                 return;
             }
