@@ -27,6 +27,8 @@ namespace LostAndFound
             yield return new WaitForSeconds(0.5f);
             if (Director.I != null) { Director.I.autoAdvance = true; Director.I.autoRing = true; }
             // -lafSetQuality N: change Settings > Picture quality mid-run, as the menu does (this one is saved)
+            // -lafShowCurios: open the title's Curiosities page (screenshots of it with a given save)
+            if (Game.Arg("-lafShowCurios") != null && TitleScreen.Showing) CurioLedger.Show(Game.I);
             if (int.TryParse(Game.Arg("-lafSetQuality") ?? "", out int setQ))
             {
                 yield return new WaitForSeconds(2f);

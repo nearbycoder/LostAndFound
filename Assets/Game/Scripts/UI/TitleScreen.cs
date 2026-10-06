@@ -58,13 +58,7 @@ namespace LostAndFound
             var list = UiKit.Rect("Menu", panel).Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f)).Place(new Vector2(120f, -380f), new Vector2(760f, 520f));
             BuildMain(g, list);
 
-            int found = g.Save.discovered.Count(id =>
-            {
-                int dot = id.IndexOf('.');
-                var o = dot > 0 ? g.Db.Object(id.Substring(0, dot)) : null;
-                return o != null && o.Detail(id.Substring(dot + 1))?.kind == "secret";
-            });
-            int total = g.Db.root.objects.Count(o => o.storage != "presented");
+            var (found, total) = Curios.Count(g.Db, g.Save.discovered);
             var cur = UiKit.Label(panel, "Curios", $"Curiosities found: {found} of {total}", Fonts.Body, 26f, new Color(0.8f, 0.74f, 0.62f), TextAlignmentOptions.BottomLeft);
             cur.rectTransform.Anchor(Vector2.zero, Vector2.zero, Vector2.zero).Place(new Vector2(126f, 70f), new Vector2(700f, 40f));
             var credit = UiKit.Label(panel, "Credit", "Agnes's desk, as she left it.", Fonts.Agnes, 28f, new Color(0.8f, 0.74f, 0.62f, 0.8f), TextAlignmentOptions.BottomLeft);
@@ -122,6 +116,7 @@ namespace LostAndFound
                 Start(g, g.NewWeek);
             });
             if (g.Save.unlockedDay > 1 || g.Save.finished) Item(list, i++, "Choose a Day", () => BuildDays(g, list));
+            Item(list, i++, "Curiosities", () => CurioLedger.Show(g));
             Item(list, i++, "Settings", () => SettingsPanel.Open(() => { }));
             if (!Application.isEditor && Application.platform != RuntimePlatform.WebGLPlayer) Item(list, i++, "Close the Office", Application.Quit);
         }
@@ -158,6 +153,74 @@ namespace LostAndFound
             panel = null;
             UIRoot.I.PopModal();
             begin();
+        }
+    }
+
+    /// <summary>
+    /// Agnes's curio book: every object's one optional secret. Found ones are written out; the rest name the
+    /// object and the day it turns up, so a replay has something to look for without giving it away.
+    /// </summary>
+    public static class CurioLedger
+    {
+        static RectTransform panel;
+
+        public static void Show(Game g)
+        {
+            if (panel != null) return;
+            UIRoot.I.PushModal();
+            AudioDirector.PlayMaterial("paper", "pick", 0.5f);
+            panel = UiKit.Rect("Curios", UIRoot.I.root).Fill();
+            var dim = UiKit.Image(panel, "Dim", null, new Color(0f, 0f, 0f, 0.55f));
+            dim.rectTransform.Fill();
+            dim.raycastTarget = true;
+            var book = UiKit.Image(panel, "Book", "ledger_page", new Color(0.95f, 0.91f, 0.81f), 40f);
+            book.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(new Vector2(0f, 10f), new Vector2(1640f, 960f));
+            var all = Curios.All(g.Db, g.Save.discovered);
+            int found = all.Count(e => e.found);
+            var title = UiKit.Label(book.transform, "Title", "Curiosities", Fonts.Title, 58f, UiKit.Ink, TextAlignmentOptions.Top);
+            title.rectTransform.Fill();
+            title.margin = new Vector4(60f, 30f, 60f, 0f);
+            var sub = UiKit.Label(book.transform, "Sub", $"{found} of {all.Count} found  ·  one small secret in every object on the shelves and in the drawers", Fonts.TitleItalic, 26f, UiKit.InkSoft, TextAlignmentOptions.Top);
+            sub.rectTransform.Fill();
+            sub.margin = new Vector4(60f, 100f, 60f, 0f);
+
+            int perColumn = (all.Count + 1) / 2;
+            for (int k = 0; k < all.Count; k++)
+            {
+                var e = all[k];
+                int col = k / perColumn, row = k % perColumn;
+                float x = 80f + col * 640f, y = -140f - row * 54f;   // both columns inside the page's printed margin
+                string day = g.Db.Day(e.obj.arrives)?.weekday ?? "";
+                string text = e.found
+                    ? $"<b>{e.obj.name}</b>\n<size=78%><color=#4a3a30>{e.secret.fact}</color></size>"
+                    : $"<color=#8a7a68><b>{e.obj.name}</b>\n<size=78%><i>Something still hidden.  Turns up {day}.</i></size></color>";
+                var line = UiKit.Label(book.transform, "Curio", text, Fonts.Hand, 26f, UiKit.Ink, TextAlignmentOptions.TopLeft);
+                line.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f)).Place(new Vector2(x + 40f, y), new Vector2(590f, 54f));
+                line.lineSpacing = -18f;
+                line.enableAutoSizing = true;
+                line.fontSizeMin = 16f;
+                line.fontSizeMax = 26f;
+                var mark = UiKit.Image(book.transform, "Mark", e.found ? "mark_tick" : "mark_dash", e.found ? DeskMaterials.ReturnInk : new Color(0.55f, 0.5f, 0.45f, 0.6f));
+                mark.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0.5f, 0.5f)).Place(new Vector2(x + 14f, y - 20f), new Vector2(34f, 34f));
+            }
+            var back = UiKit.Button(book.transform, "Back", "Close the book", Fonts.Title, 38f, Hide);
+            back.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(0f, 22f), new Vector2(380f, 56f));
+            panel.gameObject.AddComponent<EscCloses>();
+        }
+
+        public static void Hide()
+        {
+            if (panel == null) return;
+            Object.Destroy(panel.gameObject);
+            panel = null;
+            UIRoot.I.PopModal();
+            AudioDirector.PlayMaterial("paper", "put", 0.4f);
+        }
+
+        class EscCloses : MonoBehaviour
+        {
+            void LateUpdate() { if (InputX.KeyDown(UnityEngine.InputSystem.Key.Escape)) Hide(); }
+            void OnDestroy() { if (panel == (RectTransform)transform) { panel = null; UIRoot.I?.PopModal(); } }
         }
     }
 

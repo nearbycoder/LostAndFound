@@ -313,6 +313,18 @@ namespace LostAndFound.Tests
         }
 
         [Test]
+        public void CuriositiesAreOneSecretPerStoredObject()
+        {
+            var none = Curios.Count(Db, new List<string>());
+            Assert.AreEqual((0, 25), none, "25 objects on the shelves and in the drawers, each with one secret");
+            var found = new List<string> { "wallet_brown.clover", "suitcase.dancecard", "wallet_brown.photo", "nonsense.id" };
+            Assert.AreEqual(2, Curios.Count(Db, found).found, "case details and unknown ids don't count");
+            var all = Curios.All(Db, found);
+            Assert.IsTrue(all.All(e => e.secret != null && e.obj.storage != "presented"));
+            Assert.IsTrue(all.Select(e => e.obj.arrives).SequenceEqual(all.Select(e => e.obj.arrives).OrderBy(d => d)), "in the order they turn up");
+        }
+
+        [Test]
         public void MidDayProgressIsSavedAndOldSavesStartTheMorning()
         {
             var save = new SaveGame { currentDay = 2, casesDone = 2 };
