@@ -248,6 +248,19 @@ namespace LostAndFound
         }
 
         /// <summary>Rules known by the start of a case (morning rules of every day so far plus earlier case unlocks).</summary>
+        /// <summary>Every rule handed over on the days before <paramref name="day"/> (morning notes and mid-shift ones).</summary>
+        public HashSet<int> RulesBefore(int day)
+        {
+            var known = new HashSet<int>();
+            foreach (var d in root.days.Where(d => d.day < day))
+            {
+                foreach (var r in d.rules) known.Add(r);
+                foreach (var c in d.cases)
+                    if (!string.IsNullOrEmpty(c.unlockRule) && int.TryParse(c.unlockRule, out int rid)) known.Add(rid);
+            }
+            return known;
+        }
+
         public HashSet<int> RulesKnownAt(int day, string caseId)
         {
             var known = new HashSet<int>();

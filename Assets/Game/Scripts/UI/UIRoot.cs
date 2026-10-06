@@ -24,6 +24,7 @@ namespace LostAndFound
         public DayCard dayCard;
         public Fader fader;
         public TurnArrows arrows;
+        public RulesPeek rulesPeek;
         int modalCount;
 
         public void PushModal() => modalCount++;
@@ -60,6 +61,7 @@ namespace LostAndFound
             hotspotMarker = HotspotMarker.Create(root);
             discovery = DiscoveryFX.Create(root);
             tagCard = TagCard.Create(root);
+            rulesPeek = RulesPeek.Create(root);
             inspectBar = InspectBar.Create(root);
             hint = HintBar.Create(root);
             dialogue = DialogueBox.Create(root);

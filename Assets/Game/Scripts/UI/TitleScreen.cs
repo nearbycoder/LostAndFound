@@ -323,33 +323,92 @@ namespace LostAndFound
         }
     }
 
-    /// <summary>Every rule Agnes has left you so far, on a card in her hand.</summary>
+    /// <summary>Every rule Agnes has left you so far, on a card in her hand. Opens from the pause menu, the card
+    /// on the desk, or R from anywhere (holding something included); R, Esc or "Put it back" closes it.</summary>
     public static class RulesCard
     {
-        public static void Show()
+        static RectTransform panel;
+        static int openedFrame;
+        public static bool IsOpen => panel != null;
+
+        /// <summary>The rules known right now, numbered, each with Agnes's wording and a plain gloss.</summary>
+        public static string Text()
         {
             var d = Director.I;
+            if (d == null || d.Db == null) return "";
+            var known = d.KnownRules();
+            var sb = new System.Text.StringBuilder();
+            foreach (var r in d.Db.root.rules.Where(r => known.Contains(r.id)).OrderBy(r => r.id))
+                sb.Append($"<b>{r.id}.</b>  {r.text}\n<size=70%><color=#6a5a50><i>{r.hint}</i></color></size>\n\n");
+            if (sb.Length == 0) sb.Append("No rules yet, love. Ring the bell.");
+            return sb.ToString();
+        }
+
+        public static void Toggle()
+        {
+            if (IsOpen) Hide();
+            else Show();
+        }
+
+        public static void Show()
+        {
+            if (IsOpen) return;
+            openedFrame = Time.frameCount;
             UIRoot.I.PushModal();
-            var panel = UiKit.Rect("Rules", UIRoot.I.root).Fill();
+            AudioDirector.PlayMaterial("paper", "pick", 0.5f);
+            panel = UiKit.Rect("Rules", UIRoot.I.root).Fill();
             var dim = UiKit.Image(panel, "Dim", null, new Color(0f, 0f, 0f, 0.5f));
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "note_paper", new Color(1f, 0.98f, 0.9f), 30f);
             card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(1100f, 900f));
-            var known = d.Db.RulesKnownAt(d.Day, d.Current?.id ?? "");
-            if (d.Current == null && d.DayDef != null) foreach (int r in d.DayDef.rules) known.Add(r);
-            var sb = new System.Text.StringBuilder();
-            foreach (var r in d.Db.root.rules.Where(r => known.Contains(r.id)).OrderBy(r => r.id))
-                sb.Append($"<b>{r.id}.</b>  {r.text}\n<size=70%><color=#6a5a50><i>{r.hint}</i></color></size>\n\n");
-            if (sb.Length == 0) sb.Append("No rules yet, love. Ring the bell.");
-            var body = UiKit.Label(card.transform, "Body", sb.ToString(), Fonts.Agnes, 34f, DeskMaterials.InkColor, TextAlignmentOptions.TopLeft);
+            var body = UiKit.Label(card.transform, "Body", Text(), Fonts.Agnes, 34f, DeskMaterials.InkColor, TextAlignmentOptions.TopLeft);
             body.rectTransform.Fill();
             body.margin = new Vector4(80f, 70f, 80f, 110f);
             body.enableAutoSizing = true;
             body.fontSizeMin = 20f;
             body.fontSizeMax = 34f;
-            var back = UiKit.Button(card.transform, "Back", "Put it back", Fonts.Title, 40f, () => { Object.Destroy(panel.gameObject); UIRoot.I.PopModal(); });
+            var back = UiKit.Button(card.transform, "Back", "Put it back", Fonts.Title, 40f, Hide);
             back.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(0f, 30f), new Vector2(360f, 60f));
+            var keys = UiKit.Label(card.transform, "Keys", "R  OR  ESC  TO PUT IT BACK", Fonts.Type, 18f, UiKit.InkSoft, TextAlignmentOptions.Bottom);
+            keys.rectTransform.Fill();
+            keys.margin = new Vector4(0f, 0f, 0f, 12f);
+            panel.gameObject.AddComponent<Closer>();
+        }
+
+        public static void Hide()
+        {
+            if (!IsOpen) return;
+            Object.Destroy(panel.gameObject);
+            panel = null;
+            UIRoot.I.PopModal();
+            AudioDirector.PlayMaterial("paper", "put", 0.4f);
+        }
+
+        /// <summary>Closes on R or Esc. Runs after every Update, so the same key press can't also put down
+        /// the held object or open the pause menu.</summary>
+        class Closer : MonoBehaviour
+        {
+            void LateUpdate()
+            {
+                if (Time.frameCount == openedFrame) return;
+                if (InputX.KeyDown(UnityEngine.InputSystem.Key.R) || InputX.KeyDown(UnityEngine.InputSystem.Key.Escape)) Hide();
+            }
+
+            void OnDestroy()
+            {
+                if (panel == (RectTransform)transform) { panel = null; UIRoot.I?.PopModal(); }
+            }
+        }
+    }
+
+    /// <summary>R opens Agnes's rules from anywhere during a shift.</summary>
+    public class RulesHotkey : MonoBehaviour
+    {
+        void LateUpdate()
+        {
+            if (RulesCard.IsOpen || PauseMenu.Open || UIRoot.ModalOpen || Director.I == null || !Director.I.Running) return;
+            if (InputX.KeyDown(UnityEngine.InputSystem.Key.R)) RulesCard.Show();
         }
     }
 }

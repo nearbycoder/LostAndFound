@@ -101,6 +101,7 @@ namespace LostAndFound
         {
             phase = Phase.Morning;
             Day = day;
+            rulesShownToday.Clear();
             DayDef = Db.Day(day);
             // the state at the start of a day is kept so the day can be replayed
             var snap = Save.SnapshotFor(day);
@@ -348,10 +349,21 @@ namespace LostAndFound
             if (c != null) UpdateHums(null);
         }
 
+        readonly HashSet<int> rulesShownToday = new();
+
+        /// <summary>The rules Agnes has actually handed you by now: every earlier day's, and today's so far.</summary>
+        public HashSet<int> KnownRules()
+        {
+            var known = Db.RulesBefore(Day);
+            known.UnionWith(rulesShownToday);
+            return known;
+        }
+
         IEnumerator ShowRule(int rid)
         {
             var r = Db.Rule(rid);
             if (r == null) yield break;
+            rulesShownToday.Add(rid);
             UIRoot.I.dialogue.Hide();
             yield return UIRoot.I.note.Show($"Rule {ToWords(rid).ToLowerInvariant()}", r.text);
         }

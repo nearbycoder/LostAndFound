@@ -55,6 +55,12 @@ namespace LostAndFound
                 stamp.rectTransform.Anchor(new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f)).Place(new Vector2(-160f, y - 26f), new Vector2(84f, 84f));
                 stamp.color = rec.grade == "best" ? DeskMaterials.ReturnInk : rec.grade == "ok" ? new Color(0.62f, 0.45f, 0.12f) : rec.grade == "skip" ? UiKit.InkSoft : DeskMaterials.RefuseInk;
                 stamp.enabled = false;
+                if (rec.detailsTotal > 0)
+                {
+                    // how thoroughly you looked: case details noted out of those the object had
+                    var found = UiKit.Label(book.transform, "Found", $"{rec.detailsFound} of {rec.detailsTotal} found", Fonts.Hand, 26f, UiKit.InkSoft, TextAlignmentOptions.TopRight);
+                    found.rectTransform.Anchor(new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f)).Place(new Vector2(-212f, y - 4f), new Vector2(150f, 40f));
+                }
                 rows.Add((line, why, stamp, rec));
                 y -= 104f;
             }
@@ -76,7 +82,9 @@ namespace LostAndFound
             }
 
             var (stamps, correct, total) = d.Score(d.Day);
-            var tally = UiKit.Label(book.transform, "Tally", $"{correct} of {total} by the rules", Fonts.Hand, 40f, UiKit.Ink, TextAlignmentOptions.BottomLeft);
+            var recs = d.DayDef.cases.Select(c => d.State.Record(c.id)).Where(r => r != null && r.detailsTotal > 0).ToList();
+            string findings = recs.Count == 0 ? "" : $"   <size=70%><color=#5a4a40>·  {recs.Sum(r => r.detailsFound)} of {recs.Sum(r => r.detailsTotal)} findings noted</color></size>";
+            var tally = UiKit.Label(book.transform, "Tally", $"{correct} of {total} by the rules{findings}", Fonts.Hand, 40f, UiKit.Ink, TextAlignmentOptions.BottomLeft);
             tally.rectTransform.Fill();
             tally.margin = new Vector4(90f, 0f, 60f, 130f);
             for (int i = 0; i < 3; i++)

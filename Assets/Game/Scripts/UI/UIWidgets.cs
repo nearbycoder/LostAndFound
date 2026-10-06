@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using TMPro;
@@ -308,6 +309,53 @@ namespace LostAndFound
         }
     }
 
+    /// <summary>Agnes's rules held up beside the desk while you hover her card (no clicks needed, nothing paused).</summary>
+    public class RulesPeek : MonoBehaviour
+    {
+        CanvasGroup group;
+        TextMeshProUGUI body;
+        bool on;
+        float a;
+
+        public static RulesPeek Create(RectTransform root)
+        {
+            var rt = UiKit.Rect("RulesPeek", root).Anchor(new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f)).Place(new Vector2(70f, 60f), new Vector2(720f, 760f));
+            var p = rt.gameObject.AddComponent<RulesPeek>();
+            p.group = UiKit.Group(rt.gameObject);
+            p.group.alpha = 0f;
+            p.group.blocksRaycasts = false;
+            var sh = UiKit.Image(rt, "Shadow", "note_paper", new Color(0, 0, 0, 0.35f), 0f);
+            sh.rectTransform.Fill();
+            sh.rectTransform.anchoredPosition = new Vector2(6f, -8f);
+            var bg = UiKit.Image(rt, "Paper", "note_paper", new Color(0.98f, 0.95f, 0.84f), 0f);
+            bg.rectTransform.Fill();
+            p.body = UiKit.Label(rt, "Body", "", Fonts.Agnes, 30f, new Color(0.13f, 0.15f, 0.32f), TextAlignmentOptions.TopLeft);
+            p.body.rectTransform.Fill();
+            p.body.margin = new Vector4(56f, 50f, 50f, 50f);
+            p.body.enableAutoSizing = true;
+            p.body.fontSizeMin = 16f;
+            p.body.fontSizeMax = 30f;
+            rt.localRotation = Quaternion.Euler(0f, 0f, 1.5f);
+            return p;
+        }
+
+        public void Show()
+        {
+            body.text = RulesCard.Text();
+            if (!on) AudioDirector.Play("tag_flip", 0.25f, Random.Range(0.9f, 1.05f));
+            on = true;
+        }
+
+        public void Hide() => on = false;
+
+        void Update()
+        {
+            if (UIRoot.ModalOpen) on = false;
+            a = Mathf.MoveTowards(a, on ? 1f : 0f, Time.unscaledDeltaTime * 7f);
+            group.alpha = Ease.OutCubic(a);
+        }
+    }
+
     /// <summary>Context hint at the bottom of the screen, plus short red flashes for "you can't do that".</summary>
     public class HintBar : MonoBehaviour
     {
@@ -364,6 +412,8 @@ namespace LostAndFound
         TextMeshProUGUI title, controls, partHint;
         bool on;
         float a;
+        ItemView item;
+        int shownFound = -1;
 
         public static InspectBar Create(RectTransform root)
         {
@@ -403,7 +453,9 @@ namespace LostAndFound
         public void Show(ItemView item)
         {
             on = true;
-            title.text = item.def.name;
+            this.item = item;
+            shownFound = -1;
+            title.text = Title();
             string lamp = Lamp.I != null && Lamp.I.uvUnlocked ? "   ·   L  BLUE LAMP" : "";
             controls.text = $"DRAG  TURN   ·   SCROLL  CLOSER   ·   RIGHT CLICK  PUT DOWN   ·   T  ON THE TRAY{lamp}";
             partHint.text = "";
@@ -413,10 +465,29 @@ namespace LostAndFound
 
         public void Hide() => on = false;
 
+        /// <summary>How many of the object's case details you've noted (secrets stay secret: they aren't counted).</summary>
+        public static (int found, int total) Findings(ObjectDef def)
+        {
+            var d = Director.I;
+            if (def == null || d == null) return (0, 0);
+            var details = def.CaseDetails.ToList();
+            return (details.Count(x => d.IsDiscovered(def, x)), details.Count);
+        }
+
+        string Title()
+        {
+            var (found, total) = Findings(item.def);
+            shownFound = found;
+            if (total == 0) return item.def.name;
+            string count = found >= total ? $"<color=#f0d088>·  all {total} findings noted</color>" : $"<color=#e0d0b0>·  findings {found} of {total}</color>";
+            return $"{item.def.name}  <size=56%>{count}</size>";
+        }
+
         void Update()
         {
             a = Mathf.MoveTowards(a, on ? 1f : 0f, Time.unscaledDeltaTime * 5f);
             group.alpha = a;
+            if (on && item != null && Findings(item.def).found != shownFound) title.text = Title();
         }
     }
 

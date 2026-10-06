@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 
@@ -19,6 +20,7 @@ namespace LostAndFound
         static readonly Vector3 PolaroidPos = new(-0.43f, 0.7628f, 0.70f);
         static readonly Quaternion PolaroidRot = Quaternion.Euler(0f, 24f, 0f);
         public DeskCalendar calendar;
+        public DeskRulesCard rulesCard;
         public Light lampLight, boothLight;
 
         GameObject Prop(string name, Vector3 pos, float yaw, Transform parent)
@@ -139,6 +141,7 @@ namespace LostAndFound
             var cal = Prop("Calendar", new Vector3(-0.30f, 0.76f, 0.86f), 12f, root);
             calendar = cal.AddComponent<DeskCalendar>();
             calendar.Init(cal.transform);
+            rulesCard = DeskRulesCard.Create(root, new Vector3(-0.45f, 0.7612f, 0.68f), -16f);
 
             // --- photographs (the trailer moment changes every one of them)
             var frames = new (string model, Vector3 pos, float yaw, string id)[]
@@ -305,6 +308,77 @@ namespace LostAndFound
             weekday.text = wd.ToUpperInvariant();
             day.text = d.ToString();
             month.text = m.ToUpperInvariant();
+        }
+    }
+
+    /// <summary>Agnes's rules on a card by the lamp, the way she kept them: hover to read, click (or R) to hold it up.</summary>
+    public class DeskRulesCard : Interactable
+    {
+        const float W = 0.082f, H = 0.108f;
+        TextMeshPro body;
+        int shown = -1;
+        float refresh;
+
+        public override CursorKind Cursor => CursorKind.Look;
+        public override string Hint => "Agnes's rules   ·   click or R to read them";
+
+        public static DeskRulesCard Create(Transform parent, Vector3 pos, float yaw)
+        {
+            var go = new GameObject("RulesCard");
+            go.transform.SetParent(parent, false);
+            go.transform.position = pos;
+            go.transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+            var c = go.AddComponent<DeskRulesCard>();
+            c.Build();
+            return c;
+        }
+
+        void Build()
+        {
+            var paper = new GameObject("Paper");
+            paper.transform.SetParent(transform, false);
+            paper.AddComponent<MeshFilter>().sharedMesh = ProcMesh.Paper(W, H, 0.0006f);
+            paper.AddComponent<MeshRenderer>().sharedMaterial = DeskMaterials.Tag;
+            var bc = gameObject.AddComponent<BoxCollider>();
+            bc.center = new Vector3(0f, 0.002f, 0f);
+            bc.size = new Vector3(W, 0.006f, H);
+            var head = Text.World(transform, "My rules", Fonts.AgnesBold, 0.0115f, new Color(0.45f, 0.12f, 0.12f));
+            head.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            head.transform.localPosition = new Vector3(0f, 0.0009f, H / 2 - 0.013f);
+            head.rectTransform.sizeDelta = new Vector2(W - 0.01f, 0.016f);
+            body = Text.World(transform, "", Fonts.Agnes, 0.0042f, new Color(0.13f, 0.15f, 0.32f));
+            body.alignment = TextAlignmentOptions.TopLeft;
+            body.textWrappingMode = TextWrappingModes.Normal;
+            body.overflowMode = TextOverflowModes.Truncate;
+            body.lineSpacing = -18f;
+            body.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            body.rectTransform.sizeDelta = new Vector2(W - 0.012f, H - 0.03f);
+            body.transform.localPosition = new Vector3(0f, 0.0009f, -0.01f);
+        }
+
+        void Update()
+        {
+            // the card fills up as Agnes's notes turn up through the week
+            refresh -= Time.unscaledDeltaTime;
+            if (refresh > 0f || Director.I == null || Director.I.Db == null) return;
+            refresh = 0.5f;
+            var known = Director.I.KnownRules();
+            int key = known.Count == 0 ? 0 : known.Sum(r => 1 << r);
+            if (key == shown) return;
+            shown = key;
+            body.text = string.Join("\n", Director.I.Db.root.rules.Where(r => known.Contains(r.id)).OrderBy(r => r.id).Select(r => $"{r.id}. {r.text}"));
+        }
+
+        public override void OnHover(bool on)
+        {
+            if (on) UIRoot.I?.rulesPeek.Show();
+            else UIRoot.I?.rulesPeek.Hide();
+        }
+
+        public override void OnClick()
+        {
+            UIRoot.I?.rulesPeek.Hide();
+            RulesCard.Show();
         }
     }
 }

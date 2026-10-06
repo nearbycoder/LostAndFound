@@ -22,6 +22,7 @@ namespace LostAndFound
         /// branches) | wait (best, but Thomas is refused the ring: the Long Wait).</summary>
         string policy = "best";
         int startDay = 1;
+        int shotRulesDay;
 
         void Start()
         {
@@ -104,6 +105,23 @@ namespace LostAndFound
             float slow = Director.Cinematic ? 3f : 1f;   // filmed runs take their time
             yield return new WaitForSeconds(0.3f * slow);
             Shot($"case{c.id}_window");
+            if (!Director.Cinematic && shotRulesDay != d.Day)
+            {
+                // the rules known by the first case of each day: Agnes's card by the lamp, held up on Friday
+                shotRulesDay = d.Day;
+                UIRoot.I.rulesPeek.Show();
+                yield return new WaitForSecondsRealtime(0.5f);
+                Shot($"day{d.Day}_rules_card");
+                UIRoot.I.rulesPeek.Hide();
+                if (d.Day == d.Db.DayCount)
+                {
+                    RulesCard.Show();
+                    yield return new WaitForSecondsRealtime(0.4f);
+                    Shot($"day{d.Day}_rules_open");
+                    RulesCard.Hide();
+                }
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
             var dec = Rules.Solve(d.Db, d.Day, c, d.State);
             if (policy == "wait" && c.id == "4.5")
                 dec = new Decision { verdict = Verdict.Refuse, reason = "policy: the long wait" };

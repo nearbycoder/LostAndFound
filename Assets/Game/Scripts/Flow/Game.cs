@@ -89,6 +89,7 @@ namespace LostAndFound
             ui.transform.SetParent(transform, false);
             ui.AddComponent<UIRoot>();
             ui.AddComponent<PauseMenu>();
+            ui.AddComponent<RulesHotkey>();
             ApplyDisplay();
 
             var deskGo = new GameObject("Desk");
