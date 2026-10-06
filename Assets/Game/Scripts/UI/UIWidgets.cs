@@ -85,7 +85,9 @@ namespace LostAndFound
         {
             var canvas = UIRoot.I.root;
             float w = canvas.rect.width, h = canvas.rect.height;
-            Vector2 size = panel.sizeDelta;
+            float s = UiKit.TextScale;
+            panel.localScale = Vector3.one * s;
+            Vector2 size = panel.sizeDelta * s;
             if (player || who == null || Camera.main == null)
             {
                 target = new Vector2(70f, 470f);
@@ -108,14 +110,14 @@ namespace LostAndFound
                 tailLeft = ox < head.x;
             }
             panel.sizeDelta = new Vector2(crowded ? 490f : 700f, panel.sizeDelta.y);
-            size = panel.sizeDelta;
+            size = panel.sizeDelta * s;
             float margin = crowded ? 14f : 30f;
             float x = tailLeft ? head.x + 170f : head.x - 170f - size.x;
             x = Mathf.Clamp(x, margin, w - size.x - margin);
             float y = Mathf.Clamp(head.y + size.y * 0.55f, size.y + 40f, h - 24f);
             target = new Vector2(x, y);
             tail.enabled = true;
-            float tailY = Mathf.Clamp(head.y - y, -size.y + 36f, -36f);
+            float tailY = Mathf.Clamp((head.y - y) / s, -panel.sizeDelta.y + 36f, -36f);   // in the bubble's own (unscaled) units
             tail.rectTransform.anchorMin = tail.rectTransform.anchorMax = new Vector2(tailLeft ? 0f : 1f, 1f);
             tail.rectTransform.pivot = new Vector2(tailLeft ? 1f : 0f, 0.5f);
             tail.rectTransform.anchoredPosition = new Vector2(tailLeft ? 6f : -6f, tailY);
@@ -305,9 +307,11 @@ namespace LostAndFound
             Vector2 mp = InteractionSystem.MousePos;
             var canvas = UIRoot.I.root;
             float scale = canvas.rect.width / Mathf.Max(1, Screen.width);
+            panel.localScale = Vector3.one * UiKit.TextScale;
+            Vector2 size = panel.sizeDelta * UiKit.TextScale;
             Vector2 pos = mp * scale + new Vector2(28f, -14f);
-            if (pos.x + panel.sizeDelta.x > canvas.rect.width - 10f) pos.x = mp.x * scale - panel.sizeDelta.x - 28f;
-            if (pos.y - panel.sizeDelta.y < 10f) pos.y = panel.sizeDelta.y + 10f;
+            if (pos.x + size.x > canvas.rect.width - 10f) pos.x = mp.x * scale - size.x - 28f;
+            if (pos.y - size.y < 10f) pos.y = size.y + 10f;
             panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, pos, alpha < 0.05f ? 1f : 1f - Mathf.Exp(-20f * Time.unscaledDeltaTime));
             panel.localRotation = Quaternion.Euler(0f, 0f, -3f + Mathf.Sin(Time.unscaledTime * 1.3f) * 0.6f);
         }
@@ -355,6 +359,7 @@ namespace LostAndFound
         void Update()
         {
             if (UIRoot.ModalOpen) on = false;
+            transform.localScale = Vector3.one * Mathf.Min(UiKit.TextScale, 1.15f);   // it's already tall: just a little larger
             a = Mathf.MoveTowards(a, on ? 1f : 0f, Time.unscaledDeltaTime * 7f);
             group.alpha = Ease.OutCubic(a);
         }
@@ -404,6 +409,7 @@ namespace LostAndFound
             text.color = new Color(c.r, c.g, c.b, a);
             // while you're holding something, sit between the object's name and the control strip
             var rt = (RectTransform)transform;
+            rt.localScale = Vector3.one * UiKit.TextScale;
             float y = InspectController.I != null && InspectController.I.Held != null ? 64f : 22f;
             rt.anchoredPosition = new Vector2(0f, Mathf.Lerp(rt.anchoredPosition.y, y, 1f - Mathf.Exp(-12f * Time.unscaledDeltaTime)));
         }
@@ -491,6 +497,7 @@ namespace LostAndFound
         {
             a = Mathf.MoveTowards(a, on ? 1f : 0f, Time.unscaledDeltaTime * 5f);
             group.alpha = a;
+            transform.localScale = Vector3.one * UiKit.TextScale;
             if (on && item != null && Findings(item.def).found != shownFound) title.text = Title();
         }
     }
@@ -655,6 +662,7 @@ namespace LostAndFound
             open = true;
             dismissed = false;
             AudioDirector.Play("paper_unfold", 0.7f);
+            panel.localScale = Vector3.one * UiKit.TextScale;
             panel.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-2.5f, 1.5f));
             yield return Tween.Run(0.4f, k =>
             {

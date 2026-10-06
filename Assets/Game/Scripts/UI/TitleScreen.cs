@@ -235,7 +235,7 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "paper_card", UiKit.Paper, 28f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 920f));
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 976f));
             var t = UiKit.Label(card.transform, "Title", "Settings", Fonts.Title, 56f, UiKit.Ink, TextAlignmentOptions.Top);
             t.rectTransform.Fill();
             t.margin = new Vector4(0f, 34f, 0f, 0f);
@@ -278,6 +278,7 @@ namespace LostAndFound
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
                 y -= 54f;
             }
+            Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
 
             var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, () =>
             {

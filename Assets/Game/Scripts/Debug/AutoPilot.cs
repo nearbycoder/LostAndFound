@@ -24,7 +24,7 @@ namespace LostAndFound
         string policy = "best";
         int startDay = 1;
         int shotRulesDay;
-        bool basementShot;
+        bool basementShot, noteShot;
 
         void Start()
         {
@@ -77,6 +77,13 @@ namespace LostAndFound
                     lastLedgerDay = d.Day;
                     yield return new WaitForSecondsRealtime(2.2f);
                     Shot($"day{d.Day}_ledger");
+                }
+                if (!noteShot && UIRoot.I.note.Open)
+                {
+                    // one of Agnes's notes, once a run
+                    noteShot = true;
+                    yield return new WaitForSecondsRealtime(0.12f);   // notes don't stay up long at -lafSpeed 4
+                    Shot($"day{d.Day}_note");
                 }
                 if (basementShot)
                 {
@@ -131,6 +138,15 @@ namespace LostAndFound
                 Shot($"day{d.Day}_rules_card");
                 yield return null;   // the capture happens at the end of the frame: keep the card up until then
                 UIRoot.I.rulesPeek.Hide();
+                // and the intake tag of the object they're after, as hovering it shows
+                if (Desk.I.items.TryGetValue(c.wants ?? "", out var tagged) && tagged != null && tagged.place == ItemPlace.Storage)
+                {
+                    UIRoot.I.tagCard.Show(tagged);
+                    yield return new WaitForSecondsRealtime(0.5f);
+                    Shot($"case{c.id}_tag");
+                    yield return null;
+                    UIRoot.I.tagCard.Hide(tagged);
+                }
                 if (d.Day == d.Db.DayCount)
                 {
                     RulesCard.Show();

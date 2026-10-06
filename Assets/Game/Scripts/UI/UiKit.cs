@@ -19,6 +19,9 @@ namespace LostAndFound
 
         static readonly Dictionary<string, Sprite> Sprites = new();
 
+        /// <summary>Scale of the reading UI: 1.25 with Settings > Text size: Large (or -lafTextSize 1 for one run).</summary>
+        public static float TextScale => (int.TryParse(Game.Arg("-lafTextSize") ?? "", out int t) ? t : Settings.TextSize) >= 1 ? 1.25f : 1f;
+
         public static Sprite Sprite(string name, float border = 0f)
         {
             string key = name + border;

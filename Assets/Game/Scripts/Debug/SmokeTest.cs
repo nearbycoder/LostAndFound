@@ -29,6 +29,16 @@ namespace LostAndFound
             // -lafSetQuality N: change Settings > Picture quality mid-run, as the menu does (this one is saved)
             // -lafShowCurios: open the title's Curiosities page (screenshots of it with a given save)
             if (Game.Arg("-lafShowCurios") != null && TitleScreen.Showing) CurioLedger.Show(Game.I);
+            if (Game.Arg("-lafShowSettings") != null) SettingsPanel.Open(null);   // as the menu opens it (nothing is changed)
+            Debug.Log($"[Smoke] text size at launch: {Settings.TextSize} (reading UI x{UiKit.TextScale:0.##})");
+            // -lafSetTextSize N: change Settings > Large text mid-run (this one is saved)
+            if (int.TryParse(Game.Arg("-lafSetTextSize") ?? "", out int setT))
+            {
+                yield return new WaitForSeconds(1f);
+                Settings.TextSize = setT;
+                yield return null;
+                Debug.Log($"[Smoke] text size set to {Settings.TextSize}: hint bar now x{UIRoot.I.hint.transform.localScale.x:0.##}");
+            }
             if (int.TryParse(Game.Arg("-lafSetQuality") ?? "", out int setQ))
             {
                 yield return new WaitForSeconds(2f);
