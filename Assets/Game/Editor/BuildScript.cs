@@ -1,11 +1,12 @@
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace LostAndFound.EditorTools
 {
-    /// <summary>Menu items and batch-mode entry points for building the player.</summary>
+    /// <summary>Menu items and batch-mode entry points for building the players.</summary>
     public static class BuildScript
     {
         static readonly string[] Scenes = { "Assets/Scenes/Main.unity" };
@@ -32,22 +33,57 @@ namespace LostAndFound.EditorTools
         }
 
         [MenuItem("Lost & Found/Build Linux Player")]
-        public static void BuildLinux()
+        public static void BuildLinux() => Build(BuildTarget.StandaloneLinux64, "Builds/Linux/LostAndFound.x86_64");
+
+        /// <summary>A universal (Intel + Apple silicon) Mono build, unsigned and not notarised.</summary>
+        [MenuItem("Lost & Found/Build macOS Player")]
+        public static void BuildMac()
         {
+            EditorUserBuildSettings.SetPlatformSettings(BuildPipeline.GetBuildTargetName(BuildTarget.StandaloneOSX), "Architecture", "x64ARM64");
+            // Unity turns the "&" into "_" in the bundle and menu-bar name, and the bundle is signed as it's
+            // written, so it can't be patched afterwards: spell it out for the Mac
+            Build(BuildTarget.StandaloneOSX, "Builds/macOS/LostAndFound.app", "Lost and Found");
+        }
+
+        /// <summary>Needs Unity's Windows Build Support module, which isn't installed on the machine this was made on.</summary>
+        [MenuItem("Lost & Found/Build Windows Player")]
+        public static void BuildWindows() => Build(BuildTarget.StandaloneWindows64, "Builds/Windows/LostAndFound.exe");
+
+        static void Build(BuildTarget target, string path, string productName = null)
+        {
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, target))
+            {
+                Debug.LogError($"[LostAndFound] can't build {target}: its build support module isn't installed (Unity Hub > Installs > Add modules)");
+                Quit(false);
+                return;
+            }
             ValidateContent();
             ProjectSetup.Apply();
-            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
+            string product = PlayerSettings.productName;
+            if (productName != null) PlayerSettings.productName = productName;
+            BuildReport report;
+            try
             {
-                scenes = Scenes,
-                locationPathName = "Builds/Linux/LostAndFound.x86_64",
-                target = BuildTarget.StandaloneLinux64,
-                options = BuildOptions.None,
-            });
+                report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+                {
+                    scenes = Scenes,
+                    locationPathName = path,
+                    target = target,
+                    options = BuildOptions.None,
+                });
+            }
+            finally { PlayerSettings.productName = product; }
             var s = report.summary;
-            Debug.Log($"[LostAndFound] build {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
-            // quit only when launched as a one-shot (-executeMethod), not inside a resident editor
+            Debug.Log($"[LostAndFound] {target} build {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
+            Quit(s.result == BuildResult.Succeeded);
+        }
+
+        // quit only when launched as a one-shot (-executeMethod), not inside a resident editor
+        static void Quit(bool ok)
+        {
             if (Application.isBatchMode && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-executeMethod") >= 0)
-                EditorApplication.Exit(s.result == BuildResult.Succeeded ? 0 : 1);
+                EditorApplication.Exit(ok ? 0 : 1);
         }
     }
 }

@@ -8,6 +8,8 @@
 #   Tools/unity.sh                 open the project in the GUI editor
 #   Tools/unity.sh headless        resident batch-mode editor (serves `unity command` via Pipeline)
 #   Tools/unity.sh build-linux     batch-build Builds/Linux/LostAndFound.x86_64
+#   Tools/unity.sh build-mac       batch-build Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
+#   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
 #   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
@@ -34,8 +36,12 @@ export LD_LIBRARY_PATH="$LIBS${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 case "${1:-open}" in
   open)        exec "$UNITY" -projectPath "$PROJECT" ;;
   headless)    exec "$UNITY" -batchmode -projectPath "$PROJECT" -logFile "$PROJECT/Logs/headless.log" ;;
-  build-linux) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" \
+  build-linux) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Linux64 \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildLinux -logFile "$PROJECT/Logs/build.log" ;;
+  build-mac)   exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget OSXUniversal \
+                 -executeMethod LostAndFound.EditorTools.BuildScript.BuildMac -logFile "$PROJECT/Logs/build-mac.log" ;;
+  build-windows) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Win64 \
+                 -executeMethod LostAndFound.EditorTools.BuildScript.BuildWindows -logFile "$PROJECT/Logs/build-windows.log" ;;
   run)         exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" \
                  -executeMethod "$2" -logFile "$PROJECT/Logs/run.log" ;;
   test)        exec "$UNITY" -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
@@ -83,5 +89,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|run <Method>|test|smoke [secs]|autopilot|audit|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

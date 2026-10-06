@@ -1,5 +1,6 @@
 using System.IO;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -16,6 +17,8 @@ namespace LostAndFound.EditorTools
     {
         const string MatDir = "Assets/Game/Resources/Materials";
         const string ScenePath = "Assets/Scenes/Main.unity";
+        const string IconPath = "Assets/Game/Icon/app_icon.png";
+        public const string BundleId = "com.nearbycoder.lostandfound";
 
         [MenuItem("Lost & Found/Apply Project Setup")]
         public static void Apply()
@@ -55,6 +58,10 @@ namespace LostAndFound.EditorTools
             PlayerSettings.colorSpace = ColorSpace.Linear;
             PlayerSettings.companyName = "Nearby";
             PlayerSettings.productName = "Lost & Found";
+            PlayerSettings.SetApplicationIdentifier(NamedBuildTarget.Standalone, BundleId);
+            // the desk-tag icon (Tools/textures/gen_icon.py) for the window, dock and app bundle
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(IconPath);
+            if (icon != null) PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
             PlayerSettings.defaultScreenWidth = 1600;
             PlayerSettings.defaultScreenHeight = 900;
             PlayerSettings.fullScreenMode = FullScreenMode.Windowed;

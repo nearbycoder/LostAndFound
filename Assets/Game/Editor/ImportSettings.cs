@@ -44,6 +44,18 @@ namespace LostAndFound.EditorTools
 
         void OnPreprocessTexture()
         {
+            if (assetPath.StartsWith("Assets/Game/Icon/"))
+            {
+                // app icons: full quality, no mips, transparent corners kept
+                var icon = (TextureImporter)assetImporter;
+                icon.textureType = TextureImporterType.Default;
+                icon.alphaIsTransparency = true;
+                icon.mipmapEnabled = false;
+                icon.npotScale = TextureImporterNPOTScale.None;
+                icon.textureCompression = TextureImporterCompression.Uncompressed;
+                icon.isReadable = true;
+                return;
+            }
             if (!assetPath.Contains("/Resources/")) return;
             var t = (TextureImporter)assetImporter;
             string file = System.IO.Path.GetFileNameWithoutExtension(assetPath);
