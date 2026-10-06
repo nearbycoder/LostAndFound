@@ -49,7 +49,24 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Read Agnes's rules | Hover her card beside the claim slip, or `R` at any time (`R` or `Esc` puts them back) |
 | Pause, settings, Agnes's rules, restart the day | `Esc` |
 
-Mouse and keyboard only for now: there is no gamepad or touch support.
+**With a gamepad** (Xbox-style layout; tested only with a virtual Input System gamepad, as no physical controller was to hand):
+
+| Action | Button |
+|---|---|
+| Move the cursor (it slows over anything you can click) | Left stick |
+| Click: pick up, open, note a detail, stamp, menus | A |
+| Put the object down / the stamp back | B |
+| On the counter tray | X |
+| Agnes's rules | Y |
+| Turn to the drawers / the shelf | LB / RB |
+| Turn a held object · lean in or out | Right stick · RT / LT |
+| Ring for the next claimant / move the dialogue on | D-pad down |
+| Agnes's blue lamp | D-pad up |
+| Read the claim slip · pause | View · Menu |
+
+Pick up the mouse and it takes over again at once. There's no touch support.
+
+*Continue* on the title picks up where you left off, mid-day included: at the next claimant, with the morning already done.
 
 **A case, start to finish:** ring the bell. The claimant describes what they lost, and their key claims are written onto the claim slip. Read the intake tag in the drawer or on the shelf (where it was found, when, on which train). Pick the object up, turn it over, open it, and click anything that glints. Each finding goes on the slip, and clicking a finding asks the claimant about it. An honest owner knows what's inside. A liar only knows what they could have seen. Put the object on the tray and stamp the slip.
 
@@ -96,7 +113,7 @@ From Thursday, Agnes's lamp has a blue filter that shows what ink tries to hide:
 
 <img src="docs/media/screenshot_ledger.jpg" alt="The Day Ledger marking each case, and the Ninefold Gazette's headline" width="49%"> <img src="docs/media/screenshot_title.jpg" alt="The title screen: Agnes's desk at dusk" width="49%">
 
-Every evening the **Day Ledger** marks each case against the rules and explains why, and the **Ninefold Gazette** reports what your choices did. Items you refuse stay in storage for their real owner later in the week. Whatever you give the Grey Gentleman makes him stronger, and the station visibly loses its colour. Days can be replayed from the title screen, and there are 25 optional curios (one secret per object) to find.
+Every evening the **Day Ledger** marks each case against the rules and explains why, and the **Ninefold Gazette** reports what your choices did. Items you refuse stay in storage for their real owner later in the week. Whatever you give the Grey Gentleman makes him stronger, and the station visibly loses its colour. Days can be replayed from the title screen. There are 25 optional curios (one secret per object) to find, and the title's **Curiosities** page shows which you've found and when the rest turn up. Unclaimed strays don't clutter the shelves forever: once nobody else will come for something, Gus takes it down to the basement.
 
 ## Content
 
@@ -127,7 +144,7 @@ Every evening the **Day Ledger** marks each case against the rules and explains 
 2. Unzip it and run `LostAndFound.x86_64` (`chmod +x LostAndFound.x86_64` first if your unzip tool dropped the permission).
 3. On a Wayland desktop, if the window doesn't appear, run it with `SDL_VIDEODRIVER=wayland ./LostAndFound.x86_64`.
 
-The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/`. If it runs slowly, try a lower *Picture quality* in Settings.
+The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/`. If it runs slowly, try a lower *Picture quality* in Settings; *Large text* there makes the dialogue, hints, tags and notes 25% bigger.
 
 **macOS and Windows:** there's no download for either yet. A universal (Intel and Apple silicon) macOS app can be built from source with `Tools/unity.sh build-mac`, but it **hasn't been run on a Mac**. It isn't signed or notarised, so macOS will refuse to open it until you right-click it and choose *Open* (or run `xattr -dr com.apple.quarantine "LostAndFound.app"`). On a Mac the app is called "Lost and Found". The Windows build is wired up (`Tools/unity.sh build-windows`) but needs Unity's Windows Build Support module, which the machine this was made on doesn't have, so it has never been built.
 
@@ -168,9 +185,10 @@ All generated assets are committed, so you only need to regenerate them if you c
 
 | Check | Command | What it proves |
 |---|---|---|
-| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 42 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, and the save file's round trip. |
+| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 45 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, the save file's round trip (including mid-day progress, and old saves), strays only leaving after their last case, and the Curiosities count. |
 | **Content validator** | runs in every `build-linux`, or `Tools/unity.sh run LostAndFound.EditorTools.BuildScript.ValidateContent` | The rules solver, using only what's discoverable at the desk, derives each case's authored best verdict. Current result: 28 objects, 5 days, 25 cases, 0 issues. |
-| **AutoPilot** | `Tools/unity.sh autopilot [speed] [startDay] [best\|worst\|wait]` | The built player plays the whole week through the real desk systems, with a screenshot of every case. `best` gets 24/24 and *The 9:40*; `worst` gives Vell everything and reaches *Grey Ninefold*; `wait` refuses Thomas the ring and reaches *The Long Wait*. Results are in `Logs/autopilot.log`. |
+| **AutoPilot** | `Tools/unity.sh autopilot [speed] [startDay] [best\|worst\|wait\|refuse]` | The built player plays the whole week through the real desk systems, with a screenshot of every case (plus each day's rules card and first tag). `best` gets 24/24 and *The 9:40*; `worst` gives Vell everything and reaches *Grey Ninefold*; `wait` refuses Thomas the ring and reaches *The Long Wait*; `refuse` refuses everything (the fullest the shelves get, and Gus's basement trips). With the player's `-lafQuitAfter <case>` and then `-lafContinue`, it checks that *Continue* resumes mid-day. Results are in `Logs/autopilot.log`. |
+| **Gamepad test** | `Tools/unity.sh padtest` | Plays Monday's first case with only a virtual Input System gamepad (cursor, right stick, buttons), counts any keyboard or mouse events during play (there should be none), then checks that moving a mouse takes control back. |
 | **Hotspot audit** | `Tools/unity.sh audit` (table in `Screenshots/hotspots/coverage.txt`) | Holds every object as the inspect view does, lids shut and open, through 1,500 orientations at two zooms, and asks the game's own picking code whether each hidden detail could be clicked. Then, for every day with nothing yet returned (the fullest storage gets), it checks that every stored object has a real slot and can be hovered from its shelf or open drawer. Fails if any detail or object falls under 10%, and saves a picture of each detail that does. |
 | **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0, 1 or 2 overrides the picture quality for that run only. |
 | **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. |
@@ -253,15 +271,15 @@ Since v0.1.0 (not released yet; see [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
 - Hints and the inspect bar are legible over the claim slip (6.5:1 contrast, from about 1:1).
 - Agnes's rules are on a card on the desk (hover it, or press `R` at any time), and the inspect bar and Day Ledger count your findings.
 - 42 unit tests; a macOS build target, app icon and bundle identifier; a release packaging script; a *Picture quality* setting.
+- Round 2: shelves that never overflow (an umbrella stand, and Gus's basement for unclaimed strays); *Continue* resumes mid-day; the Curiosities page; a *Large text* option; gamepad support. There are now 45 unit tests.
 
 Known gaps and rough edges:
 - Characters are modelled from the waist up (they're always behind the counter, and every photograph hides them below the waist). Animation is procedural; there are no skeletal rigs.
 - The synthesised music and voices are charming but not studio quality.
-- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here. There's no gamepad, touch or localisation.
+- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here.
+- Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
 - How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations.
-- If you refuse everything, the shelves overflow. On Thursday and Friday the suitcase and the violin case overlap, as do the briefcase and the birdcage on Friday, and the two umbrellas are longer than their shelf, so they poke through the Iron Drawer and the side of the cabinet. Everything stays clickable (the audit checks), but it looks wrong.
-- Quitting in the middle of a day and choosing *Continue* replays that day from the morning.
-- The trailer and the screenshots above were captured before these fixes.
+- The trailer and the screenshots above were captured before these fixes (the trailer's umbrellas still lie on the shelf, and its lunch tin was sealed).
 
 ## License
 

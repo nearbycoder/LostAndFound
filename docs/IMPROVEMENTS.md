@@ -333,3 +333,28 @@ photo, put it on the tray, stamp RETURN. It logs PASS with the right verdict. Th
 controls. **No physical controller is available here, so it's untested on real hardware**, and the
 README says so.
 **Verify:** the run's log and screenshots of the gamepad cursor.
+
+## Round 2 results (6 Oct 2026)
+
+All five items shipped on `improvements-2`. Screenshots are in [`media/improvements/round2/`](media/improvements/round2/).
+Final checks on the final build: the Linux build and validator pass (0 issues), as do the audit (84/84 details,
+0 storage problems, **0 overlap warnings**) and unit tests (45/45). The AutoPilot passes all four policies:
+`best` (24/24, *The 9:40*), `worst` (*Grey Ninefold*), `wait` (*The Long Wait*) and `refuse` (everything
+refused). So does the gamepad test, and Monday re-filmed through the simulated mouse is clean (11 details by
+hand, 0 fallbacks, 0 missed pick-ups).
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R2-A. Shelves that never overflow** | Unclaimed strays go to the basement the morning after their last case, and Gus says how many; decoys stay all week. The umbrellas stand in a new **umbrella stand** (`build_props.py`) on the floor beside the shelves, handles up. The suitcase sits fully inside the cabinet. Also fixed, a **round-1 bug**: refused shelf objects flew back to the bare slot, ignoring their turn and shift, which recreated the overlaps. | Audit with nothing returned: 0 overlap warnings on every day (round 1 left 3); everything hoverable (lowest the duck umbrella, 23%). A new unit test covers the archive rule. The new `refuse` AutoPilot policy logs and photographs Gus's line each morning (`gus_basement.jpg`). Shelf screenshots for Monday, Thursday and Friday at their fullest. The re-filmed Monday picks the duck umbrella out of the stand by hand. |
+| **R2-B. Continue resumes mid-day** | The save records how many of today's cases are decided, in the same write as each verdict. *Continue* restores that state and goes to the next claimant, skipping the morning but keeping today's rules. The title says "Continue · Tuesday, claimant 3 of 5". Old saves start the morning, as before. | Quit right after 2.2's verdict (`-lafQuitAfter 2.2`), then `-lafContinue`: no Tuesday morning in the log, 2.3 was the first case, and the week finished "24 best of 24 decided" on *The 9:40*. The resumed rules card shows rules 1–5. Unit tests cover the count and an old save. `continue_title.jpg`, `continue_resumed_case_2_3.jpg`. |
+| **R2-C. Curio Ledger** | A **Curiosities** page off the title: found secrets written out with a tick; missing ones name the object and the day it turns up. | Screenshot at 1280×720 with a save holding the seven secrets the filmed days found: all 25 rows fit, "7 of 25 found" (`curio_ledger_1280x720.jpg`). A unit test checks the count (25, case details don't count, arrival order). |
+| **R2-D. Larger text** | Settings, "Large text": 1.25× on the dialogue, hint, inspect bar, tag card and notes (1.15× on the rules preview). The bubble and tag card are placed by their scaled size. | Full AutoPilot weeks at 1280×720 on Normal and Large (both 24/24). The Large screenshots show the dialogue, tag card, inspect bar and hint on screen, unclipped and not overlapping. Toggling it mid-run scaled the hint ×1.25 at once and the next launch started Large (prefs backed up and restored). |
+| **R2-E. Gamepad** | A drawn cursor on the left stick that slows over clickables and drives a virtual mouse (A/B buttons, triggers scroll). Buttons map to keys: LB/RB turn, X tray, Y rules, View slip, Menu pause, d-pad lamp and ring/advance. The right stick turns the held object. Pad prompts appear while the pad is in use, and the mouse takes over when moved. | `Tools/unity.sh padtest`: a virtual gamepad alone plays case 1.1 to RETURN→Walter (best), with 0 keyboard/mouse events during play, then a moved mouse takes control back. PASS on two runs. The test found and fixed a bug: with two mice (say a touchpad and a USB mouse), only the first could take control back. **No physical controller tested.** `gamepad_*.jpg`. |
+
+### Still open after round 2
+- Gamepad on real hardware (and Steam Deck) is untested.
+- The recorder and AutoPilot are the only "players": no human playtest yet, so how findable details are and how
+  the pacing feels are unmeasured.
+- macOS is unverified on hardware; Windows is blocked on the module. The trailer predates both rounds.
+- Next in the ranked list: optional nudges for a stuck player (item 9), a WebGL spike (13), audio (14), and a
+  smaller download (15).
