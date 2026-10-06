@@ -199,7 +199,7 @@ namespace LostAndFound
         IEnumerator Fetch(CaseDef c, ItemView item)
         {
             var rig = CameraRig.I;
-            View want = item.drawer != null ? View.Cabinet : (item.def.storage ?? "").StartsWith("Shelf") ? View.Shelf : View.Counter;
+            View want = item.drawer != null ? View.Cabinet : item.shelfAnchor != null ? View.Shelf : View.Counter;   // shelves and the umbrella stand
             if (want != rig.view)
             {
                 yield return Glide(() => new Vector2(Screen.width * 0.5f, Screen.height * 0.5f), 0.4f);
