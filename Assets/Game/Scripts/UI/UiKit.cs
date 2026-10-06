@@ -150,3 +150,76 @@ namespace LostAndFound
         }
     }
 }
+
+namespace LostAndFound
+{
+    /// <summary>
+    /// A soft dark pill behind a light label, sized to its text every frame and fading with it, so hints
+    /// stay legible wherever they land (over the pale claim slip, a tag, the lamp's pool of light).
+    /// </summary>
+    public class TextBacking : MonoBehaviour
+    {
+        static Sprite pill;
+        TextMeshProUGUI label;
+        Image image;
+        float alpha;
+        Vector2 pad;
+
+        public static TextBacking Add(TextMeshProUGUI label, float alpha = 0.84f, float padX = 34f, float padY = 10f)
+        {
+            var rt = UiKit.Rect(label.name + "Backing", label.transform.parent);
+            rt.SetSiblingIndex(label.transform.GetSiblingIndex());   // drawn just before (behind) the label
+            rt.anchorMin = rt.anchorMax = rt.pivot = new Vector2(0.5f, 0.5f);
+            var b = rt.gameObject.AddComponent<TextBacking>();
+            b.label = label;
+            b.alpha = alpha;
+            b.pad = new Vector2(padX, padY);
+            b.image = rt.gameObject.AddComponent<Image>();
+            b.image.sprite = Pill;
+            b.image.type = Image.Type.Sliced;
+            b.image.raycastTarget = false;
+            b.image.color = new Color(0.03f, 0.02f, 0.02f, 0f);
+            return b;
+        }
+
+        /// <summary>A rounded rectangle with a soft edge; the middle stretches.</summary>
+        static Sprite Pill
+        {
+            get
+            {
+                if (pill != null) return pill;
+                const int N = 64;
+                const float R = 22f, Soft = 12f;
+                var tex = new Texture2D(N, N, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+                for (int y = 0; y < N; y++)
+                    for (int x = 0; x < N; x++)
+                    {
+                        // distance outside a rounded square inset by the soft edge
+                        float qx = Mathf.Max(Mathf.Abs(x + 0.5f - N / 2f) - (N / 2f - Soft - R), 0f);
+                        float qy = Mathf.Max(Mathf.Abs(y + 0.5f - N / 2f) - (N / 2f - Soft - R), 0f);
+                        float d = Mathf.Sqrt(qx * qx + qy * qy) - R;
+                        float a = 1f - Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(d / Soft));
+                        tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+                    }
+                tex.Apply();
+                pill = Sprite.Create(tex, new Rect(0, 0, N, N), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(31, 31, 31, 31));
+                return pill;
+            }
+        }
+
+        void LateUpdate()
+        {
+            if (label == null) { Destroy(gameObject); return; }
+            bool show = label.isActiveAndEnabled && !string.IsNullOrWhiteSpace(label.text) && label.color.a > 0.01f;
+            var c = image.color;
+            c.a = show ? alpha * label.color.a : 0f;
+            image.color = c;
+            if (!show) return;
+            var bounds = label.textBounds;
+            if (bounds.size.x <= 0f) { image.color = new Color(c.r, c.g, c.b, 0f); return; }
+            var rt = (RectTransform)transform;
+            rt.localPosition = label.rectTransform.localPosition + label.rectTransform.localRotation * bounds.center;
+            rt.sizeDelta = new Vector2(bounds.size.x, bounds.size.y) + pad * 2f;
+        }
+    }
+}
