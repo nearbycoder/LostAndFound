@@ -49,6 +49,33 @@ namespace LostAndFound.EditorTools
         [MenuItem("Lost & Found/Build Windows Player")]
         public static void BuildWindows() => Build(BuildTarget.StandaloneWindows64, "Builds/Windows/LostAndFound.exe");
 
+        /// <summary>A WebGL player for measuring (the round 3 spike): download size, load time, frame rate. Not shipped.
+        /// Uses the project's WebGL settings as they are (Brotli, no decompression fallback), so a host has to send the .br
+        /// files with "Content-Encoding: br". Building for WebGL rewrites URP's shader prefiltering in Mobile_RPAsset and
+        /// leaves a Data/ folder of Burst output at the project root: revert the one and delete the other afterwards.</summary>
+        [MenuItem("Lost & Found/Build WebGL Player (spike)")]
+        public static void BuildWebGL()
+        {
+            if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
+            {
+                Debug.LogError("[LostAndFound] can't build WebGL: its build support module isn't installed");
+                Quit(false);
+                return;
+            }
+            ValidateContent();
+            ProjectSetup.Apply();
+            var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = Scenes,
+                locationPathName = "Builds/WebGL",
+                target = BuildTarget.WebGL,
+                options = BuildOptions.None,
+            });
+            var s = report.summary;
+            Debug.Log($"[LostAndFound] WebGL build {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
+            Quit(s.result == BuildResult.Succeeded);
+        }
+
         static void Build(BuildTarget target, string path, string productName = null)
         {
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.Standalone, target))

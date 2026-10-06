@@ -9,6 +9,7 @@
 #   Tools/unity.sh headless        resident batch-mode editor (serves `unity command` via Pipeline)
 #   Tools/unity.sh build-linux     batch-build Builds/Linux/LostAndFound.x86_64
 #   Tools/unity.sh build-mac       batch-build Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
+#   Tools/unity.sh build-webgl     batch-build Builds/WebGL/ (a measuring spike: not shipped or packaged)
 #   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
@@ -67,6 +68,8 @@ case "${1:-open}" in
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildLinux -logFile "$PROJECT/Logs/build.log" ;;
   build-mac)   exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget OSXUniversal \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildMac -logFile "$PROJECT/Logs/build-mac.log" ;;
+  build-webgl) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget WebGL \
+                 -executeMethod LostAndFound.EditorTools.BuildScript.BuildWebGL -logFile "$PROJECT/Logs/build-webgl.log" ;;
   build-windows) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Win64 \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildWindows -logFile "$PROJECT/Logs/build-windows.log" ;;
   run)         exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" \

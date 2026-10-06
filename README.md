@@ -167,6 +167,7 @@ Tools/unity.sh                 # GUI editor
 Tools/unity.sh build-linux     # -> Builds/Linux/LostAndFound.x86_64
 Tools/unity.sh build-mac       # -> Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
 Tools/unity.sh build-windows   # -> Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
+Tools/unity.sh build-webgl     # -> Builds/WebGL/ (a measuring spike, not a release: see docs/IMPROVEMENTS.md, round 3)
 python3 Tools/package_release.py   # zip whatever's built into dist/LostAndFound-v<version>-<platform>.zip
 ```
 
