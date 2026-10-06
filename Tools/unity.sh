@@ -27,12 +27,36 @@
 #
 # On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
 # so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
+#
+# Built players never touch the real save or settings: each run gets XDG_CONFIG_HOME under
+# Logs/config/<command>/ (Unity's Linux player keeps its prefs, and persistentDataPath, there), and the real
+# ~/.config/unity3d/Nearby/Lost & Found/ is hashed before and after. If it changed, the run fails.
 set -euo pipefail
 UNITY="${UNITY:-$HOME/Unity/Hub/Editor/6000.6.2f1/Editor/Unity}"
 PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LIBS="$PROJECT/.unity-libs"
 [ -e "$LIBS/libxml2.so.2" ] || { mkdir -p "$LIBS"; cp "$HOME/.local/share/ptt-unity-libs/libxml2.so.2"* "$LIBS/" 2>/dev/null || true; }
 export LD_LIBRARY_PATH="$LIBS${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+REAL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/unity3d/Nearby/Lost & Found"
+
+# The real folder's files and their hashes (the editor's TestResults.xml aside: test runs write it, players don't).
+real_config_hashes() { [ -d "$REAL_CONFIG" ] && (cd "$REAL_CONFIG" && find . -type f ! -name TestResults.xml -print0 | sort -z | xargs -0 -r sha256sum) || true; }
+
+# player <command> <args...>: run a built player with scratch prefs, then prove the real ones weren't touched.
+player() {
+  local name="$1"; shift
+  [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+  local before; before="$(real_config_hashes)"
+  export XDG_CONFIG_HOME="$PROJECT/Logs/config/$name"; mkdir -p "$XDG_CONFIG_HOME"
+  local status=0
+  "$@" || status=$?
+  if [ "$(real_config_hashes)" != "$before" ]; then
+    echo "[guard] the real save or settings in $REAL_CONFIG CHANGED during this run" >&2
+    return 99
+  fi
+  echo "[guard] real save and settings untouched (scratch prefs in Logs/config/$name)"
+  return $status
+}
 
 case "${1:-open}" in
   open)        exec "$UNITY" -projectPath "$PROJECT" ;;
@@ -47,51 +71,44 @@ case "${1:-open}" in
                  -executeMethod "$2" -logFile "$PROJECT/Logs/run.log" ;;
   test)        exec "$UNITY" -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
                  -testResults "$PROJECT/Logs/test-results.xml" -logFile "$PROJECT/Logs/test.log" ;;
-  smoke)       [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               rm -rf "$PROJECT/Screenshots/smoke"
+  smoke)       rm -rf "$PROJECT/Screenshots/smoke"
                q=(); [ -n "${3:-}" ] && q=(-lafQuality "$3")   # optional picture quality 0|1|2 for this run
-               exec timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
+               player smoke timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
                  -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -lafUncapped "${q[@]}" -logFile "$PROJECT/Logs/smoke.log" ;;
-  autopilot)   [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
-               exec timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
+  autopilot)   rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
+               player autopilot timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
                  -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
-  audit)       [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               mkdir -p "$PROJECT/Screenshots/hotspots"
-               timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAuditHotspots "$PROJECT/Screenshots/hotspots" \
+  audit)       mkdir -p "$PROJECT/Screenshots/hotspots"
+               player audit timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAuditHotspots "$PROJECT/Screenshots/hotspots" \
                  -lafSave "$PROJECT/Screenshots/hotspots/save.json" -lafNoMusic -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 \
                  -logFile "$PROJECT/Logs/audit.log"
                grep -a "\[Audit\]" "$PROJECT/Logs/audit.log" | grep -v "^\[Audit\]   picture" | tail -n 3
                grep -a -q "\[Audit\] PASS" "$PROJECT/Logs/audit.log" ;;
-  padtest)     [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               rm -rf "$PROJECT/Screenshots/padtest"; mkdir -p "$PROJECT/Screenshots/padtest"
-               timeout -s KILL 600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafGamepadTest "$PROJECT/Screenshots/padtest" -lafDay 1 \
+  padtest)     rm -rf "$PROJECT/Screenshots/padtest"; mkdir -p "$PROJECT/Screenshots/padtest"
+               player padtest timeout -s KILL 600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafGamepadTest "$PROJECT/Screenshots/padtest" -lafDay 1 \
                  -lafSave "$PROJECT/Screenshots/padtest/save.json" -lafNoMusic -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
                  -logFile "$PROJECT/Logs/padtest.log"
                grep -a "\[PadTest\]\|\[Pad\]" "$PROJECT/Logs/padtest.log"
                grep -a -q "\[PadTest\] PASS" "$PROJECT/Logs/padtest.log" ;;
-  trailer)     [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
-               timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
+  trailer)     out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
+               player trailer timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
                  -lafDemo "$out/raw" -lafRecordOnly -lafRecordFrom 4.5 -lafSave "$out/raw/save.json" -lafNoVsync \
                  -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 -logFile "$PROJECT/Logs/trailer.log"
                rate=$(grep -a -o '[0-9]* Hz x' "$PROJECT/Logs/trailer.log" | head -1 | cut -d' ' -f1)
                ch=$(grep -a -o 'Hz x[0-9]' "$PROJECT/Logs/trailer.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/raw/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/raw/audio.f32" \
                  -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart "$out/the_ring.mp4" ;;
-  demo)        [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
-               timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out/raw" \
+  demo)        out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
+               player demo timeout -s KILL 900 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out/raw" \
                  -lafSave "$out/raw/save.json" -lafNoVsync -screen-width 1920 -screen-height 1080 \
                  -screen-fullscreen 0 -logFile "$PROJECT/Logs/demo.log"
                rate=$(grep -a -o '[0-9]* Hz x' "$PROJECT/Logs/demo.log" | head -1 | cut -d' ' -f1)
                ch=$(grep -a -o 'Hz x[0-9]' "$PROJECT/Logs/demo.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/raw/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/raw/audio.f32" \
                  -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart "$out/demo.mp4" ;;
-  film)        [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-               name="${2:?usage: $0 film <name> [player args]}"; shift 2
+  film)        name="${2:?usage: $0 film <name> [player args]}"; shift 2
                out="$PROJECT/Recordings/$name"; rm -rf "$out"; mkdir -p "$out"
-               timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out" -lafPlay -lafNoMusic \
+               player "film-$name" timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out" -lafPlay -lafNoMusic \
                  -lafSave "$out/save.json" -lafNoVsync -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 \
                  -logFile "$out/player.log" "$@"
                rate=$(grep -a -o '[0-9]* Hz x' "$out/player.log" | head -1 | cut -d' ' -f1)

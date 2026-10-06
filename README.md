@@ -193,6 +193,8 @@ All generated assets are committed, so you only need to regenerate them if you c
 | **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0, 1 or 2 overrides the picture quality for that run only. |
 | **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. |
 
+Every player run above keeps its prefs in `Logs/config/<command>/` rather than your real `~/.config/unity3d/Nearby/Lost & Found/`. The script points `XDG_CONFIG_HOME` there and passes `-lafSave` for the save. It also hashes the real folder before and after each run and fails (`[guard] … CHANGED`) if anything in it changed, so testing can't overwrite your own save or settings.
+
 ### The trailer and README media
 
 ```sh
