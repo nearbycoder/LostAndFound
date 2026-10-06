@@ -374,7 +374,7 @@ namespace LostAndFound
             h.text.fontStyle = FontStyles.Italic;
             h.text.outlineWidth = 0.18f;
             h.text.outlineColor = new Color32(20, 12, 8, 200);
-            TextBacking.Add(h.text);
+            TextBacking.Add(h.text, 0.9f, 34f, 12f);
             return h;
         }
 
@@ -444,8 +444,8 @@ namespace LostAndFound
             b.controls.outlineWidth = 0.2f;
             b.controls.outlineColor = new Color32(20, 12, 8, 220);
             // the name, the part under the cursor and the controls often land on the pale claim slip
-            TextBacking.Add(b.title, 0.8f, 40f, 4f);
-            TextBacking.Add(b.partHint, 0.8f, 26f, 6f);
+            TextBacking.Add(b.title, 0.85f, 40f, 4f);
+            TextBacking.Add(b.partHint, 0.85f, 26f, 6f);
             TextBacking.Add(b.controls, 0.72f, 30f, 8f);
             return b;
         }
