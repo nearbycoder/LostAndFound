@@ -91,24 +91,32 @@ namespace LostAndFound
 
         // ------------------------------------------------------------------ day flow
 
-        public void StartDay(int day)
+        /// <summary>Begin a day from its morning, or (<paramref name="resumeAt"/> &gt; 0) pick it up after that many cases,
+        /// with the state as the last verdict left it (Continue after quitting mid-day).</summary>
+        public void StartDay(int day, int resumeAt = 0)
         {
             StopAllCoroutines();
-            StartCoroutine(DayRoutine(day));
+            StartCoroutine(DayRoutine(day, resumeAt));
         }
 
-        IEnumerator DayRoutine(int day)
+        IEnumerator DayRoutine(int day, int resumeAt = 0)
         {
             phase = Phase.Morning;
             Day = day;
             rulesShownToday.Clear();
             DayDef = Db.Day(day);
-            // the state at the start of a day is kept so the day can be replayed
-            var snap = Save.SnapshotFor(day);
-            if (snap != null) State = snap;
-            else Save.Snapshot(day, State);
+            if (resumeAt > 0)
+                Debug.Log($"[Day] {day}: resuming after {resumeAt} case(s)");
+            else
+            {
+                // the state at the start of a day is kept so the day can be replayed
+                var snap = Save.SnapshotFor(day);
+                if (snap != null) State = snap;
+                else Save.Snapshot(day, State);
+            }
             Save.state = State;
             Save.currentDay = day;
+            Save.casesDone = resumeAt;
             Save.Write();
 
             CleanupWindow();
@@ -127,7 +135,18 @@ namespace LostAndFound
             yield return UIRoot.I.dayCard.Show($"Day {ToWords(day)}  ·  {DayDef.weekday}", DayDef.title, DayDef.date);
             yield return UIRoot.I.fader.FadeTo(0f, 1.2f);
 
+            if (resumeAt > 0)
+            {
+                // picking up mid-day: no morning again, but today's rules (and any a case handed over) still count
+                foreach (int rid in DayDef.rules) rulesShownToday.Add(rid);
+                foreach (var done in Rules.ActiveCases(DayDef, State).Take(resumeAt))
+                    if (int.TryParse(done.unlockRule ?? "", out int urid)) rulesShownToday.Add(urid);
+                yield return CasesAndEvening(resumeAt);
+                yield break;
+            }
+
             // the morning: Gus drops off the night's intake, Agnes's note for the day
+            Debug.Log($"[Day] {day}: morning");
             bool gus = DayDef.morning.Any(l => l.who == "gus" && State.Check(l.condition));
             if (gus) yield return Visit("gus", true);
             foreach (var line in DayDef.morning)
@@ -146,9 +165,14 @@ namespace LostAndFound
                 yield return ShowRule(rid);
             UIRoot.I.dialogue.Hide();
 
+            yield return CasesAndEvening(0);
+        }
+
+        IEnumerator CasesAndEvening(int from)
+        {
             var cases = Rules.ActiveCases(DayDef, State).ToList();
-            caseIndex = 0;
-            if (day == 1 && !Save.tutorialDone) StartCoroutine(Tutorial());
+            caseIndex = from;
+            if (Day == 1 && from == 0 && !Save.tutorialDone) StartCoroutine(Tutorial());
             while (caseIndex < cases.Count)
             {
                 // cases can be replaced by alternates as flags change during the day
@@ -169,6 +193,7 @@ namespace LostAndFound
                 UIRoot.I.hint.Set(null);
                 yield return RunCase(c);
                 caseIndex++;
+                Save.casesDone = caseIndex;
             }
             yield return Evening();
         }
@@ -221,6 +246,8 @@ namespace LostAndFound
                 // an earlier decision took the item away: a short vignette, then they go
                 foreach (var l in c.missing) yield return SayLine(l, c);
                 State.SetRecord(new CaseRecord { caseId = c.id, verdict = "missing", grade = "skip", ledger = c.missingLedger });
+                Save.casesDone = caseIndex + 1;
+                Save.Write();
                 yield return LeaveAll();
                 Current = null;
                 yield break;
@@ -506,6 +533,9 @@ namespace LostAndFound
                 detailsFound = found, detailsTotal = total,
             });
             if (!worldChanged) ApplyStoryVisuals();
+            // the verdict and "this case is done" go into the save together, so Continue can't play it twice
+            Save.casesDone = caseIndex + 1;
+            if (Day == 1 && c == DayDef.cases[0]) Save.tutorialDone = true;
             Save.Write();
 
             yield return LeaveAll();
@@ -550,6 +580,7 @@ namespace LostAndFound
             Save.unlockedDay = Mathf.Max(Save.unlockedDay, Day + 1);
             if (Day >= Db.DayCount) { Save.finished = true; Save.Write(); StartCoroutine(Ending()); return; }
             Save.currentDay = Day + 1;
+            Save.casesDone = 0;
             Save.Snapshot(Day + 1, State);
             Save.Write();
             StartDay(Day + 1);

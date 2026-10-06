@@ -313,6 +313,17 @@ namespace LostAndFound.Tests
         }
 
         [Test]
+        public void MidDayProgressIsSavedAndOldSavesStartTheMorning()
+        {
+            var save = new SaveGame { currentDay = 2, casesDone = 2 };
+            Assert.AreEqual(2, JsonUtility.FromJson<SaveGame>(JsonUtility.ToJson(save)).casesDone);
+            // a v0.1.0 save has no casesDone: Continue starts that day's morning, as it always did
+            var old = JsonUtility.FromJson<SaveGame>("{\"version\":1,\"currentDay\":3,\"unlockedDay\":3}");
+            Assert.AreEqual(0, old.casesDone);
+            Assert.AreEqual(3, old.currentDay);
+        }
+
+        [Test]
         public void ReplaySnapshotsAreIndependentCopies()
         {
             var save = new SaveGame();

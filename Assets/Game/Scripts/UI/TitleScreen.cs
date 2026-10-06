@@ -104,7 +104,10 @@ namespace LostAndFound
             if (started && !g.Save.finished)
             {
                 var day = g.Db.Day(Mathf.Clamp(g.Save.currentDay, 1, g.Db.DayCount));
-                Item(list, i++, $"Continue  <size=60%><color=#c8b898>·  {day.weekday}, {day.title}</color></size>", () => Start(g, () => g.BeginWeek(g.Save.currentDay)));
+                int total = Rules.ActiveCases(day, g.Save.state).Count();
+                // mid-day, say where you'll pick up (instead of the day's title, to fit on one line)
+                string where = g.Save.casesDone <= 0 ? $"{day.weekday}, {day.title}" : g.Save.casesDone >= total ? $"{day.weekday}, the evening" : $"{day.weekday}, claimant {g.Save.casesDone + 1} of {total}";
+                Item(list, i++, $"Continue  <size=60%><color=#c8b898>·  {where}</color></size>", () => Start(g, g.ContinueWeek));
             }
             bool confirm = false;
             PaperButton nw = null;

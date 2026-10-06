@@ -182,6 +182,14 @@ namespace LostAndFound
             Director.I.StartDay(day);
         }
 
+        /// <summary>Pick the saved week up where it was left: mid-day after the last decided case, or the day's morning.</summary>
+        public void ContinueWeek()
+        {
+            Debug.Log($"[Game] continue at day {Save.currentDay}, after {Save.casesDone} case(s) (frame {Time.frameCount})");
+            Director.I.Init(Db, Save);
+            Director.I.StartDay(Mathf.Clamp(Save.currentDay, 1, Db.DayCount), Save.casesDone);
+        }
+
         /// <summary>Begin at a later day, earlier days played with the solver's verdicts.</summary>
         public void StartFromDay(int day)
         {

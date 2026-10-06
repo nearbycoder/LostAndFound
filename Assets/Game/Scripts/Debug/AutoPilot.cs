@@ -36,7 +36,9 @@ namespace LostAndFound
             Director.I.Autopilot = true;
             policy = Game.Arg("-lafPolicy") ?? "best";
             Time.timeScale = float.TryParse(Game.Arg("-lafSpeed") ?? "", out float sp) ? sp : 2f;
-            if (int.TryParse(Game.Arg("-lafDay") ?? "", out int day) && day > 1) { startDay = day; Game.I.StartFromDay(day); }
+            // -lafContinue: pick up the saved week, as the title's Continue does (after a -lafQuitAfter run)
+            if (Game.Arg("-lafContinue") != null) { startDay = Mathf.Max(1, Game.I.Save.currentDay); Game.I.ContinueWeek(); }
+            else if (int.TryParse(Game.Arg("-lafDay") ?? "", out int day) && day > 1) { startDay = day; Game.I.StartFromDay(day); }
             else Game.I.NewWeek();
             StartCoroutine(Run());
         }
@@ -105,6 +107,8 @@ namespace LostAndFound
             int skipped = played.Count(r => r.grade == "skip" && !handled.Contains(r.caseId) && d.Db.root.days.Any(day => day.day >= startDay && day.cases.Any(c => c.id == r.caseId)));
             cases += skipped;
             Debug.Log($"[Auto] week done: {cases} cases, {best} best, {skipped} skipped, ending {d.Save.ending}, {problems.Count} problems, {Time.realtimeSinceStartup - t0:0}s");
+            var all = d.State.records.Where(r => r.grade != "skip").ToList();
+            Debug.Log($"[Auto] the week's record (this run and any before it): {all.Count(r => r.grade == "best")} best of {all.Count} decided");
             foreach (var p in problems) Debug.Log("[Auto] problem: " + p);
             bool pass = problems.Count == 0 && (policy != "best" || best + skipped == cases);
             Debug.Log(pass ? "[Auto] PASS" : "[Auto] FAIL");
@@ -188,6 +192,15 @@ namespace LostAndFound
             Debug.Log($"[Auto] day {d.Day} case {c.id}: {dec} (authored best {bestText})");
             yield return new WaitForSeconds(0.4f * (slow - 1f));
             d.CommitStamp(dec.verdict, who);
+            if (Game.Arg("-lafQuitAfter") == c.id)
+            {
+                // quit the moment the verdict is saved (the claimant still walking away), as a player might
+                while (d.State.Record(c.id) == null) yield return null;
+                yield return null;
+                Debug.Log($"[Auto] quitting after case {c.id} (saved: day {d.Save.currentDay}, {d.Save.casesDone} case(s) done)");
+                Application.Quit();
+                yield break;
+            }
             yield return new WaitForSeconds(1.2f);
             Shot($"case{c.id}_verdict");
         }

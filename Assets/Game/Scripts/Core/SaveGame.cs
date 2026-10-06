@@ -37,6 +37,7 @@ namespace LostAndFound
         public List<DayBest> best = new();
         public List<string> discovered = new();   // "objectId.detailId"
         public bool tutorialDone;
+        public int casesDone;                    // cases already decided today: Continue picks up from the next one
 
         /// <summary>-lafSave &lt;path&gt; points recordings and tests at a scratch save instead of the player's.</summary>
         public static string PathOnDisk => !string.IsNullOrEmpty(Game.Arg("-lafSave")) ? Game.Arg("-lafSave")
