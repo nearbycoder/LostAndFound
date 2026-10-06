@@ -358,3 +358,80 @@ hand, 0 fallbacks, 0 missed pick-ups).
 - macOS is unverified on hardware; Windows is blocked on the module. The trailer predates both rounds.
 - Next in the ranked list: optional nudges for a stuck player (item 9), a WebGL spike (13), audio (14), and a
   smaller download (15).
+
+## Round 3 scope (6 Oct 2026)
+
+Branch `improvements-3`, one commit per item. Screenshots go in
+[`media/improvements/round3/`](media/improvements/round3/). Items are in build order. The WebGL spike
+comes last because it's the heaviest job on a shared machine and the least certain.
+
+### R3-A. Tool runs never touch the real save or settings
+Every player run (smoke, AutoPilot, audit, padtest, film) passes `-lafSave`, but Unity still writes its
+prefs file (session counters, window size, and any setting a run changes) to the player's real
+`~/.config/unity3d/Nearby/Lost & Found/`. A session on another game overwrote a real save last round.
+- `Tools/unity.sh` runs every built player with `XDG_CONFIG_HOME` pointed at a scratch folder under
+  `Logs/` (a probe showed Unity's Linux player honours it). It also hashes the real folder before and
+  after each run, and fails loudly if anything there changed.
+
+**Acceptance:** smoke, AutoPilot, audit and padtest runs leave the real folder's hashes unchanged
+(today each run rewrites `prefs`). Their scratch prefs land under `Logs/`.
+**Verify:** hashes before and after a full round of runs, and the guard's log line.
+
+### R3-B. Agnes's nudges for a stuck player (ranked item 9)
+After the tutorial, a player who can't find the object or the deciding detail gets no help.
+- **`H`** (gamepad: d-pad ←) during a case shows a small note in Agnes's hand at the top right.
+  It doesn't block clicks. Each press goes one step further for wherever you are in the case:
+  1. **Find:** what to look for, then where (the drawers, the shelf or the stand), then exactly which drawer.
+  2. **Examine:** that there's more to find and how (open it, the blue lamp, hold it to your ear, turn it
+     right round). Then *show me* (R3-C).
+  3. **Ask:** that a finding on the slip can be put to them, then which one.
+  4. **Decide:** the rule that applies, then what to compare (which claim against the tag or the object).
+     Then how stamping works (tray first for RETURN and SEAL).
+- Nudges never name the verdict outright. They only cite rules Agnes has already handed over, and never
+  quote a finding you haven't found.
+- After 90 seconds in a case without progress (no new finding, pick-up, question or stamp), the hint bar
+  offers one: "Stuck? Press H for a nudge from Agnes". A Settings toggle, *Offer nudges when stuck*
+  (on by default), turns the offer off. `H` works either way.
+- The logic is pure C# (`Nudges` in Core), so it's unit-tested without the player.
+
+**Acceptance:**
+- Unit tests walk every case on the `best` and `worst` paths through each stage. Every stage gives at
+  least one nudge, and every cited rule is known by then. No nudge contains the fact of a detail not
+  yet found. The *decide* nudge agrees with `Rules.Solve`: it names the contradicted claim or claimant,
+  or says the story matches.
+- In the player, an AutoPilot `-lafNudgeTour` asks for every nudge at every stage of every case of the
+  week, logs them, and still ends 24/24 on *The 9:40*.
+- The padtest presses d-pad ← and a nudge appears.
+- `docs/nudges.md` lists every nudge's text for the owner to review the tone.
+
+**Verify:** test results, the tour log and screenshots, the padtest log.
+
+### R3-C. "Show me": the last nudge points
+The last *find* nudge glows the drawer, then the object, the way the tutorial does. The last *examine*
+nudge puts a glint on the hidden detail of the held object, using the same visibility test as a
+click, so it only glints when a click there would work ("Turn it over until it glints" otherwise). If a
+lid or catch reveals the detail, the glint lights that part instead.
+
+**Acceptance:** tour screenshots of a drawer glow, a detail glint, a part glow, and the glint on the
+ring ticket's UV date (the hardest detail in the audit). The glint shows only when the detail is
+clickable: the tour clicks at the glint and the detail is discovered.
+**Verify:** screenshots and the tour log (`glint → discovered` for every case detail it points at).
+
+### R3-D. WebGL spike (ranked item 13): measure, don't ship
+Time-boxed. Build a WebGL player into the gitignored `Builds/WebGL/` and measure: build time, download
+size (raw and compressed), whether it loads and plays in Firefox on this machine, the frame rate, and
+what breaks (saves, the shutter, audio streaming, shaders). Nothing is hosted and no settings that
+change the desktop builds are committed.
+
+**Acceptance:** the numbers and a go/no-go recommendation in "Round 3 results". The Linux build is
+unchanged afterwards. If it can't be built within the time box, the reason is recorded instead.
+**Verify:** build log, `du`, and a browser screenshot if it loads.
+
+### R3-E. Stretch: a smaller download (ranked item 15)
+Meshes are 45% of the build (86 MB, imported uncompressed) and UI textures are uncompressed
+(the ledger page alone is 5 MB). Try mesh compression and compressing the large UI textures, keeping
+anything that changes how the game looks or plays out.
+
+**Acceptance:** the Linux zip shrinks measurably. The audit still passes 84/84 details with no overlap
+warnings, and before-and-after screenshots of the ledger and a close-up object look the same.
+**Verify:** zip sizes, the audit, screenshots.
