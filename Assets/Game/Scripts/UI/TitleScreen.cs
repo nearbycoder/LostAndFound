@@ -169,7 +169,7 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "paper_card", UiKit.Paper, 28f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 860f));
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 920f));
             var t = UiKit.Label(card.transform, "Title", "Settings", Fonts.Title, 56f, UiKit.Ink, TextAlignmentOptions.Top);
             t.rectTransform.Fill();
             t.margin = new Vector4(0f, 34f, 0f, 0f);
@@ -203,6 +203,15 @@ namespace LostAndFound
             Toggle("Reduce motion", () => Settings.ReduceMotion, v => Settings.ReduceMotion = v);
             Toggle("Film effects (grain, blur, vignette)", () => Settings.PostEffects, v => Settings.PostEffects = v);
             Toggle("Fullscreen", () => Settings.Fullscreen, v => { Settings.Fullscreen = v; Game.ApplyDisplay(); });
+            {
+                // High, Medium, Low, High...
+                PaperButton b = null;
+                string Text() => $"Picture quality:  <b>{GraphicsQuality.Names[Settings.PictureQuality]}</b>";
+                b = UiKit.Button(card.transform, "Quality", Text(), Fonts.Body, 30f, () => { Settings.PictureQuality = (Settings.PictureQuality + 2) % 3; b.label.text = Text(); });
+                b.label.alignment = TextAlignmentOptions.MidlineLeft;
+                b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
+                y -= 54f;
+            }
 
             var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, () =>
             {

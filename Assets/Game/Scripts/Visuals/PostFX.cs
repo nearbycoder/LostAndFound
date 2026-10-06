@@ -91,7 +91,7 @@ namespace LostAndFound
             bool on = Settings.PostEffects;
             grain.active = on;
             chroma.active = on;
-            dof.active = on;
+            dof.active = on && GraphicsQuality.Level > 0;   // Low picture quality drops the depth of field
         }
 
         public void SetInspect(bool on) => inspectTarget = on ? 1f : 0f;

@@ -34,7 +34,7 @@ namespace LostAndFound
         void Awake()
         {
             I = this;
-            Application.targetFrameRate = 120;
+            Application.targetFrameRate = Arg("-lafUncapped") != null ? -1 : 120;   // smoke runs measure the headroom above the cap
 #if UNITY_EDITOR
             if (Application.isBatchMode)
             {
@@ -84,6 +84,7 @@ namespace LostAndFound
 
             SetupLighting();
             gameObject.AddComponent<PostFX>();
+            gameObject.AddComponent<GraphicsQuality>();
 
             var ui = new GameObject("UI");
             ui.transform.SetParent(transform, false);

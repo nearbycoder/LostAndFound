@@ -12,7 +12,7 @@
 #   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
-#   Tools/unity.sh smoke [secs]    run the Linux build hands-free, screenshots in Screenshots/smoke/
+#   Tools/unity.sh smoke [secs] [quality]  run the Linux build hands-free (quality 0|1|2 overrides the setting), screenshots in Screenshots/smoke/
 #   Tools/unity.sh autopilot [speed] [day] [best|worst|wait]
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
 #   Tools/unity.sh audit           hold every object in the hand and check each hidden detail can be clicked;
@@ -48,8 +48,9 @@ case "${1:-open}" in
                  -testResults "$PROJECT/Logs/test-results.xml" -logFile "$PROJECT/Logs/test.log" ;;
   smoke)       [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                rm -rf "$PROJECT/Screenshots/smoke"
+               q=(); [ -n "${3:-}" ] && q=(-lafQuality "$3")   # optional picture quality 0|1|2 for this run
                exec timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
-                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -logFile "$PROJECT/Logs/smoke.log" ;;
+                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -lafUncapped "${q[@]}" -logFile "$PROJECT/Logs/smoke.log" ;;
   autopilot)   [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
                rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                exec timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \

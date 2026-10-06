@@ -25,5 +25,7 @@ namespace LostAndFound
         public static bool ReduceMotion { get => B("reducemotion", false); set => SetB("reducemotion", value); }
         public static bool PostEffects { get => B("post", true); set => SetB("post", value); }
         public static bool Fullscreen { get => B("fullscreen", false); set => SetB("fullscreen", value); }
+        /// <summary>0 Low, 1 Medium, 2 High (see GraphicsQuality).</summary>
+        public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 2); set => SetF("quality", Mathf.Clamp(value, 0, 2)); }
     }
 }

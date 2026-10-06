@@ -26,6 +26,14 @@ namespace LostAndFound
         {
             yield return new WaitForSeconds(0.5f);
             if (Director.I != null) { Director.I.autoAdvance = true; Director.I.autoRing = true; }
+            // -lafSetQuality N: change Settings > Picture quality mid-run, as the menu does (this one is saved)
+            if (int.TryParse(Game.Arg("-lafSetQuality") ?? "", out int setQ))
+            {
+                yield return new WaitForSeconds(2f);
+                Settings.PictureQuality = setQ;
+                Debug.Log($"[Smoke] picture quality set to {GraphicsQuality.Names[Settings.PictureQuality]}");
+                SettingsPanel.Open(null);   // the screenshots from here on show the panel with the new value
+            }
             int n = 0;
             float t = 0f;
             int lastFrame = Time.frameCount;
