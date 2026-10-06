@@ -15,12 +15,7 @@ namespace LostAndFound
             StartDay(day);
         }
 
-        public EndingDef ChooseEnding()
-        {
-            foreach (var e in Db.root.endings)
-                if (State.Check(e.condition)) return e;
-            return Db.root.endings.LastOrDefault();
-        }
+        public EndingDef ChooseEnding() => Rules.ChooseEnding(Db, State);
 
         IEnumerator Ending()
         {

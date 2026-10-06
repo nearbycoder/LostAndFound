@@ -111,6 +111,25 @@ namespace LostAndFound
                 foreach (var s in vd.set) state.Apply(s);
         }
 
+        /// <summary>The first ending whose condition holds (they're authored in priority order), else the last.</summary>
+        public static EndingDef ChooseEnding(ContentDb db, StoryState state)
+        {
+            foreach (var e in db.root.endings)
+                if (state.Check(e.condition)) return e;
+            return db.root.endings.LastOrDefault();
+        }
+
+        /// <summary>Stamps for a day's records: 3 = all best, 2 = at most one slip, 1 = finished.</summary>
+        public static (int stamps, int correct, int total) Score(DayDef day, StoryState state)
+        {
+            var recs = day.cases.Select(c => state.Record(c.id)).Where(r => r != null && r.grade != "skip").ToList();
+            int total = recs.Count;
+            int best = recs.Count(r => r.grade == "best");
+            int ok = recs.Count(r => r.grade == "ok");
+            int stamps = best == total ? 3 : best + ok >= total - 1 ? 2 : 1;
+            return (stamps, best, total);
+        }
+
         // ------------------------------------------------------------------ validation
 
         /// <summary>

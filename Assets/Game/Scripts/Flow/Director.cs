@@ -529,16 +529,7 @@ namespace LostAndFound
         }
 
         /// <summary>Stamps for a day's records: 3 = all best, 2 = at most one slip, 1 = finished.</summary>
-        public (int stamps, int correct, int total) Score(int day)
-        {
-            var d = Db.Day(day);
-            var recs = d.cases.Select(c => State.Record(c.id)).Where(r => r != null && r.grade != "skip").ToList();
-            int total = recs.Count;
-            int best = recs.Count(r => r.grade == "best");
-            int ok = recs.Count(r => r.grade == "ok");
-            int stamps = best == total ? 3 : best + ok >= total - 1 ? 2 : 1;
-            return (stamps, best, total);
-        }
+        public (int stamps, int correct, int total) Score(int day) => Rules.Score(Db.Day(day), State);
 
         public void FinishDay()
         {
