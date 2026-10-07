@@ -1051,3 +1051,70 @@ run's output scale in its scratch `kwinoutputconfig.json`, which the tool delete
 - Whether to let players choose a keyboard layout (or rebind keys) by hand, since the Linux player doesn't report it.
 - Unchanged from round 7: re-cutting the trailer and teaser, hosting WebGL, curiosities across weeks, installing `strace` or
   Xvfb (the headless KWin now covers small screens), and the licence, releases and tags, signing, and Windows Build Support.
+
+## Round 9 scope (7 Oct 2026)
+
+Branch `improvements-9`, one commit per item. Screenshots and logs go in
+[`media/improvements/round9/`](media/improvements/round9/). Before choosing, I went through the latest AutoPilot screenshots
+and the Settings, pause menu and Day Ledger code as a player would meet them. The desk is lit for mood: most of every
+counter-view frame is near black, and there's **no brightness setting** for a dim laptop panel or a bright room. **What you
+decided on earlier days can't be looked up**: each evening's ledger is shown once and gone until the week's summary, though the
+story keeps coming back to it (strays refused on Monday return later, Vell keeps count, Thursday's choice changes Friday).
+**Pushing the pointer to the side turns the desk**, with no way to turn that off, and in a window (the default since round 8)
+the side of the window is where the pointer leaves for the rest of the desktop. And nothing in the game says which build it
+is, which a bug report needs.
+
+### R9-A. A brightness setting
+- Settings › *Brightness*, a slider from darker to much brighter, applied to the 3D scene (the desk, the window, the objects
+  in your hands) and not to the paper UI, which already reads on its own. The middle of the slider is the game as it is now.
+- Applies at once, persists in `settings.json`, unit-tested (default, clamp, round trip). The Settings card still fits.
+
+**Acceptance:** the counter view's mean luminance, measured on screenshots of the same moment, rises steadily from the lowest
+to the highest setting, and the default is the same picture as before; the UI's text pixels are unchanged. The Settings card,
+one row longer, fits with 0 overflowing and 0 overlapping texts at 1920×1080, the fitted 1200×674 window and 2560×1080.
+**Verify:** screenshots and measured luminance, test results, the text audit on the Settings card.
+
+### R9-B. The week's ledger at hand
+- The ledger book on the desk (bottom right) can be opened: hover says what it is, a click shows the Day Ledger page of each
+  day already closed this week, exactly as it was that evening (rows, explanations, marks, tally, the Gazette), with ‹ › to
+  turn the pages and *Put it back* (or `Esc`, right click, B) to close. The pause menu has it too (*The week so far*).
+- Only days whose evening you've seen: nothing about today's claims (their marks would give the answers away). On Monday, or
+  after starting from a later day with nothing kept, the book says there's nothing in it yet.
+- The evening ledger and the look-back are built by the same code, so they can't drift apart.
+
+**Acceptance:** a unit test of which days the book holds (closed days only; a replay of an earlier day drops the later ones).
+In the player, the AutoPilot opens the book each morning from Tuesday, photographs every page and logs each page's rows and
+tally, which match that day's evening ledger line for line. 0 overflowing and 0 overlapping texts with the text audit, at
+1600×900, at 1280×720 with Large text and Plain lettering, and at 1024×768. `best` still ends 24/24 on *The 9:40*.
+**Verify:** AutoPilot logs (`[Ledger]` and `[LedgerBook]` lines compared), screenshots, test results.
+
+### R9-C. Turning at the screen's edge, on or off
+- Settings › *Turn at the screen's edge* (on by default, as now). Off, the desk turns only with the keys, the arrows on screen
+  and the pad.
+- In the player, a check (`-lafEdgeTest`) holds a virtual mouse at each side of the screen: the desk turns with the setting on,
+  doesn't with it off, and doesn't while another window has the focus (round 8's guard, which nothing could exercise then).
+
+**Acceptance:** the check passes all three in the headless KWin (`smallscreen` with `LAF_STEAL` for the focus case). Whether a
+real pointer leaving a window by its side turns the desk can't be checked here (there's no pointer tool), and is said so.
+**Verify:** the check's log lines.
+
+### R9-D. Which build is this?
+- The title shows the version and the commit the build was made from, small, in a corner (`v0.1.0 · ed71667`), and the player
+  log's first lines say the same. The version itself isn't changed (that's the owner's).
+- The README says where the player log is and what to send with a bug report.
+
+**Acceptance:** the line is on the title at 1920×1080 and 1200×674, clear of the menu and the save note (text audit 0 overlap),
+and matches `git rev-parse --short HEAD` at build time.
+**Verify:** a title screenshot and the player log.
+
+### R9-E. Stretch: hitches the first time something is used
+Measure first: log every frame that takes over 100 ms during a whole `best` week in a fresh process, with what was happening.
+If the first pick-up, drawer, ledger or photograph change stalls noticeably (say over 150 ms), warm those shaders up behind the
+morning's fade, and measure again. If nothing stalls, record that and stop.
+
+**Acceptance:** the counts and worst frames before (and after, if fixed), with the load average.
+**Verify:** AutoPilot log lines.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
+audit, the nudge tour, the padtest, the taptest and the soak, with the load average noted, and the real config folder compared
+with its state at the start of the round.
