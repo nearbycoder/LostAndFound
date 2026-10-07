@@ -61,6 +61,7 @@ namespace LostAndFound
         public CaseDef Upcoming { get; private set; }
         /// <summary>The day's cases are done: the evening, the ledger and the Gazette.</summary>
         public bool InEvening => phase == Phase.Evening;
+        public string PhaseName => phase.ToString();   // for the test tools' logs
         /// <summary>A day is under way (the pause menu is available).</summary>
         public bool Running => phase != Phase.Idle && DayDef != null;
         public bool CanUseStamps => phase == Phase.Investigate && !asking;

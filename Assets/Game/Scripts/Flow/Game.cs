@@ -165,6 +165,7 @@ namespace LostAndFound
             if (Arg("-lafGamepadTest") != null) gameObject.AddComponent<GamepadTest>();
             if (Arg("-lafTapTest") != null) gameObject.AddComponent<TapTest>();
             if (Arg("-lafEdgeTest") != null) gameObject.AddComponent<EdgeTest>();
+            if (Arg("-lafHitches") != null) HitchLog.Ensure();
             if (Arg("-lafSoak") != null) Soak.Ensure();
         }
 

@@ -120,6 +120,8 @@ namespace LostAndFound
 
         void Shot(string name)
         {
+            HitchLog.Note(name);
+            if (Game.Arg("-lafNoShots") != null) return;   // measuring frame times: a capture stalls a frame itself
             if (textAudit) TextAudit.Check(name);
             string path = Path.Combine(dir, $"{shots++:000}_{name}.png");
             // in a browser the file would only land in its virtual disk: Tools/webgl_check.py takes the picture on this line

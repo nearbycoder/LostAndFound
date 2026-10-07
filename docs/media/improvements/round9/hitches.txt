@@ -1,0 +1,29 @@
+R9-E: frame times over a whole best week, AutoPilot -lafSpeed 2 -lafHitches -lafNoShots (no screenshots), 1600x900, nested KWin.
+
+Run 1 (load average 31 -> 18): 20261 frames, 0 over 100 ms (the 50 ms count and the slowest frame weren't logged yet).
+
+Run 2 (load average 26 -> 30):
+[Hitch] summary: 16844 frames, 1440 over 50 ms, 52 over 100 ms, 15 over 150 ms, 0 over 300 ms
+[Hitch] the slowest frame: 224 ms, day 2 claim 2.4 Intro, view Counter, holding -, modal False, title False, after "case2.3_verdict"
+Frames over 100 ms grouped by moment:
+     15 day 3 claim 3.2 Intro, view Counter after "case3.1_verdict"
+      8 day 3 claim 3.4 Intro, view Counter after "case3.3_verdict"
+      6 day 2 claim 2.4 Intro, view Counter after "case2.3_verdict"
+      5 day 3 claim 3.1 Resolving, view Counter after "case3.1_verdict"
+      4 day 2 claim 2.3 Resolving, view Counter after "case2.3_verdict"
+      2 day 3 claim 3.2 Investigate, view Counter after "case3.2_window"
+      2 day 2 claim - Evening, view Counter after "case2.5_verdict"
+      2 day 2 claim 2.5 Resolving, view Counter after "case2.5_verdict"
+      1 day 4 claim 4.5 Resolving, view Counter after "day4_photos"
+      1 day 3 claim - AwaitBell, view Counter after "case3.1_verdict"
+      1 day 3 claim 3.3 Intro, view Counter after "case3.2_verdict"
+      1 day 3 claim 3.1 Resolving, view Counter after "case3.1_inspect"
+      1 day 3 claim 3.1 Investigate, view Counter after "case3.1_inspect"
+      1 day 2 claim - Morning, view Counter after "day1_ledger"
+      1 day 2 claim - AwaitBell, view Counter after "case2.3_verdict"
+      1 day 2 claim 2.4 Resolving, view Counter after "case2.4_verdict"
+
+Monday, where every first use falls (first drawer, pick-up, lid, stamp, receipt, ledger, Agnes's note), had no frame
+over 100 ms in either run. Run 2's slow frames come in runs of consecutive frames on Tuesday and Wednesday,
+while claimants walk in and out, at moments that were smooth in run 1: the machine's load, not first use.
+Nothing to warm up; no change made.
