@@ -35,10 +35,11 @@
 # so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
 #
 # Built players never touch the real save or settings: each run gets XDG_CONFIG_HOME under
-# Logs/config/<command>/ (Unity's Linux player keeps its prefs, and persistentDataPath, there). Batch editor runs
-# (builds, tests, run) get Logs/config/editor/, which links back to the real config folder for everything but this
-# game's own. The real ~/.config/unity3d/Nearby/Lost & Found/ is checked before and after (hashes and timestamps);
-# if anything there changed, the run fails with status 99. Only `open` and `headless` (interactive) aren't guarded.
+# Logs/config/<command>/ (Unity's Linux player keeps its prefs, and persistentDataPath, there). Batch editor
+# runs, the GUI editor and `headless` get Logs/config/editor/, which links back to the real config folder for
+# everything but this game's own, so pressing Play in the editor uses a scratch save and settings too. The real
+# ~/.config/unity3d/Nearby/Lost & Found/ is checked before and after every command (hashes and timestamps); if
+# anything there changed, the run fails with status 99.
 set -euo pipefail
 UNITY="${UNITY:-$HOME/Unity/Hub/Editor/6000.6.2f1/Editor/Unity}"
 PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -76,27 +77,33 @@ player() {
   guarded "$name" "$@"
 }
 
-# editor <args...>: run the batch editor. The editor keeps this project's PlayerPrefs (and the test runner its
+# editor <args...>: run the editor (batch, headless or GUI). The editor keeps this project's PlayerPrefs (and the test runner its
 # TestResults.xml) in the same folder as the game, so it gets a config folder of its own under Logs/ that links back
 # to everything in the real one except this game's folder: its licence, preferences and the other projects' folders
-# are found where they live, and only "Lost & Found" is scratch. Links are rebuilt on every run.
+# are found where they live, and only "Lost & Found" is scratch. Links are rebuilt on every run. A file the editor made
+# in the scratch folder itself (the GUI editor rotates Editor.log there) is left alone rather than linked over.
 editor() {
   local root="$PROJECT/Logs/config/editor"
   mkdir -p "$root/unity3d/Nearby/Lost & Found"
   find "$root" -maxdepth 3 -type l -delete
   (
     shopt -s dotglob nullglob
-    local e
-    for e in "$REAL_XDG"/*; do [ "${e##*/}" = unity3d ] || ln -s "$e" "$root/"; done
-    for e in "$REAL_XDG/unity3d"/*; do [ "${e##*/}" = Nearby ] || ln -s "$e" "$root/unity3d/"; done
-    for e in "$REAL_XDG/unity3d/Nearby"/*; do [ "${e##*/}" = "Lost & Found" ] || ln -s "$e" "$root/unity3d/Nearby/"; done
+    link_all() {   # link_all <from> <into> <except>
+      local e
+      for e in "$1"/*; do
+        [ "${e##*/}" = "$3" ] || [ -e "$2/${e##*/}" ] || ln -s "$e" "$2/"
+      done
+    }
+    link_all "$REAL_XDG" "$root" unity3d
+    link_all "$REAL_XDG/unity3d" "$root/unity3d" Nearby
+    link_all "$REAL_XDG/unity3d/Nearby" "$root/unity3d/Nearby" "Lost & Found"
   )
   XDG_CONFIG_HOME="$root" guarded editor "$UNITY" "$@"
 }
 
 case "${1:-open}" in
-  open)        exec "$UNITY" -projectPath "$PROJECT" ;;
-  headless)    exec "$UNITY" -batchmode -projectPath "$PROJECT" -logFile "$PROJECT/Logs/headless.log" ;;
+  open)        editor -projectPath "$PROJECT" ;;
+  headless)    editor -batchmode -projectPath "$PROJECT" -logFile "$PROJECT/Logs/headless.log" ;;
   build-linux) editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Linux64 \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildLinux -logFile "$PROJECT/Logs/build.log" ;;
   build-mac)   editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget OSXUniversal \
