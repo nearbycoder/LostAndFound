@@ -334,7 +334,8 @@ namespace LostAndFound
 
         public static RulesPeek Create(RectTransform root)
         {
-            var rt = UiKit.Rect("RulesPeek", root).Anchor(new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f)).Place(new Vector2(70f, 60f), new Vector2(720f, 760f));
+            // wide enough that Thursday's and Friday's eight rules still read at a fair size, and ending above the slip
+            var rt = UiKit.Rect("RulesPeek", root).Anchor(new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f)).Place(new Vector2(70f, 80f), new Vector2(1000f, 780f));
             var p = rt.gameObject.AddComponent<RulesPeek>();
             p.group = UiKit.Group(rt.gameObject);
             p.group.alpha = 0f;

@@ -434,8 +434,13 @@ namespace LostAndFound
             if (d == null || d.Db == null) return "";
             var known = d.KnownRules();
             var sb = new System.Text.StringBuilder();
+            // the gloss sits close under its rule, and a short spacer (not a whole blank line) parts one rule from the next,
+            // so all eight still fit at a size you can read on Friday
             foreach (var r in d.Db.root.rules.Where(r => known.Contains(r.id)).OrderBy(r => r.id))
-                sb.Append($"<b>{r.id}.</b>  {r.text}\n<size=70%><color=#6a5a50><i>{r.hint}</i></color></size>\n\n");
+            {
+                if (sb.Length > 0) sb.Append("\n<size=45%> </size>\n");
+                sb.Append($"<b>{r.id}.</b>  {r.text}\n<size=80%><color=#5e4f46><i>{r.hint}</i></color></size>");
+            }
             if (sb.Length == 0) sb.Append("No rules yet, love. Ring the bell.");
             return sb.ToString();
         }
@@ -457,10 +462,12 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "note_paper", new Color(1f, 0.98f, 0.9f), 30f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(1100f, 900f));
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(1500f, 940f));
+            // a wide, short window (21:9) has less than the card's height: scale it to fit, as Settings does
+            card.rectTransform.localScale = Vector3.one * Mathf.Min(1f, (UIRoot.I.root.rect.height - 30f) / 940f, (UIRoot.I.root.rect.width - 30f) / 1500f);
             var body = UiKit.Label(card.transform, "Body", Text(), Fonts.Agnes, 34f, DeskMaterials.InkColor, TextAlignmentOptions.TopLeft);
             body.rectTransform.Fill();
-            body.margin = new Vector4(80f, 70f, 80f, 110f);
+            body.margin = new Vector4(80f, 56f, 80f, 110f);
             body.enableAutoSizing = true;
             body.fontSizeMin = 20f;
             body.fontSizeMax = 34f;

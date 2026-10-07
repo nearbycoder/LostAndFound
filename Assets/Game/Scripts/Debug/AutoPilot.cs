@@ -74,6 +74,15 @@ namespace LostAndFound
             if (type == LogType.Exception || type == LogType.Error) problems.Add($"{type}: {msg.Split('\n')[0]}");
         }
 
+        /// <summary>The size Agnes's rules were autosized to on a card (the gloss under each is 80% of it).</summary>
+        static void LogRulesSize(string what, Transform card)
+        {
+            var body = card != null ? card.GetComponentsInChildren<TMPro.TMP_Text>().FirstOrDefault(t => t.name == "Body") : null;
+            if (body == null) return;
+            body.ForceMeshUpdate();
+            Debug.Log($"[Rules] {what}: rules written at {body.fontSize:0.#} (glosses {body.fontSize * 0.8f:0.#}) of at most {body.fontSizeMax:0.#}, {body.textInfo.lineCount} lines, font {body.font?.name}");
+        }
+
         void Shot(string name)
         {
             if (textAudit) TextAudit.Check(name);
@@ -171,6 +180,7 @@ namespace LostAndFound
                 UIRoot.I.rulesPeek.Show();
                 yield return new WaitForSecondsRealtime(0.5f);
                 Shot($"day{d.Day}_rules_card");
+                LogRulesSize($"day{d.Day} hover card", UIRoot.I.rulesPeek.transform);
                 yield return null;   // the capture happens at the end of the frame: keep the card up until then
                 UIRoot.I.rulesPeek.Hide();
                 // and the intake tag of the object they're after, as hovering it shows
@@ -187,6 +197,7 @@ namespace LostAndFound
                     RulesCard.Show();
                     yield return new WaitForSecondsRealtime(0.4f);
                     Shot($"day{d.Day}_rules_open");
+                    LogRulesSize($"day{d.Day} full card", GameObject.Find("Rules")?.transform);
                     yield return null;
                     RulesCard.Hide();
                 }
