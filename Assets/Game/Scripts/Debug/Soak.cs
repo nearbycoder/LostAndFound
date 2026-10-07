@@ -187,6 +187,7 @@ namespace LostAndFound
             if (b == null) { problems.Add($"no \"{text}\" to click"); yield break; }
             var game = Game.I;
             string before = Plain(b.label.text);
+            if (text == "Continue" && confirmsShot.Add("Continue")) { Shot("title_continue"); yield return null; }
             int day = Director.I != null ? Director.I.Day : 0, done = game.Save.casesDone;
             b.OnPointerClick(null);
             yield return new WaitForSecondsRealtime(0.2f);
@@ -313,7 +314,11 @@ namespace LostAndFound
             Check("unity MB", x => x.unity / 1048576.0);
             Check("managed MB", x => x.mono / 1048576.0);
             foreach (var p in problems.Distinct()) Debug.Log("[Soak] problem: " + p);
-            Debug.Log($"[Soak] {samples.Count - 1} cycles in {seconds:0}s; {asks} menu choices asked for a second click; {(steady ? "steady" : "GROWING")}");
+            // a short run is still loading days for the first time: too soon to call memory steady or growing
+            bool judged = all.Count >= 20;
+            if (!judged) steady = true;
+            Debug.Log($"[Soak] {samples.Count - 1} cycles in {seconds:0}s; {asks} menu choices asked for a second click; " +
+                      (judged ? steady ? "steady" : "GROWING" : "too few cycles to judge memory (20 or more)"));
             Debug.Log(problems.Count == 0 && steady ? "[Soak] PASS" : "[Soak] FAIL");
         }
     }

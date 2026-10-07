@@ -145,7 +145,20 @@ namespace LostAndFound
                 bool open = d <= g.Save.unlockedDay;
                 var best = g.Save.best.FirstOrDefault(b => b.day == d);
                 string stamps = best == null ? "" : "  <size=60%><color=#e0c070>" + new string('●', best.stamps) + new string('○', 3 - best.stamps) + "</color></size>";
-                var b = Item(list, d - 1, $"{def.weekday}  <size=60%><color=#c8b898>·  {def.title}</color></size>{stamps}", () => Start(g, () => g.ReplayDay(day)), 44f);
+                PaperButton b = null;
+                bool asked = false;
+                b = Item(list, d - 1, $"{def.weekday}  <size=60%><color=#c8b898>·  {def.title}</color></size>{stamps}", () =>
+                {
+                    // going back during a week rewinds it to that morning: say so, and ask for a second click
+                    string loses = ProgressGuard.ReplayDay(g.Save, g.Db, day);
+                    if (loses != null && !asked)
+                    {
+                        asked = true;
+                        b.label.text = $"{def.weekday}  <size=60%><color=#e0a080>·  {loses}</color></size>";
+                        return;
+                    }
+                    Start(g, () => g.ReplayDay(day));
+                }, 44f);
                 b.interactable = open;
             }
             Item(list, g.Db.DayCount, "‹  Back", () => BuildMain(g, list), 40f);
@@ -396,16 +409,35 @@ namespace LostAndFound
             sub.rectTransform.Fill();
             sub.margin = new Vector4(0f, 112f, 0f, 0f);
             int i = 0;
-            void Btn(string text, System.Action a)
+            PaperButton Btn(string text, System.Action a)
             {
                 var b = UiKit.Button(card.transform, text, text, Fonts.Title, 42f, a);
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f)).Place(new Vector2(0f, -190f - i++ * 72f), new Vector2(480f, 62f));
+                return b;
             }
             Btn("Back to the desk", Hide);
             Btn("Agnes's rules", () => RulesCard.Show());
             Btn("Controls", ControlsCard.Show);
             Btn("Settings", () => SettingsPanel.Open(null));
-            Btn("Start the day again", () => { Hide(); Game.I.Restart(Director.I.Day); });
+            PaperButton again = null;
+            bool asked = false;
+            again = Btn("Start the day again", () =>
+            {
+                // the claims decided today would be undone: say how many, and ask for a second click
+                string loses = ProgressGuard.RestartDay(Director.I.Save.casesDone);
+                if (loses != null && !asked)
+                {
+                    asked = true;
+                    again.label.text = loses;
+                    again.label.enableAutoSizing = true;
+                    again.label.fontSizeMin = 24f;
+                    again.label.fontSizeMax = 42f;
+                    again.normal = UiKit.Oxblood;
+                    return;
+                }
+                Hide();
+                Game.I.Restart(Director.I.Day);
+            });
             Btn("Back to the title", () => { Hide(); Game.I.Restart(0); });
         }
 

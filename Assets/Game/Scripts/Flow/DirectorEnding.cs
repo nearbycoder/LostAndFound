@@ -9,7 +9,7 @@ namespace LostAndFound
         /// <summary>Replay a day from the state it started with.</summary>
         public void ReplayDay(int day)
         {
-            var snap = Save.SnapshotFor(day);
+            var snap = Save.BeginReplay(day);
             if (snap != null) State = snap;
             Save.state = State;
             StartDay(day);

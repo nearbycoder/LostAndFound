@@ -169,6 +169,17 @@ namespace LostAndFound
             snapshots.Add(new DaySnapshot { day = day, state = s.Clone() });
         }
 
+        /// <summary>A replay of a day begins: the week goes back to that morning and is under way again, so Continue picks the
+        /// replay up like any other day, even after a finished week (its ending stays reached). The day's starting state, if
+        /// one was kept, comes back.</summary>
+        public StoryState BeginReplay(int day)
+        {
+            finished = false;
+            currentDay = day;
+            casesDone = 0;
+            return SnapshotFor(day);
+        }
+
         public StoryState SnapshotFor(int day) => snapshots.FirstOrDefault(x => x.day == day)?.state?.Clone();
 
         public DayBest Best(int day) => best.FirstOrDefault(b => b.day == day);

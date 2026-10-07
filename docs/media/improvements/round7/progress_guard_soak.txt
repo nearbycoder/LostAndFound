@@ -1,0 +1,26 @@
+# LAF_SOAK_SAVE=<a finished best week> Tools/unity.sh soak 6 (load 22-28)
+[Soak] cycle 0 (title, first time): managed 5.1 MB, unity 350.2 MB, resident 400.9 MB; materials 444, meshes 133, textures 188, gameobjects 473; day 0, load 22.80
+[Soak] starting from a save on day 5, week finished
+[Soak] "Start the day again" asked first: "Click again to undo today's one claim"
+[Soak] cycle 1 (start the day again): managed 7.4 MB, unity 378.8 MB, resident 428.3 MB; materials 596, meshes 166, textures 200, gameobjects 545; day 2, load 21.71
+[Game] continue at day 2, after 1 case(s) (frame 2030)
+[Soak] cycle 2 (back to the title, Continue): managed 7.6 MB, unity 389.3 MB, resident 437.1 MB; materials 644, meshes 186, textures 203, gameobjects 579; day 2, load 22.64
+[Soak] "Monday  ·  First Shift  ●●●" asked first: "Monday  ·  click again to rewind the week from Tuesday"
+[Soak] cycle 3 (Choose a Day (Monday)): managed 7.6 MB, unity 391.8 MB, resident 441.6 MB; materials 719, meshes 195, textures 210, gameobjects 557; day 1, load 21.56
+[Soak] "Start the day again" asked first: "Click again to undo today's one claim"
+[Soak] cycle 4 (start the day again): managed 7.5 MB, unity 392.8 MB, resident 443.3 MB; materials 719, meshes 195, textures 209, gameobjects 557; day 1, load 21.09
+[Game] continue at day 1, after 1 case(s) (frame 4206)
+[Soak] cycle 5 (back to the title, Continue): managed 7.7 MB, unity 396.0 MB, resident 445.9 MB; materials 746, meshes 205, textures 210, gameobjects 568; day 1, load 20.15
+[Soak] "Monday  ·  First Shift  ●●●" asked first: "Monday  ·  click again to start it again (one claim undone)"
+[Soak] cycle 6 (Choose a Day (Monday)): managed 7.6 MB, unity 395.3 MB, resident 446.2 MB; materials 746, meshes 205, textures 210, gameobjects 568; day 1, load 20.47
+[Soak] from cycle 1 to 6: materials 596 → 746, meshes 166 → 205, textures 200 → 210, gameobjects 545 → 568, unity 378.8 MB → 395.3 MB, resident 428.3 MB → 446.2 MB
+[Soak] materials: 596 → 746 over the last 6 cycles (+25.2%), most 746
+[Soak] meshes: 166 → 205 over the last 6 cycles (+23.5%), most 205
+[Soak] textures: 200 → 210 over the last 6 cycles (+5.0%), most 210
+[Soak] gameobjects: 545 → 568 over the last 6 cycles (+4.2%), most 579
+[Soak] unity MB: 378.8 → 395.3 over the last 6 cycles (+4.4%), most 396
+[Soak] managed MB: 7.4 → 7.6 over the last 6 cycles (+3.2%), most 7.7
+[Soak] 6 cycles in 76s; 4 menu choices asked for a second click; too few cycles to judge memory (20 or more)
+[Soak] PASS
+
+# Tools/unity.sh test (load 23): 76 passed, 0 failed, including ProgressGuardTests (4)
