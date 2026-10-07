@@ -58,6 +58,13 @@ namespace LostAndFound
             var list = UiKit.Rect("Menu", panel).Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f)).Place(new Vector2(120f, -380f), new Vector2(760f, 520f));
             BuildMain(g, list);
 
+            string saveNote = SaveGame.TakeLoadNote();
+            if (saveNote != null)
+            {
+                var note = UiKit.Label(panel, "SaveNote", saveNote, Fonts.TitleItalic, 28f, new Color(0.96f, 0.72f, 0.56f), TextAlignmentOptions.BottomLeft);
+                note.rectTransform.Anchor(Vector2.zero, Vector2.zero, Vector2.zero).Place(new Vector2(126f, 118f), new Vector2(760f, 80f));
+                TextBacking.Add(note, 0.8f, 22f, 10f);
+            }
             var (found, total) = Curios.Count(g.Db, g.Save.discovered);
             var cur = UiKit.Label(panel, "Curios", $"Curiosities found: {found} of {total}", Fonts.Body, 26f, new Color(0.8f, 0.74f, 0.62f), TextAlignmentOptions.BottomLeft);
             cur.rectTransform.Anchor(Vector2.zero, Vector2.zero, Vector2.zero).Place(new Vector2(126f, 70f), new Vector2(700f, 40f));
