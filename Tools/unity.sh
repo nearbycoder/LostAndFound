@@ -80,18 +80,28 @@ player() {
 # editor <args...>: run the editor (batch, headless or GUI). The editor keeps this project's PlayerPrefs (and the test runner its
 # TestResults.xml) in the same folder as the game, so it gets a config folder of its own under Logs/ that links back
 # to everything in the real one except this game's folder: its licence, preferences and the other projects' folders
-# are found where they live, and only "Lost & Found" is scratch. Links are rebuilt on every run. A file the editor made
-# in the scratch folder itself (the GUI editor rotates Editor.log there) is left alone rather than linked over.
+# are found where they live, and only "Lost & Found" is scratch. Links are kept from run to run: only broken ones are
+# pruned and missing ones added, so there's never a moment without them. (Deleting and relinking them on every run
+# once let a licensing client still running from the previous run recreate unity3d/Unity as an empty folder in that
+# moment, and every editor that then asked it for a licence was refused.) A folder found where a real one should be
+# linked is set aside as .shadowed.<name>.<time> and the link put back; a file the editor made here itself (the GUI
+# editor rotates Editor.log) is left alone.
 editor() {
   local root="$PROJECT/Logs/config/editor"
   mkdir -p "$root/unity3d/Nearby/Lost & Found"
-  find "$root" -maxdepth 3 -type l -delete
+  find "$root" -maxdepth 3 -xtype l -delete
   (
     shopt -s dotglob nullglob
     link_all() {   # link_all <from> <into> <except>
-      local e
+      local e n t
       for e in "$1"/*; do
-        [ "${e##*/}" = "$3" ] || [ -e "$2/${e##*/}" ] || ln -s "$e" "$2/"
+        n="${e##*/}"; t="$2/$n"
+        [ "$n" = "$3" ] && continue
+        if [ -L "$t" ]; then continue
+        elif [ -d "$e" ] && [ -e "$t" ]; then mv "$t" "$2/.shadowed.$n.$(date +%s)"; ln -s "$e" "$t"
+        elif [ -e "$t" ]; then continue
+        else ln -s "$e" "$t"
+        fi
       done
     }
     link_all "$REAL_XDG" "$root" unity3d
