@@ -918,3 +918,72 @@ and no `laf.` key appeared in `unknown/unknown/prefs`. `final_checks.txt`.
 ### Needs a decision from the owner
 Unchanged from round 6: re-cutting the trailer and teaser, hosting WebGL, curiosities across weeks, whether `strace` (or Xvfb,
 for checking small screens) may be installed, and the licence, releases and tags, signing, and Windows Build Support.
+
+## Round 8 scope (7 Oct 2026)
+
+Branch `improvements-8`, one commit per item. Screenshots and logs go in
+[`media/improvements/round8/`](media/improvements/round8/). Round 7 left "a first-launch window larger than a small screen"
+unchecked because there's no Xvfb here. Before choosing, I found another way to check it without installing anything:
+**KWin, already on this machine, runs headless** (`kwin_wayland --virtual`) at any screen size, inside its own D-Bus session
+and scratch config folders, so nothing appears on the shared desktop and the real session's settings aren't touched. Its
+own scripting interface reports where the game's window lands, and `spectacle` can photograph its screen. The first probe
+answered round 7's question at once: **on a 1366×768 laptop the game opens a 1600×900 window** (KWin: frame 1600×928 on a
+1366×768 output), so the shelf arrow, the claim slip, the hint bar and every control strip are off the screen
+(`before_1366x768_screen.jpg`). With the output scaled to 200% (a 2732×1536 panel), Unity sees a 1366×768 desktop and does
+the same. That's the first item. Following what else a new player meets in the first minutes turned up the rest.
+
+### R8-A. The window fits the screen
+- At start-up, a window that wouldn't fit the desktop (Unity's desktop size, which is in scaled points on a HiDPI screen)
+  becomes the largest 16:9 window that does, leaving room for a title bar and a panel. That covers the first launch,
+  a window remembered from a bigger monitor, and leaving fullscreen from Settings (which otherwise keeps the screen's
+  whole size as a window). A window that already fits is left alone, and so is a size given on the command line.
+- The sizing is a pure function, unit-tested.
+- A new `Tools/unity.sh smallscreen <w> <h> [scale] [player args]` runs the player in a headless, sandboxed KWin of that size
+  and reports where KWin put the window, with a picture of the whole screen.
+
+**Acceptance:** at 1366×768, 1280×800 at 200%, 1440×900 and 1280×720, KWin reports the window's frame (title bar
+included) inside the output on first launch, and the screen picture shows the whole desk and its UI; at 1920×1080 the
+window is still 1600×900. Turning Fullscreen on and off again in Settings at 1366×768 ends in a window that fits. A full
+`best` week at the fitted 1366×768 size with the text audit: 24/24, 0 overflowing and 0 overlapping texts.
+**Verify:** `smallscreen` logs and screen pictures before and after, unit tests, the AutoPilot log.
+
+### R8-B. The ledger's *Replay the day* asks first
+Round 7 made every menu choice that throws away claims ask for a second click, but missed one: **the Day Ledger's
+*Replay the day*, right beside *Next morning*, rewinds the day just finished with one click** (every claim of the day
+undone, and its morning played again).
+- It asks as the pause menu's *Start the day again* does ("Click again to undo today's five claims"), from the same
+  `ProgressGuard` wording.
+
+**Acceptance:** a unit test for the wording; in the player, one click on *Replay the day* changes nothing and shows the
+confirm, a second click replays the day as before (the soak clicks it).
+**Verify:** test results, soak log and a screenshot of the confirm.
+
+### R8-C. Keyboard layouts: the letters on the keys
+Every letter shortcut is read by its position on a US keyboard. On a French (AZERTY) keyboard the controls card's
+"`A` / `D` to turn" is the key printed **Q**, `Q` is printed **A** and `W` is **Z**; on Dvorak none of `H`, `R`, `L` and `T`
+is where its letter is. A player who presses what the card says gets something else.
+- The mnemonic letters (`H` nudge, `R` rules, `L` lamp, `T` tray) follow the letter printed on the player's keyboard.
+- The turning keys (`A`/`D` and `Q` `E` `W` `S`) keep their places under the left hand, as WASD games do, but every prompt,
+  the Controls card and the nudges name them by what's printed on the player's keyboard.
+- Only if a probe first shows the Linux player can see the keyboard layout (in the sandboxed KWin with a French layout);
+  otherwise this is recorded and dropped.
+
+**Acceptance:** unit tests of the key resolution and labels for US, French, German and Dvorak layouts. In the sandboxed KWin
+with a French layout, the player logs `H R L T` on their printed keys and the Controls card and inspect bar read "Q / D" and
+"A E Z S"; with US, nothing changes. Nobody presses a physical key here, so that the right action happens on a real French
+keyboard rests on Unity's own key mapping, and is said so.
+**Verify:** test results, logs and screen pictures for each layout.
+
+### R8-D. Stretch: quiet in the background
+The game draws at full rate and keeps playing its music when you switch to another window (it's set to run in the
+background, which the test tools need), and a pointer that leaves the window at its edge keeps turning the desk.
+- Out of focus, it draws at 10 fps; a Settings toggle, *Sound when in the background* (on by default), mutes it there; no
+  edge turns while out of focus. Test tools keep full speed.
+
+**Acceptance:** in the sandboxed KWin, opening another window over the game drops it to about 10 fps and back to full on
+return (logged), with the toggle off the master volume goes to 0 and back.
+**Verify:** the `smallscreen` log.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the
+text audit, the nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared
+with its state at the start of the round.
