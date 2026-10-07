@@ -703,3 +703,72 @@ the round and at its start**.
 - WebGL in Firefox and Safari, audible sound, browser input devices, and hosting (owner).
 - Gamepad and touchpad on real hardware, macOS on a Mac, and Windows (blocked on the module).
 - The text audit checks each text against its own box, not texts against each other. The Gazette overlap was found by eye.
+
+## Round 6 scope (7 Oct 2026)
+
+Branch `improvements-6`, one commit per item. Screenshots go in
+[`media/improvements/round6/`](media/improvements/round6/). Before choosing, I went back through round 5's own
+screenshots and the last AutoPilot run. Two things a player would see at once: in round 5's
+`ledger_plain_1280x720_large.jpg` a long verdict ("Returned to Constable Bramble") **runs under the "3 of 3 found"
+column**, which the text audit can't catch because it only checks each text against its own box; and on Thursday and
+Friday **Agnes's rules card shrinks to fit**, so the full card (`R`) writes the rules at about 18 px and their plain
+glosses at about 12 px on a 1600×900 screen, with a third of the card left as blank lines. The rest: the week has no
+summing-up, the open settings question from round 5, and the stale WebGL build.
+
+### R6-A. No text runs into another
+- The text audit (`-lafTextAudit`) also checks every pair of visible texts on the same screen and reports any whose
+  drawn characters overlap (not their boxes, which overlap by design on cards).
+- Fix what it finds, starting with the ledger's "found" column, which gets its own room: a long verdict line ends
+  before it (autosizing down, as it already does for long names).
+
+**Acceptance:** with the overlap check, full `best` weeks at 1600×900 and at 1280×720 with Large text and Plain
+lettering report **0 overlapping texts and 0 overflowing**. The check is shown to catch the ledger overlap on the
+current build first (so it's known to work). Before/after picture of the ledger.
+**Verify:** `[TextAudit]` lines in the AutoPilot logs, screenshots.
+
+### R6-B. Agnes's rules at a readable size all week
+- The full rules card (`R`, the pause menu) uses its room: no blank line between rules, a wider card, and the gloss
+  under each rule at a size you can read. The hover card beside the slip does the same within its space.
+
+**Acceptance:** on Friday (all eight rules), with normal and Large text, the full card's rules are written at **at
+least 28 units** (from 20) and the glosses at least 22, and the hover card is no longer the audit's one "small" text
+(it was at 60%). Nothing overflows. Monday's card (one rule) is no larger than now.
+**Verify:** the text audit's sizes, Friday screenshots before and after at 1600×900 and 1280×720 Large.
+
+### R6-C. The week, summed up
+After Friday's ending and its epilogue there's nothing about how the week went: it goes straight back to the title.
+- After the epilogue, a page of the ledger book: each day's "by the rules" tally and stamps, the findings you noted,
+  curiosities found, and which of the three endings you've reached so far (the others only as "another ending" so
+  nothing is spoiled), with a pointer to *Choose a Day*. Endings reached are remembered in the save from now on
+  (older saves load as before and start with the ending they finished on, if any).
+
+**Acceptance:** after `best`, `worst` and `wait` weeks the page shows each day's tally matching that evening's ledger,
+and the endings count grows from 1 to 3 across the three runs on one save. It fits at 1600×900 and 1280×720 Large
+with 0 overflow. Unit tests: endings remembered across a round trip; an old save without the field loads.
+**Verify:** AutoPilot screenshots and logs, test results.
+
+### R6-D. Do v0.1.0 players keep their settings? (round 5's open question)
+v0.1.0 kept settings in PlayerPrefs, saved after every change. Round 5 found those saves land in
+`~/.config/unity3d/unknown/unknown/prefs`, and imports PlayerPrefs once, but couldn't say which file the player
+reads them from at start-up. Same engine and company/product names as v0.1.0, so a probe run of the current player
+can answer it exactly.
+- In scratch config folders only: write `laf.*` keys through `PlayerPrefs.Save()` and trace (strace) which files the
+  player writes and reads at start-up. If the import can't see v0.1.0's keys, read them from where v0.1.0 put them
+  (only the `laf.` keys; that file is shared with other games and is never written).
+
+**Acceptance:** a written answer (which file each step touches), and a player run that starts from a v0.1.0-style
+prefs file in a scratch folder and comes up with those settings in `settings.json`. The real
+`~/.config/unity3d` is untouched (guard, plus a before/after listing of `unknown/unknown`).
+**Verify:** strace excerpts, the player log's import line, the scratch `settings.json`.
+
+### R6-E. The WebGL build brought up to date
+The local WebGL build predates round 5's Gazette fix. Rebuild it with everything above, and run the headless-Chrome
+smoke and save checks again (one build, run alone, `nice`). Not hosted.
+
+**Acceptance:** builds, loads, plays Monday in headless Chrome with only the known FSR warning, save survives a browser
+restart. `Mobile_RPAsset.asset` and the `Data/` folder the build leaves are reverted/removed.
+**Verify:** `webgl_check.py` logs and screenshots.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies, the
+nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared with its
+state at the start of the round.
