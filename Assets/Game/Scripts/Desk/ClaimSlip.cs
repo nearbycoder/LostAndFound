@@ -29,6 +29,8 @@ namespace LostAndFound
         Camera cam;
         public bool Active { get; private set; }
         public bool Focused => focused;
+        /// <summary>For the AutoPilot: a pointer it isn't using (left at the top of the window) doesn't lean back out.</summary>
+        public static bool IgnorePointerExit;
 
         public override CursorKind Cursor => CursorKind.Look;
         public override string Hint => focused ? null : GamepadInput.Prompt("Read the claim slip  [Tab]", "Read the claim slip  [View]");
@@ -118,6 +120,9 @@ namespace LostAndFound
 
         public bool HasClue(string id) => clueLines.Exists(c => c.id == id);
 
+        /// <summary>The findings on the slip, in order (each can be asked about).</summary>
+        public List<string> ClueIds() => clueLines.ConvertAll(c => c.id);
+
         /// <summary>World position a few letters into a finding's link, for scripted demos to point at.</summary>
         public bool LinkPosition(string id, out Vector3 world)
         {
@@ -188,9 +193,12 @@ namespace LostAndFound
             focused = on;
             if (on)
             {
-                // frame the slip with the stamp rack beside it
-                Vector3 c = transform.position + new Vector3(-0.07f, 0f, 0.01f);
-                CameraRig.I.Focus(c, new Vector3(c.x * 0.6f, 1.14f, c.z - 0.24f), 50f);
+                // frame the slip with the stamp rack to its left and room on its right for what they said (TranscriptCard);
+                // on a screen narrower than 16:9 the view widens to keep that framing side to side
+                Vector3 c = transform.position + new Vector3(-0.02f, 0f, 0.01f);
+                float aspect = Mathf.Max(0.5f, (float)Screen.width / Mathf.Max(1, Screen.height));
+                float fov = aspect >= 16f / 9f ? 50f : 2f * Mathf.Atan(Mathf.Tan(25f * Mathf.Deg2Rad) * (16f / 9f) / aspect) * Mathf.Rad2Deg;
+                CameraRig.I.Focus(c, new Vector3(c.x * 0.6f, 1.14f, c.z - 0.24f), fov);
                 AudioDirector.Play("paper_lift", 0.4f);
             }
             else CameraRig.I.ClearFocus();
@@ -211,7 +219,7 @@ namespace LostAndFound
                 if (m != null)
                 {
                     float y = m.position.ReadValue().y / Mathf.Max(1, Screen.height);
-                    if (InputX.RightDown || (y > 0.93f && StampTool.I?.Carrying == null)) SetFocus(false);
+                    if (InputX.RightDown || (y > 0.93f && StampTool.I?.Carrying == null && !IgnorePointerExit)) SetFocus(false);
                 }
                 if (busy) SetFocus(false);
                 UpdateLinkHover();

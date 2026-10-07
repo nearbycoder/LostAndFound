@@ -25,6 +25,7 @@ namespace LostAndFound
         public Fader fader;
         public TurnArrows arrows;
         public RulesPeek rulesPeek;
+        public TranscriptCard transcript;
         public NudgeNote nudge;
         public NudgeGlint nudgeGlint;
         int modalCount;
@@ -65,6 +66,7 @@ namespace LostAndFound
             discovery = DiscoveryFX.Create(root);
             tagCard = TagCard.Create(root);
             rulesPeek = RulesPeek.Create(root);
+            transcript = TranscriptCard.Create(root);
             inspectBar = InspectBar.Create(root);
             hint = HintBar.Create(root);
             dialogue = DialogueBox.Create(root);

@@ -124,8 +124,12 @@ namespace LostAndFound
             tail.rectTransform.localScale = new Vector3(tailLeft ? 1f : -1f, 1f, 1f);
         }
 
+        /// <summary>Lines said since start-up (the AutoPilot checks each claim's are all in the transcript).</summary>
+        public static int SaidCount { get; private set; }
+
         public IEnumerator Say(string speaker, string richText, CommuterDef voice, Commuter who, bool wait = true, bool player = false)
         {
+            SaidCount++;
             PlaceFor(who, player);
             if (!shown)
             {

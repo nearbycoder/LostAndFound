@@ -64,6 +64,12 @@ namespace LostAndFound
         /// <summary>A day is under way (the pause menu is available).</summary>
         public bool Running => phase != Phase.Idle && DayDef != null;
         public bool CanUseStamps => phase == Phase.Investigate && !asking;
+        /// <summary>A question is being put to the claimant and answered.</summary>
+        public bool Asking => asking;
+        /// <summary>Everything said in the current claim, shown beside the slip while you read it.</summary>
+        public readonly Transcript Transcript = new();
+        /// <summary>DialogueBox.SaidCount when this claim began: the AutoPilot checks every line since is in the transcript.</summary>
+        public int TranscriptSaidAt { get; private set; }
         public string TodayText => DayDef != null ? DayDef.date : "";
         public bool IsDiscovered(ObjectDef o, DetailDef d) => discovered.Contains(o.id + "." + d.id);
 
@@ -164,7 +170,7 @@ namespace LostAndFound
             {
                 Debug.Log($"[Day] {day}: down to the basement: {string.Join(", ", strays.Select(o => o.id))}");
                 if (!gus) yield return Visit("gus", true);
-                string what = strays.Count == 1 ? $"the {strays[0].name.ToLowerInvariant()}" : $"{Count(strays.Count)} of yesterday's strays";
+                string what = strays.Count == 1 ? TheName(strays[0].name) : $"{Count(strays.Count)} of yesterday's strays";
                 yield return SayLine(new LineDef { who = "gus", text = $"Nobody came back for {what}, so I've taken {(strays.Count == 1 ? "it" : "them")} down to the basement. Makes a bit of room on the shelves." }, null);
             }
             if (window.Count > 0) yield return LeaveAll();
@@ -236,6 +242,8 @@ namespace LostAndFound
             var names = c.claimants.Select(id => Db.Commuter(id)?.name ?? id).ToArray();
             int no = 100 + Day * 10 + caseIndex + 1;
             ClaimSlip.I.Begin($"{no:0000}", $"{DayDef.weekday} {DayNumber(DayDef.date)} Oct", names);
+            Transcript.Clear();
+            TranscriptSaidAt = DialogueBox.SaidCount;
             UpdateHums(null);
 
             // documents the claimant slides under the glass (a chit, a certificate, an order)
@@ -384,6 +392,7 @@ namespace LostAndFound
             }
             if (line.who == "you")
             {
+                if (c != null) Transcript.Add("You", DialogueBox.Parse(line.text, null), true);
                 yield return UIRoot.I.dialogue.Say("You", DialogueBox.Parse(line.text, keys), null, null, true, true);
                 yield break;
             }
@@ -392,6 +401,7 @@ namespace LostAndFound
             cm?.Emote(line.emote);
             if (c != null && cm != null) UpdateHums(line.who);
             string speaker = def != null ? (string.IsNullOrEmpty(def.title) ? def.name : $"{def.name}  ·  {def.title}") : line.who;
+            if (c != null) Transcript.Add(def?.ShortName ?? line.who, DialogueBox.Parse(line.text, null));
             yield return UIRoot.I.dialogue.Say(speaker, DialogueBox.Parse(line.text, keys), def, cm, !Autopilot || true);
             if (c != null) UpdateHums(null);
         }
@@ -435,7 +445,8 @@ namespace LostAndFound
             var d = obj?.Detail(detailId);
             if (d == null) { asking = false; yield break; }
             ClaimSlip.I.SetFocus(false);
-            string q = colon > 0 ? $"About the {obj.name.ToLowerInvariant()}: {d.question}" : d.question;
+            string q = colon > 0 ? $"About {TheName(obj.name)}: {d.question}" : d.question;
+            Transcript.Add("You", q, true);
             yield return UIRoot.I.dialogue.Say("You", q, null, null, true, true);
             foreach (var who in Current.claimants)
             {
@@ -445,6 +456,18 @@ namespace LostAndFound
                 yield return SayLine(new LineDef { who = who, text = text, emote = ans != null && !ans.truthful ? "" : "" }, Current);
             }
             asking = false;
+        }
+
+        /// <summary>An object's name mid-sentence: "the silver locket", "the Iron Drawer key", "Mr Vell's chit". A later word
+        /// with a capital makes it a name, kept as written; one that starts with a title takes no "the".</summary>
+        public static string TheName(string name)
+        {
+            if (string.IsNullOrEmpty(name)) return "it";
+            var words = name.Split(' ');
+            if (words.Length > 1 && System.Array.IndexOf(new[] { "Mr", "Mrs", "Miss", "Prof.", "Lt." }, words[0]) >= 0) return name;
+            for (int i = 1; i < words.Length; i++)
+                if (words[i].Length > 0 && char.IsUpper(words[i][0])) return "the " + name;
+            return "the " + char.ToLowerInvariant(name[0]) + name.Substring(1);
         }
 
         static string Shrug(CommuterDef def)

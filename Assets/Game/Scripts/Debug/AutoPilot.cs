@@ -28,6 +28,9 @@ namespace LostAndFound
         /// <summary>-lafNudgeTour: play each claim as a stuck player would, asking Agnes for every nudge at each stage and
         /// doing what the last one says (find it where it glows, click where it glints, ask what it says to ask).</summary>
         bool tour;
+        /// <summary>-lafTranscript: ask about every finding, then read the slip and check "What they said" beside it holds
+        /// every line of the claim, on screen and clear of the slip.</summary>
+        bool transcript;
         int tourNudges, tourGlints, tourParts;
         Quaternion[] tourTurns;
 
@@ -41,6 +44,7 @@ namespace LostAndFound
             Director.I.Autopilot = true;
             policy = Game.Arg("-lafPolicy") ?? "best";
             tour = Game.Arg("-lafNudgeTour") != null;
+            transcript = Game.Arg("-lafTranscript") != null;
             if (tour)
             {
                 var rng = new System.Random(9);
@@ -134,6 +138,7 @@ namespace LostAndFound
             int skipped = played.Count(r => r.grade == "skip" && !handled.Contains(r.caseId) && d.Db.root.days.Any(day => day.day >= startDay && day.cases.Any(c => c.id == r.caseId)));
             cases += skipped;
             Debug.Log($"[Auto] week done: {cases} cases, {best} best, {skipped} skipped, ending {d.Save.ending}, {problems.Count} problems, {Time.realtimeSinceStartup - t0:0}s");
+            if (transcript) Debug.Log($"[Transcript] checked {transcriptChecks} claims");
             if (tour) Debug.Log($"[Tour] {tourNudges} nudges asked for; {tourGlints} details found by clicking the glint, {tourParts} by working the part that lit up");
             var all = d.State.records.Where(r => r.grade != "skip").ToList();
             Debug.Log($"[Auto] the week's record (this run and any before it): {all.Count(r => r.grade == "best")} best of {all.Count} decided");
@@ -235,6 +240,7 @@ namespace LostAndFound
                 if (Desk.I.items.TryGetValue(pid, out var doc))
                     foreach (var det in doc.def.CaseDetails) d.Discover(doc.def, det);
             yield return new WaitForSeconds(0.4f);
+            if (transcript) yield return CheckTranscript(d, c);
 
             int who = dec.verdict == Verdict.Return ? System.Array.IndexOf(c.claimants, dec.to) : 0;
             var best = Rules.Best(c);
@@ -255,6 +261,46 @@ namespace LostAndFound
             }
             yield return new WaitForSeconds(1.2f);
             Shot($"case{c.id}_verdict");
+        }
+
+        // ------------------------------------------------------------------ what they said
+
+        int transcriptChecks;
+
+        IEnumerator CheckTranscript(Director d, CaseDef c)
+        {
+            foreach (var id in ClaimSlip.I.ClueIds())
+            {
+                d.Ask(id);
+                yield return null;
+                while (d.Asking) yield return null;
+            }
+            // read the slip (as hovering it or Tab does), and give the camera time to lean in
+            var slip = ClaimSlip.I;
+            var card = UIRoot.I.transcript;
+            int refocused = 0;
+            ClaimSlip.IgnorePointerExit = true;
+            for (float t = 0f; t < 0.9f; t += Time.unscaledDeltaTime)
+            {
+                if (!slip.Focused) { slip.SetFocus(true); refocused++; }
+                yield return null;
+            }
+            int said = DialogueBox.SaidCount - d.TranscriptSaidAt;
+            Rect r = card.ScreenRect, sr = card.SlipScreenRect;
+            bool onScreen = r.xMin >= -0.5f && r.yMin >= -0.5f && r.xMax <= Screen.width + 0.5f && r.yMax <= Screen.height + 0.5f;
+            bool clear = !r.Overlaps(sr);
+            static string R(Rect x) => $"{x.xMin:0}-{x.xMax:0} x {x.yMin:0}-{x.yMax:0}";
+            Debug.Log($"[Transcript] case {c.id}: {d.Transcript.Count} lines, {said} said; {(card.Visible ? "shown" : "NOT shown")}, " +
+                      $"{card.Skipped} left out at the top; card {R(r)}, slip {R(sr)} on {Screen.width}x{Screen.height}" + (refocused > 1 ? $" (slip refocused {refocused}x)" : ""));
+            if (d.Transcript.Count != said) problems.Add($"case {c.id}: transcript has {d.Transcript.Count} lines but {said} were said");
+            if (!card.Visible) problems.Add($"case {c.id}: transcript card not shown (fits: {card.Fits})");
+            else if (!onScreen || !clear) problems.Add($"case {c.id}: transcript card {R(r)} {(onScreen ? "" : "off screen ")}{(clear ? "" : "over the slip " + R(sr))}");
+            transcriptChecks++;
+            Shot($"case{c.id}_transcript");
+            yield return null;   // the capture happens at the end of the frame
+            slip.SetFocus(false);
+            ClaimSlip.IgnorePointerExit = false;
+            yield return new WaitForSecondsRealtime(0.3f);
         }
 
         // ------------------------------------------------------------------ the nudge tour

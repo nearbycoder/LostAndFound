@@ -42,7 +42,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Turn an object over | Drag with the left button (or `Q` `E` `W` `S`) |
 | Look closer | Scroll wheel |
 | Put the object down / on the counter tray | Right click, `Esc` or `Backspace` / `T` |
-| Read the claim slip | Hover it, or `Tab` |
+| Read the slip and what they said | Hover it, or `Tab` |
 | Ask about a finding | Click it on the slip |
 | Agnes's blue lamp (from Thursday) | `L` while holding something |
 | Ring for the next claimant / advance dialogue | Click the bell or `Space` / click or `Enter` |
@@ -64,7 +64,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Ring for the next claimant / move the dialogue on | D-pad down |
 | Agnes's blue lamp | D-pad up |
 | A nudge from Agnes | D-pad left |
-| Read the claim slip · pause | View · Menu |
+| Read the slip and what they said · pause | View · Menu |
 
 Pick up the mouse and it takes over again at once. There's no touch support.
 
@@ -74,7 +74,7 @@ Both tables are in the game too: **Controls** in the pause menu and on the title
 
 *Continue* on the title picks up where you left off, mid-day included: at the next claimant, with the morning already done.
 
-**A case, start to finish:** ring the bell. The claimant describes what they lost, and their key claims are written onto the claim slip. Read the intake tag in the drawer or on the shelf (where it was found, when, on which train). Pick the object up, turn it over, open it, and click anything that glints. Each finding goes on the slip, and clicking a finding asks the claimant about it. An honest owner knows what's inside. A liar only knows what they could have seen. Put the object on the tray and stamp the slip.
+**A case, start to finish:** ring the bell. The claimant describes what they lost, and their key claims are written onto the claim slip. Read the intake tag in the drawer or on the shelf (where it was found, when, on which train). Pick the object up, turn it over, open it, and click anything that glints. Each finding goes on the slip, and clicking a finding asks the claimant about it. An honest owner knows what's inside. A liar only knows what they could have seen. Whenever you read the slip, everything said in the claim (their story, your questions, their answers) is written on a card beside it, so you can compare an answer with a finding without asking again. Put the object on the tray and stamp the slip.
 
 ### Agnes's rules
 
@@ -101,7 +101,7 @@ Six drawers, three shelves and the Iron Drawer. Every stray has a manila **intak
 
 <img src="docs/media/screenshot_liar.jpg" alt="Asking Reggie Stokes about the name strip inside the umbrella" width="49%"> <img src="docs/media/screenshot_hum.jpg" alt="The battered suitcase glowing gold in your hands as Mrs Marsh asks: Is that humming?" width="49%">
 
-Click a finding on the slip to ask about it with a neutral question. Honest owners answer correctly. Liars know only what they could see from across the counter, so they bluff. The game never says "contradiction"; you compare, and the evening ledger tells you whether you were right. Some objects **hum** when their owner is at the window, which overrules even a muddled story, like 94-year-old Mrs Marsh's description of a suitcase she lost in 1934.
+Click a finding on the slip to ask about it with a neutral question, and read the answers back on the card beside the slip. Honest owners answer correctly. Liars know only what they could see from across the counter, so they bluff. The game never says "contradiction"; you compare, and the evening ledger tells you whether you were right. Some objects **hum** when their owner is at the window, which overrules even a muddled story, like 94-year-old Mrs Marsh's description of a suitcase she lost in 1934.
 
 ### The uncanny, gently
 
