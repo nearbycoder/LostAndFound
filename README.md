@@ -48,6 +48,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Ring for the next claimant / advance dialogue | Click the bell or `Space` / click or `Enter` |
 | Read Agnes's rules | Hover her card beside the claim slip, or `R` at any time (`R` or `Esc` puts them back) |
 | Stuck? A nudge from Agnes | `H` during a claim (press again for a stronger one) |
+| Look back at earlier days' Day Ledger pages | Click the ledger book on the desk (bottom right), or *The week so far* in the pause menu; `←` `→` turn the pages |
 | Pause: Agnes's rules, the controls, settings, restart the day | `Esc` |
 
 **With a gamepad** (Xbox-style layout; tested only with a virtual Input System gamepad, as no physical controller was to hand):
@@ -64,6 +65,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Ring for the next claimant / move the dialogue on | D-pad down |
 | Agnes's blue lamp | D-pad up |
 | A nudge from Agnes | D-pad left |
+| Earlier days' ledger pages · turn them | A on the desk's ledger, or Menu › *The week so far* · LB / RB |
 | Read the slip and what they said · pause | View · Menu |
 
 Pick up the mouse and it takes over again at once. There's no touch support.

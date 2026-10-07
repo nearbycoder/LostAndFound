@@ -19,36 +19,47 @@ namespace LostAndFound
         static float FitScale(RectTransform root, float width) =>
             Mathf.Min(1f, (root.rect.width - 40f) / width, (root.rect.height / 2f - 10f) / 520f);
 
-        public static IEnumerator Show(Director d)
+        /// <summary>One day's page, built in full: the evening reveals its marks, tally, stamps and Gazette one by one; the
+        /// ledger book on the desk shows them as they were left.</summary>
+        public class Page
         {
-            var root = UIRoot.I.root;
-            UIRoot.I.PushModal();
-            AudioDirector.Muffle(false);
-            AudioDirector.Music("ledger", 1.5f);
-            var panel = UiKit.Rect("Ledger", root).Fill();
-            var group = UiKit.Group(panel.gameObject);
-            group.alpha = 0f;
-            var dim = UiKit.Image(panel, "Dim", null, new Color(0.04f, 0.03f, 0.03f, 0.95f));
-            dim.rectTransform.Fill();
-            dim.raycastTarget = true;
+            public RectTransform spread;
+            public Image book;
+            public readonly List<(TextMeshProUGUI line, TextMeshProUGUI why, Image stamp, CaseRecord rec)> rows = new();
+            public TextMeshProUGUI tally;
+            public readonly List<Image> brass = new();
+            public int stamps;
+            public Image gazette;
+        }
 
+        /// <summary>
+        /// Builds the page of a day from the state that evening left (the state the next morning began from; the day's own
+        /// records and the flags that chose its Gazette). <paramref name="log"/> names the log line: "[Ledger]" in the
+        /// evening, "[LedgerBook]" when it's read again, so the two can be compared.
+        /// </summary>
+        public static Page Build(Director d, int dayNumber, StoryState state, RectTransform panel, string log)
+        {
+            var page = new Page();
+            var root = UIRoot.I.root;
+            var day = d.Db.Day(dayNumber);
             // the open ledger book, and the Gazette standing in its right margin beside the rows (never over them). The two
             // together are 1830 wide, and with the buttons below the book they reach 470 above the middle and 520 below: on a
             // narrower (4:3) or shorter (21:9) screen the whole spread scales down to fit. A day with no Gazette centres the book.
-            var g = d.DayDef.gazette.FirstOrDefault(x => d.State.Check(x.condition));
+            var g = day.gazette.FirstOrDefault(x => state.Check(x.condition));
             float spreadWidth = BookWidth + (g != null ? GazetteRoom : 0f), BookX = -(spreadWidth - BookWidth) / 2f;
             var spread = UiKit.Rect("Spread", panel).Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(spreadWidth, 900f));
             spread.localScale = Vector3.one * FitScale(root, spreadWidth);
+            page.spread = spread;
             var book = UiKit.Image(spread, "Book", "ledger_page", new Color(0.95f, 0.91f, 0.81f), 40f);
             book.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(new Vector2(BookX, 20f), new Vector2(1500f, 900f));
+            page.book = book;
             var title = UiKit.Label(book.transform, "Title", "The Day Ledger", Fonts.Title, 64f, UiKit.Ink, TextAlignmentOptions.Top);
             title.rectTransform.Fill();
             title.margin = new Vector4(60f, 40f, 60f, 0f);
-            var date = UiKit.Label(book.transform, "Date", $"{d.DayDef.date}  ·  {d.DayDef.title}", Fonts.TitleItalic, 30f, UiKit.InkSoft, TextAlignmentOptions.Top);
+            var date = UiKit.Label(book.transform, "Date", $"{day.date}  ·  {day.title}", Fonts.TitleItalic, 30f, UiKit.InkSoft, TextAlignmentOptions.Top);
             date.rectTransform.Fill();
             date.margin = new Vector4(60f, 118f, 60f, 0f);
 
-            var rows = new List<(TextMeshProUGUI line, TextMeshProUGUI why, Image stamp, CaseRecord rec)>();
             // a row is 104 high with a one-line explanation; a longer one gets the room it needs, and if the day's rows would
             // then run into the tally, they close up a little
             const float whyWidth = 1500f - 110f - 340f, step = 104f;
@@ -60,18 +71,20 @@ namespace LostAndFound
                 Object.Destroy(probe.gameObject);
                 return Mathf.Max(34f, h);
             }
-            var heights = d.DayDef.cases.Select(c => d.State.Record(c.id)).Where(r => r != null).Select(r => WhyHeight(r.ledger ?? "")).ToList();
+            var heights = day.cases.Select(c => state.Record(c.id)).Where(r => r != null).Select(r => WhyHeight(r.ledger ?? "")).ToList();
             float extra = heights.Sum(h => h - 34f);
             float squeeze = Mathf.Clamp((560f - extra) / Mathf.Max(1, heights.Count) , 84f, step);
             int row = 0;
             float y = -190f;
-            foreach (var c in d.DayDef.cases)
+            var sb = new System.Text.StringBuilder($"{log} day {dayNumber}:");
+            foreach (var c in day.cases)
             {
-                var rec = d.State.Record(c.id);
+                var rec = state.Record(c.id);
                 if (rec == null) continue;
                 var def = d.Db.Object(c.wants);
                 var who = string.Join(" & ", c.claimants.Select(id => d.Db.Commuter(id)?.name ?? id));
                 string verdict = rec.verdict switch { "return" => "Returned" + (string.IsNullOrEmpty(rec.to) ? "" : " to " + (d.Db.Commuter(rec.to)?.ShortName ?? "")), "seal" => "Sealed in the Iron Drawer", "missing" => "Not here", _ => "Refused" };
+                sb.Append($" {c.id} {rec.grade} {verdict} {rec.detailsFound}/{rec.detailsTotal};");
                 var line = UiKit.Label(book.transform, "Line", $"<font=\"SpecialElite\"><size=70%>{who.ToUpperInvariant()}</size></font>   {(def != null ? def.name : "<i>nothing in storage</i>")}   <color=#5a4a40>—  {verdict}</color>", Fonts.Hand, 36f, UiKit.Ink, TextAlignmentOptions.TopLeft);
                 // it ends where the "found" column begins (372 from the page's right edge), never under it
                 line.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(90f, y), new Vector2(-90f - 372f, 44f));
@@ -83,53 +96,37 @@ namespace LostAndFound
                 float whyH = heights[row++];
                 why.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(110f, y - 44f), new Vector2(-340f, whyH));
                 why.fontStyle = FontStyles.Italic;
-                why.alpha = 0f;
                 var stamp = UiKit.Image(book.transform, "Mark", rec.grade == "best" ? "mark_tick" : rec.grade == "ok" ? "mark_half" : rec.grade == "skip" ? "mark_dash" : "mark_cross", Color.white);
                 stamp.rectTransform.Anchor(new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 0.5f)).Place(new Vector2(-160f, y - 26f), new Vector2(84f, 84f));
                 stamp.color = rec.grade == "best" ? DeskMaterials.ReturnInk : rec.grade == "ok" ? new Color(0.62f, 0.45f, 0.12f) : rec.grade == "skip" ? UiKit.InkSoft : DeskMaterials.RefuseInk;
-                stamp.enabled = false;
+                // the mark lands at a slant, the same one each time the page is opened
+                stamp.rectTransform.localRotation = Quaternion.Euler(0f, 0f, ((c.id.GetHashCode() & 0xffff) / 65535f - 0.5f) * 28f);
                 if (rec.detailsTotal > 0)
                 {
                     // how thoroughly you looked: case details noted out of those the object had
                     var found = UiKit.Label(book.transform, "Found", $"{rec.detailsFound} of {rec.detailsTotal} found", Fonts.Hand, 26f, UiKit.InkSoft, TextAlignmentOptions.TopRight);
                     found.rectTransform.Anchor(new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f)).Place(new Vector2(-212f, y - 4f), new Vector2(150f, 40f));
                 }
-                rows.Add((line, why, stamp, rec));
+                page.rows.Add((line, why, stamp, rec));
                 y -= squeeze + (whyH - 34f);
             }
 
-            yield return Tween.Run(0.6f, k => group.alpha = k, Ease.InOutSine, true);
-            yield return UIRoot.I.fader.FadeTo(0f, 0.01f);
-            yield return new WaitForSeconds(0.4f);
-            int n = 0;
-            foreach (var r in rows)
-            {
-                r.stamp.enabled = true;
-                r.stamp.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-14f, 14f));
-                yield return Tween.Run(0.18f, k => r.stamp.rectTransform.localScale = Vector3.one * Mathf.Lerp(2.2f, 1f, Ease.OutCubic(k)), Ease.Linear, true);
-                AudioDirector.Play(r.rec.grade == "best" ? "ledger_tick" : r.rec.grade == "ok" ? "ledger_half" : "ledger_cross", 0.8f, 1f + n * 0.06f);
-                AudioDirector.Play("stamp_thump", 0.5f, 1.15f);
-                d.StartCoroutine(Tween.Run(0.4f, k => r.why.alpha = k, Ease.Linear, true));
-                n++;
-                yield return new WaitForSeconds(0.45f);
-            }
-
-            var (stamps, correct, total) = d.Score(d.Day);
-            var recs = d.DayDef.cases.Select(c => d.State.Record(c.id)).Where(r => r != null && r.detailsTotal > 0).ToList();
+            var (stamps, correct, total) = Rules.Score(day, state);
+            page.stamps = stamps;
+            var recs = day.cases.Select(c => state.Record(c.id)).Where(r => r != null && r.detailsTotal > 0).ToList();
             string findings = recs.Count == 0 ? "" : $"   <size=70%><color=#5a4a40>·  {recs.Sum(r => r.detailsFound)} of {recs.Sum(r => r.detailsTotal)} findings noted</color></size>";
             var tally = UiKit.Label(book.transform, "Tally", $"{correct} of {total} by the rules{findings}", Fonts.Hand, 40f, UiKit.Ink, TextAlignmentOptions.BottomLeft);
             tally.rectTransform.Fill();
             tally.margin = new Vector4(90f, 0f, 60f, 130f);
+            page.tally = tally;
             for (int i = 0; i < 3; i++)
             {
                 var st = UiKit.Image(book.transform, "Stamp" + i, "brass_stamp", i < stamps ? Color.white : new Color(1f, 1f, 1f, 0.18f));
                 st.rectTransform.Anchor(new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(0.5f, 0.5f)).Place(new Vector2(130f + i * 96f, 80f), new Vector2(84f, 84f));
-                if (i < stamps)
-                {
-                    yield return Tween.Run(0.2f, k => st.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.8f, 1f, Ease.OutBack(k)), Ease.Linear, true);
-                    AudioDirector.Play("brass_stamp", 0.7f, 1f + i * 0.12f);
-                }
+                page.brass.Add(st);
             }
+            sb.Append($" tally {correct}/{total}, {stamps} stamps; gazette {(g != null ? "\"" + g.headline + "\"" : "none")}");
+            Debug.Log(sb.ToString());
 
             // the Gazette
             if (g != null)
@@ -157,6 +154,64 @@ namespace LostAndFound
                 body.enableAutoSizing = true;
                 body.fontSizeMin = 18f;
                 body.fontSizeMax = 23f;
+                page.gazette = paper;
+            }
+            return page;
+        }
+
+        public static IEnumerator Show(Director d)
+        {
+            var root = UIRoot.I.root;
+            UIRoot.I.PushModal();
+            AudioDirector.Muffle(false);
+            AudioDirector.Music("ledger", 1.5f);
+            var panel = UiKit.Rect("Ledger", root).Fill();
+            var group = UiKit.Group(panel.gameObject);
+            group.alpha = 0f;
+            var dim = UiKit.Image(panel, "Dim", null, new Color(0.04f, 0.03f, 0.03f, 0.95f));
+            dim.rectTransform.Fill();
+            dim.raycastTarget = true;
+
+            // the whole page is built, then revealed: the marks one by one, the tally and the day's stamps, the Gazette
+            var page = Build(d, d.Day, d.State, panel, "[Ledger]");
+            var book = page.book;
+            foreach (var r in page.rows) { r.stamp.enabled = false; r.why.alpha = 0f; }
+            page.tally.gameObject.SetActive(false);
+            foreach (var st in page.brass) st.gameObject.SetActive(false);
+            if (page.gazette != null) page.gazette.gameObject.SetActive(false);
+
+            yield return Tween.Run(0.6f, k => group.alpha = k, Ease.InOutSine, true);
+            yield return UIRoot.I.fader.FadeTo(0f, 0.01f);
+            yield return new WaitForSeconds(0.4f);
+            int n = 0;
+            foreach (var r in page.rows)
+            {
+                r.stamp.enabled = true;
+                yield return Tween.Run(0.18f, k => r.stamp.rectTransform.localScale = Vector3.one * Mathf.Lerp(2.2f, 1f, Ease.OutCubic(k)), Ease.Linear, true);
+                AudioDirector.Play(r.rec.grade == "best" ? "ledger_tick" : r.rec.grade == "ok" ? "ledger_half" : "ledger_cross", 0.8f, 1f + n * 0.06f);
+                AudioDirector.Play("stamp_thump", 0.5f, 1.15f);
+                var why = r.why;
+                d.StartCoroutine(Tween.Run(0.4f, k => why.alpha = k, Ease.Linear, true));
+                n++;
+                yield return new WaitForSeconds(0.45f);
+            }
+
+            page.tally.gameObject.SetActive(true);
+            for (int i = 0; i < page.brass.Count; i++)
+            {
+                var st = page.brass[i];
+                st.gameObject.SetActive(true);
+                if (i < page.stamps)
+                {
+                    yield return Tween.Run(0.2f, k => st.rectTransform.localScale = Vector3.one * Mathf.Lerp(1.8f, 1f, Ease.OutBack(k)), Ease.Linear, true);
+                    AudioDirector.Play("brass_stamp", 0.7f, 1f + i * 0.12f);
+                }
+            }
+
+            if (page.gazette != null)
+            {
+                var paper = page.gazette;
+                paper.gameObject.SetActive(true);
                 AudioDirector.Play("newspaper", 0.7f);
                 yield return Tween.Run(0.5f, k =>
                 {

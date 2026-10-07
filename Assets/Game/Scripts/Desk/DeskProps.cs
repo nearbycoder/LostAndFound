@@ -180,7 +180,10 @@ namespace LostAndFound
             // --- quiet set dressing
             Prop("TeaCup", new Vector3(0.42f, 0.76f, 0.40f), 30f, root);
             Prop("Inkwell", new Vector3(-0.18f, 0.76f, 0.80f), 0f, root);
-            Prop("Ledger", new Vector3(0.62f, 0.76f, 0.40f) + new Vector3(-0.06f, 0f, 0.0f), -14f, root);
+            // the Day Ledger: every evening's page is kept in it, and a click reads the week so far (LedgerBook)
+            var ledger = Prop("Ledger", new Vector3(0.62f, 0.76f, 0.40f) + new Vector3(-0.06f, 0f, 0.0f), -14f, root);
+            AddBoxCollider(ledger);
+            ledger.AddComponent<DeskLedger>();
 
             // --- booth practical over the window: lights the commuter's face warmly
             var bl = new GameObject("BoothLight").AddComponent<Light>();

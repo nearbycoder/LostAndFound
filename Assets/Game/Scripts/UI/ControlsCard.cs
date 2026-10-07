@@ -26,6 +26,7 @@ namespace LostAndFound
             ("Move the conversation on", "Click, Space or Enter"),
             ("Agnes's rules", "Hover her card, or R"),
             ("A nudge from Agnes", "H, during a claim"),
+            ("Earlier days' ledger pages", "The ledger on the desk, or pause"),
             ("Pause", "Esc"),
         };
 
@@ -44,6 +45,7 @@ namespace LostAndFound
             ("Ring the bell, move the conversation on", "D-pad down"),
             ("Agnes's rules", "Y"),
             ("A nudge from Agnes", "D-pad left"),
+            ("Earlier days' ledger pages", "A on the desk's ledger, or Menu"),
             ("Pause", "Menu"),
         };
 

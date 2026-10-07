@@ -88,6 +88,36 @@ namespace LostAndFound
             Debug.Log($"[Rules] {what}: rules written at {body.fontSize:0.#} (glosses {body.fontSize * 0.8f:0.#}) of at most {body.fontSizeMax:0.#}, {body.textInfo.lineCount} lines, font {body.font?.name}");
         }
 
+        /// <summary>Can the ledger on the desk be pointed at from the counter view? The game's own picking code is asked at a
+        /// grid of points over the book's outline on screen, inside the window and clear of the strip at its sides that
+        /// turns the desk.</summary>
+        void LogLedgerReach()
+        {
+            var ledger = Object.FindAnyObjectByType<DeskLedger>();
+            var cam = InteractionSystem.I != null ? InteractionSystem.I.cam : null;
+            if (ledger == null || cam == null || !ledger.TryGetComponent<BoxCollider>(out var box)) { problems.Add("no ledger on the desk to point at"); return; }
+            var b = box.bounds;
+            Vector2 min = new(float.MaxValue, float.MaxValue), max = new(float.MinValue, float.MinValue);
+            for (int i = 0; i < 8; i++)
+            {
+                var p = cam.WorldToScreenPoint(new Vector3((i & 1) == 0 ? b.min.x : b.max.x, (i & 2) == 0 ? b.min.y : b.max.y, (i & 4) == 0 ? b.min.z : b.max.z));
+                min = Vector2.Min(min, p);
+                max = Vector2.Max(max, p);
+            }
+            int tried = 0, hit = 0;
+            Vector2 at = default;
+            for (int ix = 0; ix <= 20; ix++)
+                for (int iy = 0; iy <= 20; iy++)
+                {
+                    var p = new Vector2(Mathf.Lerp(min.x, max.x, ix / 20f), Mathf.Lerp(min.y, max.y, iy / 20f));
+                    if (p.x < 2f || p.y < 2f || p.x > Screen.width * 0.975f || p.y > Screen.height - 2f) continue;
+                    tried++;
+                    if (InteractionSystem.I.PickAt(p, out _) is DeskLedger) { if (hit == 0) at = p; hit++; }
+                }
+            Debug.Log($"[LedgerBook] the desk's ledger can be pointed at from {hit} of {tried} points over it on screen (first at {at.x:0},{at.y:0} of {Screen.width}x{Screen.height})");
+            if (hit == 0) problems.Add("the ledger on the desk can't be pointed at");
+        }
+
         void Shot(string name)
         {
             if (textAudit) TextAudit.Check(name);
@@ -215,6 +245,48 @@ namespace LostAndFound
                     Shot($"case{c.id}_tag");
                     yield return null;
                     UIRoot.I.tagCard.Hide(tagged);
+                }
+                // the ledger book on the desk: every closed day's page, from the latest back to Monday (each logs a
+                // "[LedgerBook]" line to compare with that evening's "[Ledger]" line)
+                var pages = LedgerBook.Days(d);
+                if (d.Day == startDay) LogLedgerReach();
+                Debug.Log($"[LedgerBook] day {d.Day} morning: {pages.Count} page(s) ({string.Join(",", pages)}); the desk says \"{Object.FindAnyObjectByType<DeskLedger>()?.Hint}\"");
+                if (pages.Count > 0)
+                {
+                    LedgerBook.Show();
+                    for (int i = pages.Count - 1; i >= 0; i--)
+                    {
+                        if (LedgerBook.ShownDay != pages[i]) problems.Add($"the ledger book showed day {LedgerBook.ShownDay}, not {pages[i]}");
+                        yield return new WaitForSecondsRealtime(0.4f);
+                        Shot($"day{d.Day}_book_day{pages[i]}");
+                        yield return null;
+                        LedgerBook.Turn(-1);
+                    }
+                    LedgerBook.Hide();
+                    yield return new WaitForSecondsRealtime(0.2f);
+                    if (pages.Count == 1)
+                    {
+                        // and the same book from the pause menu's own button, the first morning it's there
+                        Object.FindAnyObjectByType<PauseMenu>()?.Show();
+                        yield return new WaitForSecondsRealtime(0.3f);
+                        Shot($"day{d.Day}_pause_menu");
+                        yield return null;   // the capture happens at the end of the frame: click after it
+                        PaperButton MenuButton(string text) => UIRoot.I.root.GetComponentsInChildren<PaperButton>().FirstOrDefault(b => b.label != null && b.label.text.StartsWith(text));
+                        var week = MenuButton("The week so far");
+                        if (week == null) problems.Add("the pause menu has no \"The week so far\"");
+                        else
+                        {
+                            week.OnPointerClick(null);
+                            yield return new WaitForSecondsRealtime(0.4f);
+                            if (!LedgerBook.IsOpen) problems.Add("\"The week so far\" didn't open the ledger book");
+                            Shot($"day{d.Day}_book_from_pause");
+                            yield return null;
+                            LedgerBook.Hide();
+                        }
+                        MenuButton("Back to the desk")?.OnPointerClick(null);
+                        yield return new WaitForSecondsRealtime(0.3f);
+                        if (PauseMenu.Open) problems.Add("the pause menu didn't close");
+                    }
                 }
                 if (d.Day == d.Db.DayCount)
                 {

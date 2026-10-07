@@ -1,0 +1,35 @@
+R9-B: each ledger book page logged ([LedgerBook]) against that evening's Day Ledger ([Ledger]); Logs/r9/cmp_ledger.py
+load average 23-31; every run in the nested KWin
+
+best 1600x900 -lafTextAudit: 24/24 The 9:40, 0 problems; 106 shots, 0 overflowing, 0 overlapping; pages shown 10, matching 10, differing 0
+
+worst 1024x768 -lafTextAudit:
+[Auto] week done: 24 cases, 1 best, 5 skipped, ending grey, 0 problems, 179s
+[TextAudit] 88 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+evening pages 5, book pages shown 10, matching 10, differing 0
+ gazette day 1  "NEW CLERK FOR NINEFOLD LOST PROPERTY"
+ gazette day 2  "STATION CLOCKS RUN SLOW, SAY COMMUTERS"
+ gazette day 3  "WAR LETTERS FETCH RECORD PRICE"
+ gazette day 4  "STATION CLOCKS STOP AT 9.40"
+ gazette day 5  none
+
+best 1280x720 Large text + Plain lettering -lafTextAudit:
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 205s
+[TextAudit] 106 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+evening pages 5, book pages shown 10, matching 10, differing 0
+
+[LedgerBook] day 1 morning: 0 page(s) (); the desk says "The Day Ledger   ·   each evening's page is kept in here"
+[LedgerBook] day 2 morning: 1 page(s) (1); the desk says "The Day Ledger   ·   click to read the week so far (one day)"
+[LedgerBook] day 3 morning: 2 page(s) (1,2); the desk says "The Day Ledger   ·   click to read the week so far (2 days)"
+[LedgerBook] day 4 morning: 3 page(s) (1,2,3); the desk says "The Day Ledger   ·   click to read the week so far (3 days)"
+[LedgerBook] day 5 morning: 4 page(s) (1,2,3,4); the desk says "The Day Ledger   ·   click to read the week so far (4 days)"
+
+Tuesday, pause menu > The week so far (its own button, clicked): book opened, 0 problems
+Controls card (smoke -lafShowControls -lafTextAudit -lafTextSize 1): 1280x720 and 1920x1080, 0 overflowing, 0 overlapping
+
+Can the ledger on the desk be pointed at? The game's own picking (InteractionSystem.PickAt) on a 21x21 grid over the book's
+outline on screen, counter view, Monday's first claim, inside the window and clear of the side strips that turn the desk:
+1600x900:  28 of 49 points  (first at 1219,59)
+1024x768:  11 of 28 points  (first at 870,51)
+2560x1080: 43 of 77 points  (first at 1782,70)
+1200x674:  28 of 49 points  (first at 913,44)

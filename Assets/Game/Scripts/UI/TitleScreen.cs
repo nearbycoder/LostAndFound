@@ -406,7 +406,9 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "paper_card", UiKit.Paper, 28f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(620f, 700f));
+            // the week so far, once there's a closed day to read: one row more
+            bool book = LedgerBook.Days(Director.I).Count > 0;
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(620f, book ? 772f : 700f));
             var t = UiKit.Label(card.transform, "Title", "Shutter down", Fonts.Title, 54f, UiKit.Ink, TextAlignmentOptions.Top);
             t.rectTransform.Fill();
             t.margin = new Vector4(0f, 40f, 0f, 0f);
@@ -423,6 +425,7 @@ namespace LostAndFound
             }
             Btn("Back to the desk", Hide);
             Btn("Agnes's rules", () => RulesCard.Show());
+            if (book) Btn("The week so far", () => LedgerBook.Show());
             Btn("Controls", ControlsCard.Show);
             Btn("Settings", () => SettingsPanel.Open(null));
             PaperButton again = null;

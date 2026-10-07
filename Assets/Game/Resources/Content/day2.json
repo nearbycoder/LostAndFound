@@ -7,6 +7,7 @@
         { "who": "gus", "text": "Morning! Busy night on the platforms. A locket, a briefcase, a rabbit, two of nearly everything.", "emote": "happy" },
         { "who": "gus", "text": "Oh, and there's a watch in drawer D that I don't like the look of. Have a squint at its tag before you do anything with it." },
         { "who": "gus", "text": "That photograph came in last night, the one of you. Put it in a frame, I did. Gave me the shivers.", "emote": "surprised", "condition": "" },
+        { "who": "gus", "text": "Yesterday's page is in the ledger on your desk, if you want to look back. Agnes always did, first thing." },
         { "who": "agnes", "text": "Two today, love. Some days there are two people for every one thing.\n\nAnd if a tall gentleman in grey comes to the window: smile, say no, and mean it." }
       ],
       "cases": [
