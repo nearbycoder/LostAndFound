@@ -481,3 +481,73 @@ the build in desktop Chrome or Firefox with a GPU (`python3 Tools/serve_webgl.py
   Windows (blocked on the module), and a human playtest are all still open.
 - The trailer and README screenshots predate rounds 1–3.
 - Voice and music quality (ranked item 14) is still for a dedicated round.
+
+## Round 4 scope (6 Oct 2026)
+
+Branch `improvements-4`, one commit per item. Screenshots go in
+[`media/improvements/round4/`](media/improvements/round4/). Before choosing, the AutoPilot played Monday at
+16:10 (1440×900, every Mac and the Steam Deck), 4:3 (1024×768) and 21:9 (2560×1080). Every view framed
+correctly and no UI clipped, so other aspect ratios aren't on the list.
+
+### R4-A. Quick clicks and taps are never lost
+`InputX` reads every button by polling whether it's held, once a frame. A click, key tap or pad press that
+goes down and comes back up between two frames is never seen. Touchpad tap-to-click sends its press and release
+almost together, and at a low frame rate (a weak laptop, a browser, a busy machine) ordinary clicks fit between
+frames too. This would also explain round 3's unexplained padtest failures, all at high load.
+- `InputX` also listens to the Input System's event stream and latches any press it sees, so a button that went
+  down and up since the last frame still counts as one press for one frame. The same goes for the pad buttons
+  that drive the virtual mouse and stand in for keys.
+
+**Acceptance:** a new `Tools/unity.sh taptest` queues each press and release **in the same input update**
+(nothing held across a frame) from fresh virtual devices: a key tap rings the bell, a key tap turns to the
+drawers, a mouse tap opens a drawer and picks up the wallet, a pad A tap and a d-pad tap do their jobs. It
+**fails on the current build** and passes after the fix. The padtest and AutoPilot `best` still pass.
+**Verify:** taptest logs before and after, padtest, AutoPilot.
+
+### R4-B. A crash can't cost you the week
+The save is rewritten in place after every verdict (`File.WriteAllText`). A crash or power cut mid-write leaves
+a truncated file. The game then can't read it, quietly starts with an empty save, and the title offers *Begin*,
+which overwrites it. The week is gone.
+- Writes go to a temporary file that replaces the save in one step, keeping the previous save as a backup.
+- Loading falls back to the backup if the save can't be read. If neither can, the damaged file is kept aside
+  (renamed, never deleted) and the title says so.
+
+**Acceptance:** EditMode tests: a round trip; a truncated save loads from the backup; a garbage save with no
+backup is set aside and not overwritten; a write never leaves a partial file at the save's path. In the
+player, a truncated save with a good backup still *Continue*s to the right claimant.
+**Verify:** test results, and an AutoPilot `-lafContinue` run against a deliberately truncated save.
+
+### R4-C. The controls, in the game
+The controls are listed only in the README. The inspect bar shows a few, but there's nowhere in the game to
+check which key reads the slip, or how the blue lamp works, once the first-day hints have gone.
+- A **Controls** card in the pause menu and on the title, in keyboard and mouse words, or pad words while the
+  pad is in use, matching the README tables.
+
+**Acceptance:** the card opens from both places, fits at 1280×720 with Large text, and closes with `Esc` or
+B. Each line matches the README.
+**Verify:** screenshots (keyboard and pad wording, Normal and Large text).
+
+### R4-D. Editor runs don't touch the real settings either
+Round 3's guard covers built players. The batch editor (`build-linux`, `test`) still rewrites the real `prefs`
+file in `~/.config/unity3d/Nearby/Lost & Found/` (same contents, new timestamp), because the editor keeps the
+project's PlayerPrefs there too.
+- Batch editor commands get a scratch `XDG_CONFIG_HOME` that links back to everything in the real config
+  folder except this game's own folder. Unity's licence and editor settings are still found where they live.
+  The guard then covers editor runs as well.
+
+**Acceptance:** `build-linux` and `test` leave the real folder's hashes **and timestamps** unchanged, and print
+the guard's line. The editor still finds its licence and builds and tests as before.
+**Verify:** `stat` and hashes before and after, plus the build and test logs.
+
+### R4-E. WebGL, second look on a real GPU (time-boxed)
+Round 3 could only measure WebGL with a software renderer. A headed Chrome window on this machine gets the
+real Radeon GPU (`ANGLE (AMD, AMD Radeon 8060S …)`, checked with a probe page), so:
+- On WebGL, the game's `-laf…` options can also come from the page's URL, so the AutoPilot can play in a browser.
+- Measure the frame rate on the real GPU, and check that a save survives closing and reopening the browser
+  (quit after a case, reopen with the same profile, *Continue*).
+- Fix what's cheap: depth of field (its shaders are stripped from the WebGL build) and the audio warnings.
+
+**Acceptance:** measured fps on the real GPU (with the load average), a save that survives a browser restart
+or the reason it doesn't, and DoF and audio results, all in "Round 4 results". Nothing is hosted, and the
+desktop build is unchanged. If it overruns its time box, what was learned is recorded instead.
+**Verify:** the browser console log, screenshots, the build log.

@@ -14,8 +14,9 @@
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
 #   Tools/unity.sh smoke [secs] [quality]  run the Linux build hands-free (quality 0|1|2 overrides the setting), screenshots in Screenshots/smoke/
-#   Tools/unity.sh autopilot [speed] [day] [best|worst|wait]
+#   Tools/unity.sh autopilot [speed] [day] [best|worst|wait|refuse] [player args]
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
+#                                  (e.g. -screen-width 1440 -screen-height 900 -screen-fullscreen 0 for 16:10)
 #   Tools/unity.sh audit           hold every object in the hand and check each hidden detail can be clicked;
 #                                  coverage in Screenshots/hotspots/coverage.txt, pictures of any below the bar
 #   Tools/unity.sh nudgetour [speed] [w] [h] [player args]  play the week asking Agnes for every nudge and doing what they say (glints clicked,
@@ -82,7 +83,7 @@ case "${1:-open}" in
                  -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -lafUncapped "${q[@]}" -logFile "$PROJECT/Logs/smoke.log" ;;
   autopilot)   rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                player autopilot timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
-                 -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" ;;
+                 -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" "${@:5}" ;;
   nudgetour)   rm -rf "$PROJECT/Screenshots/nudgetour"; mkdir -p "$PROJECT/Screenshots/nudgetour"
                player nudgetour timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/nudgetour" -lafNudgeTour \
                  -lafSave "$PROJECT/Screenshots/nudgetour/save.json" -lafSpeed "${2:-4}" -lafNoMusic -lafNoVsync -screen-width "${3:-1600}" -screen-height "${4:-900}" -screen-fullscreen 0 \
