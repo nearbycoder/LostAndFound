@@ -31,6 +31,8 @@ namespace LostAndFound
         /// <summary>-lafTranscript: ask about every finding, then read the slip and check "What they said" beside it holds
         /// every line of the claim, on screen and clear of the slip.</summary>
         bool transcript;
+        /// <summary>-lafTextAudit: check every text on screen against its box at each screenshot (TextAudit).</summary>
+        bool textAudit;
         int tourNudges, tourGlints, tourParts;
         Quaternion[] tourTurns;
 
@@ -45,6 +47,7 @@ namespace LostAndFound
             policy = Game.Arg("-lafPolicy") ?? "best";
             tour = Game.Arg("-lafNudgeTour") != null;
             transcript = Game.Arg("-lafTranscript") != null;
+            textAudit = Game.Arg("-lafTextAudit") != null;
             if (tour)
             {
                 var rng = new System.Random(9);
@@ -73,6 +76,7 @@ namespace LostAndFound
 
         void Shot(string name)
         {
+            if (textAudit) TextAudit.Check(name);
             string path = Path.Combine(dir, $"{shots++:000}_{name}.png");
             // in a browser the file would only land in its virtual disk: Tools/webgl_check.py takes the picture on this line
             if (Application.platform == RuntimePlatform.WebGLPlayer) Debug.Log($"[Shot] {Path.GetFileNameWithoutExtension(path)}");
@@ -139,6 +143,7 @@ namespace LostAndFound
             cases += skipped;
             Debug.Log($"[Auto] week done: {cases} cases, {best} best, {skipped} skipped, ending {d.Save.ending}, {problems.Count} problems, {Time.realtimeSinceStartup - t0:0}s");
             if (transcript) Debug.Log($"[Transcript] checked {transcriptChecks} claims");
+            if (textAudit) TextAudit.Summary();
             if (tour) Debug.Log($"[Tour] {tourNudges} nudges asked for; {tourGlints} details found by clicking the glint, {tourParts} by working the part that lit up");
             var all = d.State.records.Where(r => r.grade != "skip").ToList();
             Debug.Log($"[Auto] the week's record (this run and any before it): {all.Count(r => r.grade == "best")} best of {all.Count} decided");
@@ -183,6 +188,7 @@ namespace LostAndFound
                 }
                 yield return new WaitForSecondsRealtime(0.3f);
             }
+            if (Game.Arg("-lafLetteringSwitch") != null && cases == 1) yield return SwitchLettering(c);
             var dec = Rules.Solve(d.Db, d.Day, c, d.State);
             if (policy == "refuse")
                 dec = new Decision { verdict = Verdict.Refuse, reason = "policy: refuse everything" };
@@ -261,6 +267,28 @@ namespace LostAndFound
             }
             yield return new WaitForSeconds(1.2f);
             Shot($"case{c.id}_verdict");
+        }
+
+        // ------------------------------------------------------------------ plain lettering
+
+        /// <summary>-lafLetteringSwitch: turn Settings > Plain lettering on in the first claim, as the Settings toggle does, and
+        /// check the handwriting already on screen changes with it (the setting is saved in this run's scratch prefs).</summary>
+        IEnumerator SwitchLettering(CaseDef c)
+        {
+            string Faces() => $"slip {ClaimSlip.I.Body.font.name}, rules card {UIRoot.I.rulesPeek.GetComponentInChildren<TMPro.TMP_Text>().font.name}";
+            string before = Faces();
+            UIRoot.I.rulesPeek.Show();
+            yield return new WaitForSecondsRealtime(0.4f);
+            Shot($"case{c.id}_lettering_before");
+            yield return null;
+            Settings.PlainLettering = !Settings.PlainLettering;
+            yield return new WaitForSecondsRealtime(0.4f);
+            string after = Faces();
+            Shot($"case{c.id}_lettering_after");
+            yield return null;
+            UIRoot.I.rulesPeek.Hide();
+            Debug.Log($"[Lettering] switched live to {(Fonts.Plain ? "plain" : "handwriting")}: before {before}; after {after}");
+            if (before == after) problems.Add($"case {c.id}: the lettering didn't change on screen ({after})");
         }
 
         // ------------------------------------------------------------------ what they said

@@ -172,7 +172,7 @@ namespace LostAndFound
             var go = new GameObject("Text");
             go.transform.SetParent(parent, false);
             var t = go.AddComponent<TextMeshPro>();
-            t.font = Fonts.Get(font);
+            Fonts.Assign(t, font);
             t.text = text;
             t.fontSize = size * 10f; // TMP world units: fontSize 10 ~ 1 unit cap height... scale via transform instead
             t.color = color;

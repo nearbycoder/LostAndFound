@@ -249,7 +249,10 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "paper_card", UiKit.Paper, 28f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 976f));
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 1024f));
+            // a wide, short window (21:9) has less than the card's height: scale it to fit
+            Canvas.ForceUpdateCanvases();
+            card.rectTransform.localScale = Vector3.one * Mathf.Min(1f, (UIRoot.I.root.rect.height - 30f) / 1024f);
             var t = UiKit.Label(card.transform, "Title", "Settings", Fonts.Title, 56f, UiKit.Ink, TextAlignmentOptions.Top);
             t.rectTransform.Fill();
             t.margin = new Vector4(0f, 34f, 0f, 0f);
@@ -293,6 +296,7 @@ namespace LostAndFound
                 y -= 52f;
             }
             Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
+            Toggle("Plain lettering (no handwriting on tags and notes)", () => Settings.PlainLettering, v => Settings.PlainLettering = v);
             Toggle("Offer Agnes's nudges when stuck (H)", () => Settings.OfferNudges, v => Settings.OfferNudges = v);
 
             var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, () =>

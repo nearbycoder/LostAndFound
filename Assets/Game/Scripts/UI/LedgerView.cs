@@ -37,6 +37,21 @@ namespace LostAndFound
             date.margin = new Vector4(60f, 118f, 60f, 0f);
 
             var rows = new List<(TextMeshProUGUI line, TextMeshProUGUI why, Image stamp, CaseRecord rec)>();
+            // a row is 104 high with a one-line explanation; a longer one gets the room it needs, and if the day's rows would
+            // then run into the tally, they close up a little
+            const float whyWidth = 1500f - 110f - 340f, step = 104f;
+            float WhyHeight(string text)
+            {
+                var probe = UiKit.Label(book.transform, "Probe", text, Fonts.Body, 24f, UiKit.InkSoft, TextAlignmentOptions.TopLeft);
+                probe.fontStyle = FontStyles.Italic;
+                float h = probe.GetPreferredValues(text, whyWidth, 0f).y;
+                Object.Destroy(probe.gameObject);
+                return Mathf.Max(34f, h);
+            }
+            var heights = d.DayDef.cases.Select(c => d.State.Record(c.id)).Where(r => r != null).Select(r => WhyHeight(r.ledger ?? "")).ToList();
+            float extra = heights.Sum(h => h - 34f);
+            float squeeze = Mathf.Clamp((560f - extra) / Mathf.Max(1, heights.Count) , 84f, step);
+            int row = 0;
             float y = -190f;
             foreach (var c in d.DayDef.cases)
             {
@@ -47,8 +62,13 @@ namespace LostAndFound
                 string verdict = rec.verdict switch { "return" => "Returned" + (string.IsNullOrEmpty(rec.to) ? "" : " to " + (d.Db.Commuter(rec.to)?.ShortName ?? "")), "seal" => "Sealed in the Iron Drawer", "missing" => "Not here", _ => "Refused" };
                 var line = UiKit.Label(book.transform, "Line", $"<font=\"SpecialElite\"><size=70%>{who.ToUpperInvariant()}</size></font>   {(def != null ? def.name : "<i>nothing in storage</i>")}   <color=#5a4a40>—  {verdict}</color>", Fonts.Hand, 36f, UiKit.Ink, TextAlignmentOptions.TopLeft);
                 line.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(90f, y), new Vector2(-320f, 44f));
+                // one line, always: a long name and object (in the wider Plain lettering face) writes a little smaller
+                line.enableAutoSizing = true;
+                line.fontSizeMin = 24f;
+                line.fontSizeMax = 36f;
                 var why = UiKit.Label(book.transform, "Why", rec.ledger ?? "", Fonts.Body, 24f, UiKit.InkSoft, TextAlignmentOptions.TopLeft);
-                why.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(110f, y - 44f), new Vector2(-340f, 34f));
+                float whyH = heights[row++];
+                why.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(110f, y - 44f), new Vector2(-340f, whyH));
                 why.fontStyle = FontStyles.Italic;
                 why.alpha = 0f;
                 var stamp = UiKit.Image(book.transform, "Mark", rec.grade == "best" ? "mark_tick" : rec.grade == "ok" ? "mark_half" : rec.grade == "skip" ? "mark_dash" : "mark_cross", Color.white);
@@ -62,7 +82,7 @@ namespace LostAndFound
                     found.rectTransform.Anchor(new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f)).Place(new Vector2(-212f, y - 4f), new Vector2(150f, 40f));
                 }
                 rows.Add((line, why, stamp, rec));
-                y -= 104f;
+                y -= squeeze + (whyH - 34f);
             }
 
             yield return Tween.Run(0.6f, k => group.alpha = k, Ease.InOutSine, true);

@@ -13,7 +13,8 @@
 #   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
-#   Tools/unity.sh smoke [secs] [quality]  run the Linux build hands-free (quality 0|1|2 overrides the setting), screenshots in Screenshots/smoke/
+#   Tools/unity.sh smoke [secs] [quality] [player args]  run the Linux build hands-free (quality 0|1|2 overrides the setting),
+#                                  screenshots in Screenshots/smoke/ (e.g. 6 2 -lafShowSettings -screen-width 1280 -screen-height 720)
 #   Tools/unity.sh autopilot [speed] [day] [best|worst|wait|refuse] [player args]
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
 #                                  (e.g. -screen-width 1440 -screen-height 900 -screen-fullscreen 0 for 16:10)
@@ -129,7 +130,7 @@ case "${1:-open}" in
   smoke)       rm -rf "$PROJECT/Screenshots/smoke"
                q=(); [ -n "${3:-}" ] && q=(-lafQuality "$3")   # optional picture quality 0|1|2 for this run
                player smoke timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
-                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -lafUncapped "${q[@]}" -logFile "$PROJECT/Logs/smoke.log" ;;
+                 -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -lafUncapped "${q[@]}" -logFile "$PROJECT/Logs/smoke.log" "${@:4}" ;;
   autopilot)   rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                player autopilot timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
                  -lafSave "$PROJECT/Screenshots/autopilot/save.json" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" "${@:5}" ;;

@@ -81,7 +81,7 @@ namespace LostAndFound
         {
             var rt = Rect(name, parent);
             var t = rt.gameObject.AddComponent<TextMeshProUGUI>();
-            t.font = Fonts.Get(font);
+            Fonts.Assign(t, font);
             t.text = text;
             t.fontSize = size;
             t.color = color;

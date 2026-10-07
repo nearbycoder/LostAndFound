@@ -67,17 +67,22 @@ namespace LostAndFound
             header.transform.localPosition = new Vector3(0f, 0.0009f, H / 2 - 0.037f);   // below the printed border rule
             header.textWrappingMode = TextWrappingModes.Normal;
 
+            // laid out in centimetres (scaled by 0.01): TMP's autosize steps by at least 0.05 of a font unit, which in
+            // metres jumped straight from full size to the smallest whenever a claim didn't quite fit
             body = Text.World(transform, "", Fonts.Hand, 0.012f, DeskMaterials.InkColor);
             body.alignment = TextAlignmentOptions.TopLeft;
-            body.rectTransform.sizeDelta = new Vector2(W - 0.022f, H - 0.07f);
+            body.transform.localScale = Vector3.one * 0.01f;
+            // from below the header to just above the printed "STAMP HERE" rule (slip_paper.png: 800 of 940 px down)
+            body.rectTransform.sizeDelta = new Vector2(W - 0.022f, 0.161f) * 100f;
             body.transform.localRotation = Quaternion.Euler(90f, 0f, 0f);
-            body.transform.localPosition = new Vector3(0f, 0.0009f, -0.022f);
+            body.transform.localPosition = new Vector3(0f, 0.0009f, -0.0075f);
             body.textWrappingMode = TextWrappingModes.Normal;
             body.overflowMode = TextOverflowModes.Overflow;
             body.lineSpacing = -12f;
             body.enableAutoSizing = true;
-            body.fontSizeMin = 0.05f;
-            body.fontSizeMax = 0.12f;
+            body.fontSizeMin = 5f;
+            body.fontSizeMax = 12f;
+            body.fontSize = 12f;
             Clear();
         }
 
@@ -122,6 +127,9 @@ namespace LostAndFound
 
         /// <summary>The findings on the slip, in order (each can be asked about).</summary>
         public List<string> ClueIds() => clueLines.ConvertAll(c => c.id);
+
+        /// <summary>The handwriting on the slip (the AutoPilot checks which face it's in).</summary>
+        public TextMeshPro Body => body;
 
         /// <summary>World position a few letters into a finding's link, for scripted demos to point at.</summary>
         public bool LinkPosition(string id, out Vector3 world)
