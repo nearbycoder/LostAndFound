@@ -84,12 +84,36 @@ guarded() {
   return $status
 }
 
-# player <command> <args...>: run a built player with scratch prefs.
+# player <command> <args...>: run a built player with scratch prefs, inside a headless KWin of its own (see nested) when
+# this machine has one, so no test window ever shows on the desktop. LAF_DESKTOP=1 runs it as an ordinary window instead.
 player() {
   local name="$1"; shift
+  if [ "${LAF_DESKTOP:-0}" != 1 ] && command -v kwin_wayland > /dev/null && command -v dbus-run-session > /dev/null; then
+    nested "$name" "$@"; return
+  fi
   [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
   export XDG_CONFIG_HOME="$PROJECT/Logs/config/$name"; mkdir -p "$XDG_CONFIG_HOME"
   guarded "$name" "$@"
+}
+
+# nested <command> <args...>: the player in `kwin_wayland --virtual` (as smallscreen does): its own D-Bus session, socket and
+# scratch XDG folders under Logs/config/, DISPLAY and WAYLAND_DISPLAY unset, so it never talks to the desktop's KWin and
+# nothing appears on screen. The screen is 2560x1440 (LAF_NESTED_SIZE="w h"), room for any window the tools ask for. KWin's
+# own output goes to Logs/config/<command>-xdg/kwin.log; the player's exit status is passed back.
+nested() {
+  local name="$1"; shift
+  local cfg="$PROJECT/Logs/config/$name" xdg="$PROJECT/Logs/config/$name-xdg" w h st
+  mkdir -p "$cfg" "$xdg/data" "$xdg/cache" "$xdg/state"
+  rm -f "$cfg/kwinoutputconfig.json" "$xdg/status"
+  { printf '#!/bin/bash\n'; for a in "$@"; do printf '%q ' "$a"; done; printf '\necho $? > %q\n' "$xdg/status"; } > "$xdg/session.sh"
+  chmod +x "$xdg/session.sh"
+  read -r w h <<< "${LAF_NESTED_SIZE:-2560 1440}"
+  guarded "$name" sh -c 'log=$1; shift; exec "$@" > "$log" 2>&1' _ "$xdg/kwin.log" env -u DISPLAY -u WAYLAND_DISPLAY \
+    XDG_CONFIG_HOME="$cfg" XDG_DATA_HOME="$xdg/data" XDG_CACHE_HOME="$xdg/cache" XDG_STATE_HOME="$xdg/state" SDL_VIDEODRIVER=wayland \
+    timeout -s KILL 7300 dbus-run-session -- kwin_wayland --virtual --width "$w" --height "$h" --socket "laf-$name-$$" --no-lockscreen \
+    --exit-with-session "$xdg/session.sh" || { st=$?; [ $st -eq 99 ] && return 99; }
+  st="$(cat "$xdg/status" 2>/dev/null || echo 1)"
+  return "$st"
 }
 
 # editor <args...>: run the editor (batch, headless or GUI). The editor keeps this project's PlayerPrefs (and the test runner its
