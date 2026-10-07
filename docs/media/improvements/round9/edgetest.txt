@@ -1,0 +1,17 @@
+R9-C: Tools/unity.sh edgetest (1600x900, Tuesday at the bell, a virtual Input System mouse, inside the headless KWin; another
+window, a kdialog, opened by the session once the test logged it was ready). Load average 31.
+
+[EdgeTest] at the bell, 1600x900, view Counter
+[EdgeTest] ok  on: pointer at the left edge for 1.5 s, view Counter -> Cabinet (window focused True, edge turning on)
+[EdgeTest] ok  on: pointer at the right edge for 1.5 s, view Counter -> Shelf (window focused True, edge turning on)
+[EdgeTest] ok  off: pointer at the left edge for 1.5 s, view Counter -> Counter (window focused True, edge turning off)
+[EdgeTest] ok  off: pointer at the right edge for 1.5 s, view Counter -> Counter (window focused True, edge turning off)
+[EdgeTest] waiting for another window to take the focus
+[EdgeTest] ok  out of focus: pointer at the left edge for 1.5 s, view Counter -> Counter (window focused False, edge turning on)
+[EdgeTest] ok  out of focus: pointer at the right edge for 1.5 s, view Counter -> Counter (window focused False, edge turning on)
+[EdgeTest] ok  focus back: pointer at the left edge for 1.5 s, view Counter -> Cabinet (window focused True, edge turning on)
+[EdgeTest] PASS (7 holds)
+[steal] another window opens
+[steal] it closed
+
+Settings card with the new row (smoke -lafShowSettings -lafTextAudit): 1920x1080, 2560x1080, 1200x674: 0 overflowing, 0 overlapping.

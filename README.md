@@ -38,7 +38,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Action | Control |
 |---|---|
 | Point, pick up, open, press | Mouse (left click) |
-| Turn to the drawers / the shelf | `A` / `D`, `←` / `→`, or push the mouse to the screen edge |
+| Turn to the drawers / the shelf | `A` / `D`, `←` / `→`, or push the mouse to the screen edge (*Turn at the screen's edge* in Settings turns that off) |
 | Turn an object over | Drag with the left button (or `Q` `E` `W` `S`) |
 | Look closer | Scroll wheel |
 | Put the object down / on the counter tray | Right click, `Esc` or `Backspace` / `T` |

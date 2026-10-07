@@ -36,6 +36,7 @@ namespace LostAndFound.Tests
             Assert.AreEqual(2, Settings.PictureQuality);
             Assert.IsTrue(Settings.OfferNudges);
             Assert.AreEqual(0f, Settings.Brightness);
+            Assert.IsTrue(Settings.EdgeTurn, "the desk turns at the screen's edge, as it always has");
             Assert.IsFalse(File.Exists(path), "reading alone writes nothing");
         }
 
@@ -47,6 +48,7 @@ namespace LostAndFound.Tests
             Settings.PictureQuality = 0;
             Settings.MusicVolume = 0.25f;
             Settings.OfferNudges = false;
+            Settings.EdgeTurn = false;
             Assert.IsTrue(File.Exists(path));
             Assert.IsFalse(File.Exists(path + ".tmp"), "the temporary file is swapped in, not left behind");
             Settings.UseFile(path);   // as the next launch reads them
@@ -55,6 +57,7 @@ namespace LostAndFound.Tests
             Assert.AreEqual(0, Settings.PictureQuality);
             Assert.AreEqual(0.25f, Settings.MusicVolume, 1e-5f);
             Assert.IsFalse(Settings.OfferNudges);
+            Assert.IsFalse(Settings.EdgeTurn);
         }
 
         [Test]

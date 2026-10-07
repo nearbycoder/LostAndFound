@@ -299,6 +299,7 @@ namespace LostAndFound
             y -= 4f;
             Slider("Text speed", 0.5f, 2.5f, () => Settings.TextSpeed, v => Settings.TextSpeed = v);
             Slider("Turning speed", 0.4f, 2f, () => Settings.MouseSensitivity, v => Settings.MouseSensitivity = v);
+            Toggle("Turn at the screen's edge", () => Settings.EdgeTurn, v => Settings.EdgeTurn = v);
             y -= 10f;
             Slider("Brightness", -1f, 1f, () => Settings.Brightness, v => Settings.Brightness = v);
             Toggle("Screen shake", () => Settings.ScreenShake, v => Settings.ScreenShake = v);

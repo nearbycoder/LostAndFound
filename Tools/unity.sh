@@ -26,6 +26,9 @@
 #   Tools/unity.sh padtest         play Monday's first case with only a virtual gamepad; screenshots in Screenshots/padtest/
 #   Tools/unity.sh taptest [w] [h] [player args]  play Monday's first case with quick taps (press and release in one input update) from
 #                                  virtual keyboard, mouse and gamepad; screenshots in Screenshots/taptest/
+#   Tools/unity.sh edgetest [w] [h]  hold a virtual mouse at the screen's sides: the desk turns with Settings > Turn at the
+#                                  screen's edge on, not with it off, and not while another window (opened in the headless KWin
+#                                  once the test is ready) has the focus; log in Logs/edgetest.log
 #   Tools/unity.sh soak [cycles] [player args]  play on without quitting: restart the day, back to the title, Continue and
 #                                  Choose a Day again and again in one process, logging memory and live objects after each
 #                                  rebuild; log in Logs/soak.log, screenshots in Screenshots/soak/
@@ -105,7 +108,13 @@ nested() {
   local cfg="$PROJECT/Logs/config/$name" xdg="$PROJECT/Logs/config/$name-xdg" w h st
   mkdir -p "$cfg" "$xdg/data" "$xdg/cache" "$xdg/state"
   rm -f "$cfg/kwinoutputconfig.json" "$xdg/status"
-  { printf '#!/bin/bash\n'; for a in "$@"; do printf '%q ' "$a"; done; printf '\necho $? > %q\n' "$xdg/status"; } > "$xdg/session.sh"
+  # LAF_STEAL_WHEN=<text> LAF_STEAL_LOG=<file>: once the log says that, another window takes the focus for LAF_STEAL_FOR seconds
+  { printf '#!/bin/bash\nsteal=\n'
+    printf 'if [ -n "${LAF_STEAL_WHEN:-}" ]; then (until grep -aqF "$LAF_STEAL_WHEN" "$LAF_STEAL_LOG" 2>/dev/null; do sleep 0.5; done\n'
+    printf '  echo "[steal] another window opens" >&2; kdialog --title "Another window" --msgbox "Another window has the focus" & k=$!\n'
+    printf '  sleep "${LAF_STEAL_FOR:-10}"; kill $k; echo "[steal] it closed" >&2) & steal=$!; fi\n'
+    for a in "$@"; do printf '%q ' "$a"; done
+    printf '\nst=$?\n[ -n "$steal" ] && { pkill -P $steal; kill $steal; } 2>/dev/null\necho $st > %q\n' "$xdg/status"; } > "$xdg/session.sh"
   chmod +x "$xdg/session.sh"
   read -r w h <<< "${LAF_NESTED_SIZE:-2560 1440}"
   guarded "$name" sh -c 'log=$1; shift; exec "$@" > "$log" 2>&1' _ "$xdg/kwin.log" env -u DISPLAY -u WAYLAND_DISPLAY \
@@ -196,6 +205,14 @@ case "${1:-open}" in
                  -logFile "$PROJECT/Logs/taptest.log" "${@:4}"
                grep -a "\[TapTest\]" "$PROJECT/Logs/taptest.log"
                grep -a -q "\[TapTest\] PASS" "$PROJECT/Logs/taptest.log" ;;
+  edgetest)    mkdir -p "$PROJECT/Screenshots/edgetest"; rm -f "$PROJECT/Logs/edgetest.log"
+               export LAF_STEAL_WHEN="[EdgeTest] waiting for another window" LAF_STEAL_LOG="$PROJECT/Logs/edgetest.log" LAF_STEAL_FOR=12
+               st=0; player edgetest timeout -s KILL 400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafEdgeTest -lafDay 2 \
+                 -lafSave "$PROJECT/Screenshots/edgetest/save.json" -lafNoMusic -screen-width "${2:-1600}" -screen-height "${3:-900}" -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/edgetest.log" "${@:4}" || st=$?
+               [ $st -eq 99 ] && exit 99   # the guard: the real save or settings changed
+               grep -a "\[EdgeTest\]" "$PROJECT/Logs/edgetest.log"; grep -a "\[steal\]" "$PROJECT/Logs/config/edgetest-xdg/kwin.log"
+               grep -a -q "\[EdgeTest\] PASS" "$PROJECT/Logs/edgetest.log" ;;
   soak)        rm -rf "$PROJECT/Screenshots/soak"; mkdir -p "$PROJECT/Screenshots/soak"
                player soak timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafSoak "$PROJECT/Screenshots/soak" -lafCycles "${2:-30}" \
                  -lafSave "${LAF_SOAK_SAVE:-$PROJECT/Screenshots/soak/save.json}" -lafNoMusic -lafNoVsync -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
@@ -250,5 +267,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|edgetest [w h]|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

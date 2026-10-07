@@ -33,7 +33,7 @@ namespace LostAndFound
         }
 
         static readonly string[] FloatKeys = { "master", "music", "sfx", "voice", "ambience", "mouse", "textspeed", "textsize", "quality", "brightness" };
-        static readonly string[] BoolKeys = { "shake", "reducemotion", "post", "fullscreen", "plain", "offernudges", "bgsound" };
+        static readonly string[] BoolKeys = { "shake", "reducemotion", "post", "fullscreen", "plain", "offernudges", "bgsound", "edgeturn" };
 
         static Dictionary<string, float> Values
         {
@@ -143,6 +143,9 @@ namespace LostAndFound
         public static bool PlainLettering { get => B("plain", false); set => SetB("plain", value); }
         /// <summary>After a while stuck on a claim, the hint bar offers one of Agnes's nudges (H works either way).</summary>
         public static bool OfferNudges { get => B("offernudges", true); set => SetB("offernudges", value); }
+        /// <summary>Turn to the drawers or the shelf when the pointer rests at the side of the screen (the keys, the arrows on
+        /// screen and the pad turn it either way).</summary>
+        public static bool EdgeTurn { get => B("edgeturn", true); set => SetB("edgeturn", value); }
         /// <summary>Keep the sound on while another window has the focus (see BackgroundMode).</summary>
         public static bool SoundInBackground { get => B("bgsound", true); set => SetB("bgsound", value); }
         /// <summary>-1 darkest, 0 the game as lit, 1 brightest: the 3D scene's exposure (see BrightnessEV), never the paper UI.</summary>
