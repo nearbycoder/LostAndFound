@@ -35,6 +35,24 @@ namespace LostAndFound
 
         static Dictionary<string, string> urlArgs;
 
+        /// <summary>-lafPrefsProbe "music=0.2,plain=1": write settings exactly as v0.1.0 did (PlayerPrefs "laf." keys, floats
+        /// as floats and switches as ints, saved at once) and quit, so a test can see where they land and whether this
+        /// version brings them over. Only ever run with a scratch XDG_CONFIG_HOME.</summary>
+        static void PrefsProbe(string spec)
+        {
+            string[] switches = { "shake", "reducemotion", "post", "fullscreen", "plain", "offernudges" };
+            foreach (var pair in spec.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var kv = pair.Split('=');
+                if (kv.Length != 2 || !float.TryParse(kv[1], System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float v)) continue;
+                if (Array.IndexOf(switches, kv[0]) >= 0) PlayerPrefs.SetInt("laf." + kv[0], v >= 0.5f ? 1 : 0);
+                else PlayerPrefs.SetFloat("laf." + kv[0], v);
+            }
+            PlayerPrefs.Save();
+            Debug.Log($"[PrefsProbe] wrote {spec} to PlayerPrefs and saved; quitting");
+            Application.Quit();
+        }
+
         /// <summary>In a browser there's no command line, so the page's query string stands in for it:
         /// index.html?lafSmoke&amp;lafSeconds=40 is -lafSmoke -lafSeconds 40.</summary>
         static Dictionary<string, string> UrlArgs
@@ -63,6 +81,7 @@ namespace LostAndFound
         void Awake()
         {
             I = this;
+            if (Arg("-lafPrefsProbe") != null) { PrefsProbe(Arg("-lafPrefsProbe")); return; }
             Application.targetFrameRate = Arg("-lafUncapped") != null ? -1 : 120;   // smoke runs measure the headroom above the cap
 #if UNITY_EDITOR
             if (Application.isBatchMode)

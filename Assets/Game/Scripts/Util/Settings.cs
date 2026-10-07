@@ -6,9 +6,9 @@ using UnityEngine;
 namespace LostAndFound
 {
     /// <summary>
-    /// Player preferences, in settings.json beside the save (Application.persistentDataPath). They used to be PlayerPrefs,
-    /// but Unity's Linux player kept the game's keys in ~/.config/unity3d/unknown/unknown/prefs, a folder other games
-    /// with the same problem share, rather than the game's own. Values saved there before are brought over once.
+    /// Player preferences, in settings.json beside the save (Application.persistentDataPath). v0.1.0 kept them in PlayerPrefs,
+    /// which the Linux player writes to the game's own folder as "prefs", mixed in with Unity's own keys. Values saved there
+    /// are brought over once (Tools/prefs_probe.sh shows where v0.1.0-style saves land and that they're imported).
     /// Writes swap in whole like the save's, and come at most a few times a second while a slider is dragged.
     /// </summary>
     public static class Settings
