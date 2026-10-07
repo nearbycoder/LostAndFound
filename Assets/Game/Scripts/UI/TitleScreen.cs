@@ -500,7 +500,9 @@ namespace LostAndFound
             card.rectTransform.localScale = Vector3.one * Mathf.Min(1f, (UIRoot.I.root.rect.height - 30f) / 940f, (UIRoot.I.root.rect.width - 30f) / 1500f);
             var body = UiKit.Label(card.transform, "Body", Text(), Fonts.Agnes, 34f, DeskMaterials.InkColor, TextAlignmentOptions.TopLeft);
             body.rectTransform.Fill();
-            body.margin = new Vector4(80f, 56f, 80f, 110f);
+            // the text runs to just above "Put it back" (its top is 90 up from the card's foot), so Friday's eight rules get
+            // every unit of height the card has
+            body.margin = new Vector4(80f, 44f, 80f, 96f);
             body.enableAutoSizing = true;
             body.fontSizeMin = 20f;
             body.fontSizeMax = 34f;
