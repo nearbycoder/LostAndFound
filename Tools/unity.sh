@@ -22,7 +22,7 @@
 #   Tools/unity.sh nudgetour [speed] [w] [h] [player args]  play the week asking Agnes for every nudge and doing what they say (glints clicked,
 #                                  parts worked); log in Logs/nudgetour.log, screenshots in Screenshots/nudgetour/
 #   Tools/unity.sh padtest         play Monday's first case with only a virtual gamepad; screenshots in Screenshots/padtest/
-#   Tools/unity.sh taptest         play Monday's first case with quick taps (press and release in one input update) from
+#   Tools/unity.sh taptest [w] [h] [player args]  play Monday's first case with quick taps (press and release in one input update) from
 #                                  virtual keyboard, mouse and gamepad; screenshots in Screenshots/taptest/
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
@@ -136,8 +136,8 @@ case "${1:-open}" in
                grep -a -q "\[PadTest\] PASS" "$PROJECT/Logs/padtest.log" ;;
   taptest)     rm -rf "$PROJECT/Screenshots/taptest"; mkdir -p "$PROJECT/Screenshots/taptest"
                player taptest timeout -s KILL 600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafTapTest "$PROJECT/Screenshots/taptest" -lafDay 1 \
-                 -lafSave "$PROJECT/Screenshots/taptest/save.json" -lafNoMusic -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
-                 -logFile "$PROJECT/Logs/taptest.log"
+                 -lafSave "$PROJECT/Screenshots/taptest/save.json" -lafNoMusic -screen-width "${2:-1600}" -screen-height "${3:-900}" -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/taptest.log" "${@:4}"
                grep -a "\[TapTest\]" "$PROJECT/Logs/taptest.log"
                grep -a -q "\[TapTest\] PASS" "$PROJECT/Logs/taptest.log" ;;
   trailer)     out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"

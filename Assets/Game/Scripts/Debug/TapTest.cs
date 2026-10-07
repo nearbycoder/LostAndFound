@@ -12,8 +12,8 @@ namespace LostAndFound
     /// -lafTapTest &lt;dir&gt;: plays Monday's first case with quick taps, each press and its release queued together so
     /// they reach the game in the same input update, with nothing held across a frame. That's a touchpad's
     /// tap-to-click, or an ordinary click when frames are slow. Fresh virtual devices tap keys (the bell, a nudge, the
-    /// drawers, the tray, the pause menu), the mouse (a drawer, the wallet, a menu button) and a gamepad (a nudge, the
-    /// stamp, the slip). A tap that does nothing is logged as MISSED and repeated as a held press, so the run carries
+    /// drawers, the tray, the pause menu), the mouse (a drawer, the wallet, menu buttons) and a gamepad (a nudge, the
+    /// stamp, the slip, closing a card). It opens the Controls card on the way, in both wordings. A tap that does nothing is logged as MISSED and repeated as a held press, so the run carries
     /// on and lists every miss. Logs "[TapTest] PASS" when every tap worked.
     /// </summary>
     public class TapTest : MonoBehaviour
@@ -171,6 +171,13 @@ namespace LostAndFound
             yield return Hold(0.1f);
         }
 
+        static Vector2 Centre(Component c)
+        {
+            var corners = new Vector3[4];
+            ((RectTransform)c.transform).GetWorldCorners(corners);
+            return (corners[0] + corners[2]) * 0.5f;
+        }
+
         IEnumerator Run()
         {
             var d = Director.I;
@@ -219,6 +226,12 @@ namespace LostAndFound
                 yield return new WaitForSecondsRealtime(0.6f);
                 yield return HoldPad(GamepadButton.DpadDown);
             }
+            // the controls card, in the pad's words while the pad is in use; B puts it away
+            ControlsCard.Show();
+            yield return new WaitForSecondsRealtime(0.5f);
+            Shot("controls_pad");
+            yield return Check("pad tap (B) puts the controls card away", "TapPad", () => QueuePadTap(GamepadButton.East), () => HoldPad(GamepadButton.East), () => !ControlsCard.IsOpen);
+
             var rec = d.State.Record("1.1");
             Debug.Log($"[TapTest] case 1.1: {(rec == null ? "not decided" : $"{rec.verdict}->{rec.to} ({rec.grade})")}");
             yield return new WaitForSecondsRealtime(1.5f);
@@ -229,12 +242,21 @@ namespace LostAndFound
             yield return Until(() => d.CanRing, 40f);
             yield return Check("key tap (Esc) pauses", "TapKeyboard", () => QueueKeyTap(Key.Escape), () => HoldKey(Key.Escape), () => PauseMenu.Open);
             yield return new WaitForSecondsRealtime(0.3f);
+            var controls = UIRoot.I.root.GetComponentsInChildren<PaperButton>().FirstOrDefault(b => b.name == "Controls");
+            if (controls != null)
+            {
+                yield return MoveMouse(Centre(controls));
+                yield return Check("mouse tap on Controls in the pause menu opens the card", "TapMouse", QueueMouseTap, HoldMouse, () => ControlsCard.IsOpen);
+                yield return new WaitForSecondsRealtime(0.5f);
+                Shot("controls_keyboard");
+                yield return Check("key tap (Esc) puts the controls card away, leaving the pause menu", "TapKeyboard", () => QueueKeyTap(Key.Escape), () => HoldKey(Key.Escape), () => !ControlsCard.IsOpen && PauseMenu.Open);
+                yield return new WaitForSecondsRealtime(0.3f);
+            }
+            else { checks++; missed.Add("couldn't find the pause menu's Controls"); }
             var back = UIRoot.I.root.GetComponentsInChildren<PaperButton>().FirstOrDefault(b => b.name == "Back to the desk");
             if (back != null)
             {
-                var corners = new Vector3[4];
-                ((RectTransform)back.transform).GetWorldCorners(corners);
-                yield return MoveMouse((corners[0] + corners[2]) * 0.5f);
+                yield return MoveMouse(Centre(back));
                 Shot("mouse_on_menu_button");
                 yield return Check("mouse tap on a menu button (Back to the desk)", "TapMouse", QueueMouseTap, HoldMouse, () => !PauseMenu.Open);
             }

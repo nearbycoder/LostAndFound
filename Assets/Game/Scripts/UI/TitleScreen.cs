@@ -87,13 +87,15 @@ namespace LostAndFound
             foreach (Transform c in list) Object.Destroy(c.gameObject);
         }
 
+        static float itemStep = 76f;   // a little closer when the menu is at its longest, to stay clear of the notes below it
+
         static PaperButton Item(RectTransform list, int i, string text, System.Action act, float size = 50f)
         {
             var b = UiKit.Button(list, "Item", text, Fonts.Title, size, act);
             b.normal = new Color(0.95f, 0.89f, 0.76f);
             b.hover = UiKit.Gold;
             b.label.alignment = TextAlignmentOptions.MidlineLeft;
-            b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f)).Place(new Vector2(0f, -i * 76f), new Vector2(760f, 70f));
+            b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f)).Place(new Vector2(0f, -i * itemStep), new Vector2(760f, 70f));
             return b;
         }
 
@@ -102,6 +104,9 @@ namespace LostAndFound
             Clear(list);
             int i = 0;
             bool started = SaveGame.Exists && (g.Save.currentDay > 1 || g.Save.state.records.Count > 0);
+            bool canQuit = !Application.isEditor && Application.platform != RuntimePlatform.WebGLPlayer;
+            int items = (started && !g.Save.finished ? 1 : 0) + 1 + (g.Save.unlockedDay > 1 || g.Save.finished ? 1 : 0) + 3 + (canQuit ? 1 : 0);
+            itemStep = items >= 7 ? 70f : 76f;
             if (started && !g.Save.finished)
             {
                 var day = g.Db.Day(Mathf.Clamp(g.Save.currentDay, 1, g.Db.DayCount));
@@ -124,13 +129,15 @@ namespace LostAndFound
             });
             if (g.Save.unlockedDay > 1 || g.Save.finished) Item(list, i++, "Choose a Day", () => BuildDays(g, list));
             Item(list, i++, "Curiosities", () => CurioLedger.Show(g));
+            Item(list, i++, "Controls", ControlsCard.Show);
             Item(list, i++, "Settings", () => SettingsPanel.Open(() => { }));
-            if (!Application.isEditor && Application.platform != RuntimePlatform.WebGLPlayer) Item(list, i++, "Close the Office", Application.Quit);
+            if (canQuit) Item(list, i++, "Close the Office", Application.Quit);
         }
 
         static void BuildDays(Game g, RectTransform list)
         {
             Clear(list);
+            itemStep = 76f;
             for (int d = 1; d <= g.Db.DayCount; d++)
             {
                 var def = g.Db.Day(d);
@@ -346,7 +353,7 @@ namespace LostAndFound
         void Update() { if (track != null) CursorController.Want(CursorKind.Default); }
     }
 
-    /// <summary>Esc pauses the shift: resume, settings, Agnes's rules, start the day again, or go back to the title.</summary>
+    /// <summary>Esc pauses the shift: resume, Agnes's rules, the controls, settings, start the day again, or go back to the title.</summary>
     public class PauseMenu : MonoBehaviour
     {
         public static bool Open { get; private set; }
@@ -375,7 +382,7 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "paper_card", UiKit.Paper, 28f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(620f, 640f));
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(620f, 700f));
             var t = UiKit.Label(card.transform, "Title", "Shutter down", Fonts.Title, 54f, UiKit.Ink, TextAlignmentOptions.Top);
             t.rectTransform.Fill();
             t.margin = new Vector4(0f, 40f, 0f, 0f);
@@ -391,6 +398,7 @@ namespace LostAndFound
             }
             Btn("Back to the desk", Hide);
             Btn("Agnes's rules", () => RulesCard.Show());
+            Btn("Controls", ControlsCard.Show);
             Btn("Settings", () => SettingsPanel.Open(null));
             Btn("Start the day again", () => { Hide(); Game.I.Restart(Director.I.Day); });
             Btn("Back to the title", () => { Hide(); Game.I.Restart(0); });

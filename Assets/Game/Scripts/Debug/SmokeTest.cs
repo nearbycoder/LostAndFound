@@ -30,6 +30,7 @@ namespace LostAndFound
             // -lafShowCurios: open the title's Curiosities page (screenshots of it with a given save)
             if (Game.Arg("-lafShowCurios") != null && TitleScreen.Showing) CurioLedger.Show(Game.I);
             if (Game.Arg("-lafShowSettings") != null) SettingsPanel.Open(null);   // as the menu opens it (nothing is changed)
+            if (Game.Arg("-lafShowControls") != null) ControlsCard.Show();       // as the title's Controls opens it
             Debug.Log($"[Smoke] text size at launch: {Settings.TextSize} (reading UI x{UiKit.TextScale:0.##})");
             // -lafSetTextSize N: change Settings > Large text mid-run (this one is saved)
             if (int.TryParse(Game.Arg("-lafSetTextSize") ?? "", out int setT))
