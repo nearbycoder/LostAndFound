@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -26,9 +27,37 @@ namespace LostAndFound
 
         public static string Arg(string name)
         {
+            if (Application.platform == RuntimePlatform.WebGLPlayer) return UrlArgs.TryGetValue(name, out var v) ? v : null;
             var args = Environment.GetCommandLineArgs();
             int i = Array.IndexOf(args, name);
             return i >= 0 && i + 1 < args.Length ? args[i + 1] : (i >= 0 ? "" : null);
+        }
+
+        static Dictionary<string, string> urlArgs;
+
+        /// <summary>In a browser there's no command line, so the page's query string stands in for it:
+        /// index.html?lafSmoke&amp;lafSeconds=40 is -lafSmoke -lafSeconds 40.</summary>
+        static Dictionary<string, string> UrlArgs
+        {
+            get
+            {
+                if (urlArgs != null) return urlArgs;
+                urlArgs = new Dictionary<string, string>();
+                string url = Application.absoluteURL ?? "";
+                int q = url.IndexOf('?');
+                if (q < 0) return urlArgs;
+                string query = url.Substring(q + 1);
+                int hash = query.IndexOf('#');
+                if (hash >= 0) query = query.Substring(0, hash);
+                foreach (var part in query.Split('&'))
+                {
+                    if (part.Length == 0) continue;
+                    int eq = part.IndexOf('=');
+                    string key = Uri.UnescapeDataString(eq < 0 ? part : part.Substring(0, eq));
+                    urlArgs["-" + key.TrimStart('-')] = eq < 0 ? "" : Uri.UnescapeDataString(part.Substring(eq + 1));
+                }
+                return urlArgs;
+            }
         }
 
         void Awake()
@@ -118,6 +147,7 @@ namespace LostAndFound
 
         void Start()
         {
+            Debug.Log($"[Save] {SaveGame.PathOnDisk}");
             Save = SaveGame.Load() ?? new SaveGame();
             string dayArg = Arg("-lafDay");
             if (dayArg != null && int.TryParse(dayArg, out int day) && Arg("-lafAutopilot") == null)

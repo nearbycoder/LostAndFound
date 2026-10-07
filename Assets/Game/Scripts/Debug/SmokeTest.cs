@@ -17,6 +17,7 @@ namespace LostAndFound
         void Start()
         {
             dir = Game.Arg("-lafSmoke");
+            if (string.IsNullOrEmpty(dir)) dir = Path.Combine(Application.persistentDataPath, "smoke");
             if (float.TryParse(Game.Arg("-lafSeconds") ?? "", out float s)) seconds = s;
             Directory.CreateDirectory(dir);
             StartCoroutine(Run());
@@ -58,7 +59,8 @@ namespace LostAndFound
                 lastFrame = Time.frameCount;
                 lastTime = Time.realtimeSinceStartup;
                 Debug.Log($"[Smoke] fps {fps:0.0} ({SystemInfo.graphicsDeviceType})");
-                ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"smoke_{n:00}.png"));
+                if (Application.platform == RuntimePlatform.WebGLPlayer) Debug.Log($"[Shot] smoke_{n:00}");   // Tools/webgl_check.py takes it
+                else ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"smoke_{n:00}.png"));
                 Debug.Log($"[Smoke] shot {n} at {t:0.0}s phase ok, frame {Time.frameCount}");
                 n++;
                 if (n == 2 && TitleScreen.Showing) TitleScreen.Begin(Game.I);   // past the title, into the week

@@ -61,6 +61,14 @@ namespace LostAndFound
 
         public static string BackupOf(string path) => path + ".bak";
 
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [System.Runtime.InteropServices.DllImport("__Internal")] static extern void LafSyncFS();
+        /// <summary>In a browser the files live in memory until they're flushed to IndexedDB (Plugins/WebGL/LafSyncFS.jslib).</summary>
+        static void Persist() => LafSyncFS();
+#else
+        static void Persist() { }
+#endif
+
         /// <summary>The save at path. If it can't be read (a crash mid-write, a full disk), the previous save from the
         /// backup instead. If neither can be read, the damaged file is moved aside (never deleted) so a new week can't
         /// overwrite it, and null comes back.</summary>
@@ -108,6 +116,7 @@ namespace LostAndFound
                 string to = path + ".damaged";
                 for (int i = 2; File.Exists(to); i++) to = $"{path}.damaged-{i}";
                 File.Move(path, to);
+                Persist();
                 return to;
             }
             catch (Exception e) { Debug.LogWarning("[Save] couldn't move the damaged save aside: " + e.Message); return null; }
@@ -129,6 +138,7 @@ namespace LostAndFound
                 }
                 if (File.Exists(path)) File.Replace(tmp, path, BackupOf(path));
                 else File.Move(tmp, path);
+                Persist();
             }
             catch (Exception e) { Debug.LogWarning("[Save] could not write save: " + e.Message); }
         }
@@ -140,6 +150,7 @@ namespace LostAndFound
             {
                 if (File.Exists(PathOnDisk)) File.Delete(PathOnDisk);
                 if (File.Exists(BackupOf(PathOnDisk))) File.Delete(BackupOf(PathOnDisk));
+                Persist();
             }
             catch { }
         }

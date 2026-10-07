@@ -70,7 +70,9 @@ namespace LostAndFound
         void Shot(string name)
         {
             string path = Path.Combine(dir, $"{shots++:000}_{name}.png");
-            ScreenCapture.CaptureScreenshot(path);
+            // in a browser the file would only land in its virtual disk: Tools/webgl_check.py takes the picture on this line
+            if (Application.platform == RuntimePlatform.WebGLPlayer) Debug.Log($"[Shot] {Path.GetFileNameWithoutExtension(path)}");
+            else ScreenCapture.CaptureScreenshot(path);
         }
 
         IEnumerator Run()

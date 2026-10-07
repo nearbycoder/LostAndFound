@@ -20,6 +20,10 @@ namespace LostAndFound
         string currentTrack;
         float duck = 1f, duckTarget = 1f, musicFade = 1f;
         float lowPassTarget = 22000f;
+        float muffle = 1f;   // in a browser, where audio filters don't exist, the pause muffle is a dip in volume instead
+
+        /// <summary>The browser's audio: no filters, and no seeking in compressed clips.</summary>
+        static bool Web => Application.platform == RuntimePlatform.WebGLPlayer;
 
         public static float SfxVolume => Settings.MasterVolume * Settings.SfxVolume;
         public static float VoiceVolume => Settings.MasterVolume * Settings.VoiceVolume;
@@ -30,9 +34,12 @@ namespace LostAndFound
             for (int i = 0; i < 24; i++) pool.Add(NewSource("sfx" + i));
             musicA = NewSource("musicA"); musicA.loop = true;
             musicB = NewSource("musicB"); musicB.loop = true;
-            lowPassA = musicA.gameObject.AddComponent<AudioLowPassFilter>();
-            lowPassB = musicB.gameObject.AddComponent<AudioLowPassFilter>();
-            lowPassA.cutoffFrequency = lowPassB.cutoffFrequency = 22000f;
+            if (!Web)
+            {
+                lowPassA = musicA.gameObject.AddComponent<AudioLowPassFilter>();
+                lowPassB = musicB.gameObject.AddComponent<AudioLowPassFilter>();
+                lowPassA.cutoffFrequency = lowPassB.cutoffFrequency = 22000f;
+            }
             ambience = NewSource("ambience"); ambience.loop = true;
             ambience2 = NewSource("ambience2"); ambience2.loop = true;
         }
@@ -131,7 +138,7 @@ namespace LostAndFound
             s.minDistance = 0.4f;
             s.maxDistance = 5f;
             s.dopplerLevel = 0f;
-            s.time = Random.Range(0f, clip.length);
+            if (!Web) s.time = Random.Range(0f, clip.length);   // each loop from its own point (a browser can't seek compressed audio)
             s.Play();
             return s;
         }
@@ -162,7 +169,7 @@ namespace LostAndFound
             from.Stop();
         }
 
-        float MusicLevel => Settings.MasterVolume * Settings.MusicVolume * 0.55f * duck * musicFade;
+        float MusicLevel => Settings.MasterVolume * Settings.MusicVolume * 0.55f * duck * musicFade * muffle;
 
         public static void Ambience(string bed, string second = null)
         {
@@ -193,8 +200,12 @@ namespace LostAndFound
             duck = Mathf.MoveTowards(duck, duckTarget, Time.unscaledDeltaTime * 1.5f);
             var cur = aIsCurrent ? musicA : musicB;
             if (cur.clip != null && cur.isPlaying) cur.volume = Mathf.MoveTowards(cur.volume, MusicLevel, Time.unscaledDeltaTime * 0.6f);
-            float lp = Mathf.Lerp(lowPassA.cutoffFrequency, lowPassTarget, 1f - Mathf.Exp(-6f * Time.unscaledDeltaTime));
-            lowPassA.cutoffFrequency = lowPassB.cutoffFrequency = lp;
+            if (lowPassA != null)
+            {
+                float lp = Mathf.Lerp(lowPassA.cutoffFrequency, lowPassTarget, 1f - Mathf.Exp(-6f * Time.unscaledDeltaTime));
+                lowPassA.cutoffFrequency = lowPassB.cutoffFrequency = lp;
+            }
+            else muffle = Mathf.MoveTowards(muffle, lowPassTarget < 22000f ? 0.4f : 1f, Time.unscaledDeltaTime * 2f);
             ambience.volume = 0.55f * Settings.MasterVolume * Settings.AmbienceVolume;
             ambience2.volume = 0.35f * Settings.MasterVolume * Settings.AmbienceVolume;
         }
