@@ -144,6 +144,10 @@ namespace LostAndFound
             CameraRig.I.ClearFocus();
             AudioDirector.Ambience("amb_concourse", "amb_clock");
             AudioDirector.Music("day" + Mathf.Clamp(day, 1, 5), 3f);
+            // while the screen is still dark: yesterday's objects (or the game this one replaced) are gone by the next
+            // frame, so let go of the materials and textures made for them at runtime, as a scene load would
+            yield return null;
+            yield return Game.UnloadLeftovers();
 
             yield return UIRoot.I.dayCard.Show($"Day {ToWords(day)}  ·  {DayDef.weekday}", DayDef.title, DayDef.date);
             yield return UIRoot.I.fader.FadeTo(0f, 1.2f);

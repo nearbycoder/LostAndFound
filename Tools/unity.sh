@@ -26,6 +26,10 @@
 #   Tools/unity.sh padtest         play Monday's first case with only a virtual gamepad; screenshots in Screenshots/padtest/
 #   Tools/unity.sh taptest [w] [h] [player args]  play Monday's first case with quick taps (press and release in one input update) from
 #                                  virtual keyboard, mouse and gamepad; screenshots in Screenshots/taptest/
+#   Tools/unity.sh soak [cycles] [player args]  play on without quitting: restart the day, back to the title, Continue and
+#                                  Choose a Day again and again in one process, logging memory and live objects after each
+#                                  rebuild; log in Logs/soak.log, screenshots in Screenshots/soak/
+#                                  LAF_SOAK_SAVE=<path> starts it from an existing save (a finished week, say) instead of a new one
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #   Tools/unity.sh film <name> [player args]
@@ -159,6 +163,12 @@ case "${1:-open}" in
                  -logFile "$PROJECT/Logs/taptest.log" "${@:4}"
                grep -a "\[TapTest\]" "$PROJECT/Logs/taptest.log"
                grep -a -q "\[TapTest\] PASS" "$PROJECT/Logs/taptest.log" ;;
+  soak)        rm -rf "$PROJECT/Screenshots/soak"; mkdir -p "$PROJECT/Screenshots/soak"
+               player soak timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafSoak "$PROJECT/Screenshots/soak" -lafCycles "${2:-30}" \
+                 -lafSave "${LAF_SOAK_SAVE:-$PROJECT/Screenshots/soak/save.json}" -lafNoMusic -lafNoVsync -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/soak.log" "${@:3}"
+               grep -a "\[Soak\]" "$PROJECT/Logs/soak.log" | tail -n 14
+               grep -a -q "\[Soak\] PASS" "$PROJECT/Logs/soak.log" ;;
   trailer)     out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
                player trailer timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
                  -lafDemo "$out/raw" -lafRecordOnly -lafRecordFrom 4.5 -lafSave "$out/raw/save.json" -lafNoVsync \
@@ -184,5 +194,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|soak|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

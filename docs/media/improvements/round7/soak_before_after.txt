@@ -1,0 +1,96 @@
+# Tools/unity.sh soak 30, before the fix (load 17-36)
+[Soak] cycle 0 (title, first time): managed 4.9 MB, unity 337.8 MB, resident 383.4 MB; materials 406, meshes 134, textures 186, gameobjects 454; day 0, load 17.44
+[Soak] cycle 1 (start the day again): managed 7.0 MB, unity 368.8 MB, resident 413.9 MB; materials 590, meshes 165, textures 204, gameobjects 540; day 2, load 18.78
+[Soak] cycle 2 (back to the title, Continue): managed 7.1 MB, unity 379.9 MB, resident 422.0 MB; materials 649, meshes 185, textures 206, gameobjects 574; day 2, load 18.63
+[Soak] cycle 3 (Choose a Day (Monday)): managed 7.3 MB, unity 381.1 MB, resident 421.3 MB; materials 688, meshes 189, textures 208, gameobjects 536; day 1, load 17.45
+[Soak] cycle 4 (start the day again): managed 7.1 MB, unity 381.4 MB, resident 422.6 MB; materials 699, meshes 189, textures 209, gameobjects 536; day 1, load 21.32
+[Soak] cycle 5 (back to the title, Continue): managed 7.5 MB, unity 387.4 MB, resident 428.0 MB; materials 737, meshes 199, textures 211, gameobjects 547; day 1, load 24.09
+[Soak] cycle 6 (Choose a Day (Monday)): managed 7.3 MB, unity 387.0 MB, resident 427.3 MB; materials 748, meshes 199, textures 213, gameobjects 547; day 1, load 27.83
+[Soak] cycle 7 (start the day again): managed 7.2 MB, unity 387.5 MB, resident 428.6 MB; materials 759, meshes 199, textures 214, gameobjects 547; day 1, load 31.33
+[Soak] cycle 8 (back to the title, Continue): managed 7.4 MB, unity 387.5 MB, resident 429.1 MB; materials 770, meshes 199, textures 216, gameobjects 547; day 1, load 28.74
+[Soak] cycle 9 (Choose a Day (Monday)): managed 7.3 MB, unity 388.8 MB, resident 428.1 MB; materials 781, meshes 199, textures 218, gameobjects 547; day 1, load 27.58
+[Soak] cycle 10 (start the day again): managed 7.2 MB, unity 389.5 MB, resident 429.5 MB; materials 792, meshes 199, textures 219, gameobjects 547; day 1, load 25.57
+[Soak] cycle 11 (back to the title, Continue): managed 7.4 MB, unity 389.5 MB, resident 429.3 MB; materials 803, meshes 199, textures 221, gameobjects 547; day 1, load 24.24
+[Soak] cycle 12 (Choose a Day (Monday)): managed 7.3 MB, unity 389.1 MB, resident 429.9 MB; materials 814, meshes 199, textures 223, gameobjects 547; day 1, load 24.81
+[Soak] cycle 13 (start the day again): managed 7.2 MB, unity 389.2 MB, resident 429.8 MB; materials 825, meshes 199, textures 224, gameobjects 547; day 1, load 23.83
+[Soak] cycle 14 (back to the title, Continue): managed 7.4 MB, unity 388.9 MB, resident 430.4 MB; materials 836, meshes 199, textures 226, gameobjects 547; day 1, load 22.68
+[Soak] cycle 15 (Choose a Day (Monday)): managed 7.4 MB, unity 390.1 MB, resident 430.9 MB; materials 847, meshes 199, textures 228, gameobjects 547; day 1, load 22.35
+[Soak] cycle 16 (start the day again): managed 7.3 MB, unity 390.3 MB, resident 433.6 MB; materials 858, meshes 199, textures 229, gameobjects 547; day 1, load 25.29
+[Soak] cycle 17 (back to the title, Continue): managed 7.5 MB, unity 390.7 MB, resident 439.9 MB; materials 869, meshes 199, textures 231, gameobjects 547; day 1, load 26.08
+[Soak] cycle 18 (Choose a Day (Monday)): managed 7.4 MB, unity 391.7 MB, resident 440.7 MB; materials 880, meshes 199, textures 233, gameobjects 547; day 1, load 28.27
+[Soak] cycle 19 (start the day again): managed 7.3 MB, unity 391.8 MB, resident 444.0 MB; materials 891, meshes 199, textures 234, gameobjects 547; day 1, load 27.66
+[Soak] cycle 20 (back to the title, Continue): managed 7.4 MB, unity 392.1 MB, resident 450.1 MB; materials 902, meshes 199, textures 236, gameobjects 547; day 1, load 26.66
+[Soak] cycle 21 (Choose a Day (Monday)): managed 7.5 MB, unity 391.7 MB, resident 452.4 MB; materials 913, meshes 199, textures 238, gameobjects 547; day 1, load 25.71
+[Soak] cycle 22 (start the day again): managed 7.3 MB, unity 392.7 MB, resident 454.9 MB; materials 924, meshes 199, textures 239, gameobjects 547; day 1, load 37.41
+[Soak] cycle 23 (back to the title, Continue): managed 7.5 MB, unity 392.3 MB, resident 456.9 MB; materials 935, meshes 199, textures 241, gameobjects 547; day 1, load 36.22
+[Soak] cycle 24 (Choose a Day (Monday)): managed 7.4 MB, unity 393.1 MB, resident 461.7 MB; materials 946, meshes 199, textures 243, gameobjects 547; day 1, load 35.38
+[Soak] cycle 25 (start the day again): managed 7.3 MB, unity 393.3 MB, resident 461.6 MB; materials 957, meshes 199, textures 244, gameobjects 547; day 1, load 32.50
+[Soak] cycle 26 (back to the title, Continue): managed 7.6 MB, unity 393.9 MB, resident 462.3 MB; materials 968, meshes 199, textures 246, gameobjects 547; day 1, load 29.83
+[Soak] cycle 27 (Choose a Day (Monday)): managed 7.5 MB, unity 395.1 MB, resident 462.4 MB; materials 979, meshes 199, textures 248, gameobjects 547; day 1, load 33.63
+[Soak] cycle 28 (start the day again): managed 7.4 MB, unity 394.7 MB, resident 462.6 MB; materials 990, meshes 199, textures 249, gameobjects 547; day 1, load 36.22
+[Soak] cycle 29 (back to the title, Continue): managed 7.6 MB, unity 394.2 MB, resident 462.8 MB; materials 1001, meshes 199, textures 251, gameobjects 547; day 1, load 34.36
+[Soak] cycle 30 (Choose a Day (Monday)): managed 7.5 MB, unity 394.8 MB, resident 465.1 MB; materials 1012, meshes 199, textures 253, gameobjects 547; day 1, load 34.53
+[Soak] from cycle 1 to 30: materials 590 → 1012, meshes 165 → 199, textures 204 → 253, gameobjects 540 → 547, unity 368.8 MB → 394.8 MB, resident 413.9 MB → 465.1 MB
+[Soak] materials: 913 → 1012 over the last 10 cycles (+10.8%), most 1012
+[Soak] meshes: 199 → 199 over the last 10 cycles (+0.0%), most 199
+[Soak] textures: 238 → 253 over the last 10 cycles (+6.3%), most 253
+[Soak] gameobjects: 547 → 547 over the last 10 cycles (+0.0%), most 547
+[Soak] unity MB: 391.7 → 394.8 over the last 10 cycles (+0.8%), most 395.1
+[Soak] managed MB: 7.5 → 7.5 over the last 10 cycles (+0.7%), most 7.6
+[Soak] 30 cycles in 323s; GROWING
+[Soak] FAIL
+
+# what grew each rebuild (an 8-cycle run without the fix, by name)
+[Soak]   more than last cycle: Material "M_Lit" +5, Material "IMFell Material (Instance)" +1, Material "CrimsonPro Material (Instance)" +2, Material "SpecialElite Material (Instance)" +1, Material "glass_A8C8D0 (Instance)" +1, Material "emit_FFE3B0 (Instance)" +1, Texture2D "" +1
+[Soak]   more than last cycle: Material "M_Lit" +5, Material "IMFell Material (Instance)" +1, Material "CrimsonPro Material (Instance)" +2, Material "SpecialElite Material (Instance)" +1, Material "glass_A8C8D0 (Instance)" +1, Material "emit_FFE3B0 (Instance)" +1, Texture2D "" +2
+
+# Tools/unity.sh soak 30, after the fix (load 28-31)
+[Soak] cycle 0 (title, first time): managed 4.9 MB, unity 341.9 MB, resident 384.0 MB; materials 406, meshes 134, textures 186, gameobjects 454; day 0, load 26.23
+[Soak] cycle 1 (start the day again): managed 7.1 MB, unity 369.2 MB, resident 417.3 MB; materials 578, meshes 165, textures 202, gameobjects 540; day 2, load 26.42
+[Soak] cycle 2 (back to the title, Continue): managed 7.4 MB, unity 379.1 MB, resident 426.8 MB; materials 626, meshes 185, textures 203, gameobjects 574; day 2, load 25.59
+[Soak] cycle 3 (Choose a Day (Monday)): managed 7.3 MB, unity 378.9 MB, resident 427.0 MB; materials 654, meshes 189, textures 203, gameobjects 536; day 1, load 23.51
+[Soak] cycle 4 (start the day again): managed 7.2 MB, unity 378.5 MB, resident 426.0 MB; materials 654, meshes 189, textures 202, gameobjects 536; day 1, load 23.50
+[Soak] cycle 5 (back to the title, Continue): managed 7.5 MB, unity 383.8 MB, resident 430.8 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 23.44
+[Soak] cycle 6 (Choose a Day (Monday)): managed 7.2 MB, unity 380.5 MB, resident 428.8 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 27.59
+[Soak] cycle 7 (start the day again): managed 7.3 MB, unity 382.0 MB, resident 428.7 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 28.10
+[Soak] cycle 8 (back to the title, Continue): managed 7.3 MB, unity 381.5 MB, resident 429.5 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 26.10
+[Soak] cycle 9 (Choose a Day (Monday)): managed 7.4 MB, unity 381.5 MB, resident 429.7 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 23.76
+[Soak] cycle 10 (start the day again): managed 7.3 MB, unity 382.2 MB, resident 429.0 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 22.71
+[Soak] cycle 11 (back to the title, Continue): managed 7.5 MB, unity 381.6 MB, resident 429.2 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 22.58
+[Soak] cycle 12 (Choose a Day (Monday)): managed 7.3 MB, unity 382.3 MB, resident 429.9 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 22.19
+[Soak] cycle 13 (start the day again): managed 7.3 MB, unity 383.3 MB, resident 429.4 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 23.87
+[Soak] cycle 14 (back to the title, Continue): managed 7.4 MB, unity 382.8 MB, resident 429.7 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 27.15
+[Soak] cycle 15 (Choose a Day (Monday)): managed 7.4 MB, unity 383.9 MB, resident 429.8 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 27.56
+[Soak] cycle 16 (start the day again): managed 7.3 MB, unity 384.0 MB, resident 429.7 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 27.79
+[Soak] cycle 17 (back to the title, Continue): managed 7.4 MB, unity 384.3 MB, resident 430.2 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 28.48
+[Soak] cycle 18 (Choose a Day (Monday)): managed 7.3 MB, unity 384.0 MB, resident 430.1 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 29.68
+[Soak] cycle 19 (start the day again): managed 7.3 MB, unity 384.0 MB, resident 429.8 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 29.93
+[Soak] cycle 20 (back to the title, Continue): managed 7.4 MB, unity 384.0 MB, resident 430.4 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 31.22
+[Soak] cycle 21 (Choose a Day (Monday)): managed 7.4 MB, unity 384.3 MB, resident 430.4 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 31.45
+[Soak] cycle 22 (start the day again): managed 7.3 MB, unity 384.0 MB, resident 414.9 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 29.14
+[Soak] cycle 23 (back to the title, Continue): managed 7.5 MB, unity 383.3 MB, resident 415.2 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 29.43
+[Soak] cycle 24 (Choose a Day (Monday)): managed 7.3 MB, unity 384.0 MB, resident 415.4 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 33.45
+[Soak] cycle 25 (start the day again): managed 7.3 MB, unity 383.7 MB, resident 415.2 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 34.99
+[Soak] cycle 26 (back to the title, Continue): managed 7.4 MB, unity 383.6 MB, resident 415.2 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 33.43
+[Soak] cycle 27 (Choose a Day (Monday)): managed 7.5 MB, unity 384.6 MB, resident 415.2 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 29.20
+[Soak] cycle 28 (start the day again): managed 7.3 MB, unity 384.7 MB, resident 415.2 MB; materials 681, meshes 199, textures 202, gameobjects 547; day 1, load 30.17
+[Soak] cycle 29 (back to the title, Continue): managed 7.5 MB, unity 384.5 MB, resident 415.5 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 28.21
+[Soak] cycle 30 (Choose a Day (Monday)): managed 7.3 MB, unity 384.2 MB, resident 415.6 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 30.52
+[Soak] from cycle 1 to 30: materials 578 → 681, meshes 165 → 199, textures 202 → 203, gameobjects 540 → 547, unity 369.2 MB → 384.2 MB, resident 417.3 MB → 415.6 MB
+[Soak] materials: 681 → 681 over the last 10 cycles (+0.0%), most 681
+[Soak] meshes: 199 → 199 over the last 10 cycles (+0.0%), most 199
+[Soak] textures: 203 → 203 over the last 10 cycles (+0.0%), most 203
+[Soak] gameobjects: 547 → 547 over the last 10 cycles (+0.0%), most 547
+[Soak] unity MB: 384.3 → 384.2 over the last 10 cycles (+0.0%), most 384.7
+[Soak] managed MB: 7.4 → 7.3 over the last 10 cycles (-1.3%), most 7.5
+[Soak] 30 cycles in 330s; 20 menu choices asked for a second click; steady
+[Soak] PASS
+
+# Tools/unity.sh autopilot 4 1 best -lafWeeks 2 -lafTextAudit (load 26-36)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 202s
+[Auto] week 1 of 2 passed; on to the next in this process: managed 11.6 MB, unity 473.3 MB, resident 485.6 MB; materials 1330, meshes 434, textures 238, gameobjects 910; load 35.97
+[Auto] week 2 begins in the same process: managed 11.8 MB, unity 473.5 MB, resident 485.9 MB; materials 1340, meshes 483, textures 244, gameobjects 1221; load 34.21
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 200s
+[TextAudit] 192 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] 2 weeks in one process: managed 11.9 MB, unity 474.8 MB, resident 528.2 MB; materials 1330, meshes 434, textures 238, gameobjects 910; load 27.22
+[Auto] PASS

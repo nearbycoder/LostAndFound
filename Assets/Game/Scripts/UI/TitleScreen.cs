@@ -373,8 +373,9 @@ namespace LostAndFound
             Show();
         }
 
-        void Show()
+        public void Show()
         {
+            if (Open) return;
             Open = true;
             UIRoot.I.PushModal();
             prevScale = Time.timeScale;

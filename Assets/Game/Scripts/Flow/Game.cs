@@ -162,6 +162,7 @@ namespace LostAndFound
             if (Arg("-lafAuditHotspots") != null) gameObject.AddComponent<HotspotAudit>();
             if (Arg("-lafGamepadTest") != null) gameObject.AddComponent<GamepadTest>();
             if (Arg("-lafTapTest") != null) gameObject.AddComponent<TapTest>();
+            if (Arg("-lafSoak") != null) Soak.Ensure();
         }
 
         void Start()
@@ -180,16 +181,24 @@ namespace LostAndFound
             int pending = pendingDay;
             pendingDay = 0;
             if (pending > 0) { ReplayDay(pending); return; }
+            if (rebuilt) UnloadLeftovers();   // back at the title: the game this one replaced is gone (a day does this itself)
             ToTitle();
         }
 
         static int pendingDay;
+        static bool rebuilt;
+
+        /// <summary>Let go of whatever the game made at runtime (materials for objects, stamp marks, the window glass's
+        /// frost, textures) that nothing uses any more. The game is rebuilt in place rather than by loading a scene, so
+        /// nothing else does this: without it each Restart and each day left a few behind (Tools/unity.sh soak).</summary>
+        public static AsyncOperation UnloadLeftovers() => Resources.UnloadUnusedAssets();
 
         /// <summary>Tear the whole game down and build it again: back to the title (day 0) or straight into a replay of a day.</summary>
         public void Restart(int day)
         {
             Time.timeScale = 1f;
             pendingDay = day;
+            rebuilt = true;
             var fresh = new GameObject("Game");
             Destroy(gameObject);
             fresh.AddComponent<Game>();

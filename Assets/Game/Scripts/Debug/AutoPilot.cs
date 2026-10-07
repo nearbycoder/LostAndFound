@@ -34,6 +34,10 @@ namespace LostAndFound
         /// <summary>-lafTextAudit: check every text on screen against its box at each screenshot (TextAudit).</summary>
         bool textAudit;
         int tourNudges, tourGlints, tourParts;
+        /// <summary>-lafWeeks N: play N weeks back to back in one process. After each week the ending hands back to the title,
+        /// which rebuilds the game (this component included), and the next AutoPilot begins a new week.</summary>
+        static int weeksDone;
+        static bool weeksAllPassed = true;
         Quaternion[] tourTurns;
 
         void Start()
@@ -65,6 +69,7 @@ namespace LostAndFound
             if (Game.Arg("-lafContinue") != null) { startDay = Mathf.Max(1, Game.I.Save.currentDay); Game.I.ContinueWeek(); }
             else if (int.TryParse(Game.Arg("-lafDay") ?? "", out int day) && day > 1) { startDay = day; Game.I.StartFromDay(day); }
             else Game.I.NewWeek();
+            if (weeksDone > 0) Debug.Log($"[Auto] week {weeksDone + 1} begins in the same process: {Soak.MemoryLine()}");
             StartCoroutine(Run());
         }
 
@@ -171,7 +176,17 @@ namespace LostAndFound
             Debug.Log($"[Auto] the week's record (this run and any before it): {all.Count(r => r.grade == "best")} best of {all.Count} decided");
             foreach (var p in problems) Debug.Log("[Auto] problem: " + p);
             bool pass = problems.Count == 0 && (policy != "best" || best + skipped == cases);
-            Debug.Log(pass ? "[Auto] PASS" : "[Auto] FAIL");
+            weeksDone++;
+            weeksAllPassed &= pass;
+            int weeks = int.TryParse(Game.Arg("-lafWeeks") ?? "", out int w) ? w : 1;
+            if (weeksDone < weeks)
+            {
+                // the week summary hands back to the title, and the rebuilt game's AutoPilot begins the next week
+                Debug.Log($"[Auto] week {weeksDone} of {weeks} {(pass ? "passed" : "FAILED")}; on to the next in this process: {Soak.MemoryLine()}");
+                yield break;
+            }
+            if (weeks > 1) Debug.Log($"[Auto] {weeksDone} weeks in one process: {Soak.MemoryLine()}");
+            Debug.Log(pass && weeksAllPassed ? "[Auto] PASS" : "[Auto] FAIL");
             Application.Quit();
         }
 
