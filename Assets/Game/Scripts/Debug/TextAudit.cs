@@ -77,6 +77,9 @@ namespace LostAndFound
             var canvas = t is TextMeshProUGUI ui ? ui.canvas?.rootCanvas : null;
             var cam = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? (canvas.worldCamera != null ? canvas.worldCamera : Camera.main)
                 : canvas == null ? Camera.main : null;
+            // a 3D text the camera isn't looking at (its renderer may still count as visible, for a shadow) isn't checked
+            if (canvas == null && cam != null && t.TryGetComponent<Renderer>(out var rend)
+                && !GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(cam), rend.bounds)) return list;
             for (int i = 0; i < max; i++)
             {
                 var c = ti.characterInfo[i];
@@ -86,6 +89,9 @@ namespace LostAndFound
                 var r = Rect.MinMaxRect(Mathf.Min(p0.x, p1.x), Mathf.Min(p0.y, p1.y), Mathf.Max(p0.x, p1.x), Mathf.Max(p0.y, p1.y));
                 float ix = r.width * 0.15f, iy = r.height * 0.2f;
                 r = Rect.MinMaxRect(r.xMin + ix, r.yMin + iy, r.xMax - ix, r.yMax - iy);
+                // only what's on screen: a 3D text can count as visible for casting a shadow into view while it's behind the
+                // turned camera, where its letters project wildly
+                r = Rect.MinMaxRect(Mathf.Max(r.xMin, 0f), Mathf.Max(r.yMin, 0f), Mathf.Min(r.xMax, Screen.width), Mathf.Min(r.yMax, Screen.height));
                 if (r.width > 0f && r.height > 0f) list.Add(r);
             }
             return list;
