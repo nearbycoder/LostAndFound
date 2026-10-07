@@ -826,3 +826,52 @@ timestamps, hashes) at the end of the round and at its start**.
 - Hosting the WebGL build (it's current again as of this round; the host must send `.br` files with `Content-Encoding: br`).
 - Whether a tracing tool (`strace`) may be installed for future checks like R6-D. It wasn't needed this time.
 - Curiosities across weeks (above). Licence, releases and tags, signing, and Windows Build Support are unchanged from before.
+
+## Round 7 scope (7 Oct 2026)
+
+Branch `improvements-7`, one commit per item. Screenshots and logs go in
+[`media/improvements/round7/`](media/improvements/round7/). Before choosing, I followed what the title and pause menus
+do to the save, and how the game rebuilds itself. Two things a player could hit that no check covers: **the whole game is
+torn down and rebuilt in the same process** whenever you start the day again, go back to the title or finish the week
+(`Game.Restart`), and nothing has ever measured what that leaves behind. Round 6's one unexplained crash came on exactly
+that path (a second week in one process). And **three menu choices throw away progress with one click**, with no warning:
+*Start the day again* undoes every claim decided today; *Choose a Day* during a week rewinds the whole week to that
+day's morning (on Thursday, replaying Monday leaves *Continue* pointing at Monday); and after a finished week a replay
+can't be *Continue*d at all, because the save still says the week is finished.
+
+### R7-A. Play on without quitting
+- A soak test, `Tools/unity.sh soak [cycles]` (`-lafSoak`): in one process it goes round the menus' own paths again and
+  again (begin, start the day again, back to the title, *Continue*, *Choose a Day*), and after each rebuild logs the
+  managed heap, Unity's allocated memory and the live Materials, Meshes, Textures and GameObjects.
+- AutoPilot `-lafWeeks 2`: two whole weeks back to back in one process (finish, the week summary, back to the title, a
+  new week), the path that crashed in round 6.
+- Fix whatever grows.
+
+**Acceptance:** over 30 rebuilds, live object counts and allocated memory stop growing (the last 10 cycles within 2%
+of each other, not climbing cycle on cycle); two `best` weeks in one process both PASS (24/24, *The 9:40*) with no
+crash. Load average noted with each run.
+**Verify:** `[Soak]` lines before and after any fix, the two-week AutoPilot log.
+
+### R7-B. No progress lost by surprise
+- *Start the day again* (pause menu), once claims have been decided today, asks for a second click and says what it
+  undoes, as *A New Week* already does.
+- *Choose a Day* during an unfinished week, for a day that would rewind it (an earlier day, or today's morning after
+  decided claims), asks for a second click and says where the week is now.
+- A replay after a finished week can be picked up with *Continue*, like any other day in progress.
+- The wording comes from one pure function, unit-tested.
+
+**Acceptance:** unit tests for the wording (nothing to lose means no second click) and for the save after a replay
+begins; in the player, the soak clicks the real buttons and screenshots show each confirm; one click changes nothing,
+two clicks do what they did before. *Continue* appears after a replay of a finished week, and resumes it.
+**Verify:** test results, soak log and screenshots.
+
+### R7-C. Agnes's full rules card reaches its size
+Round 6 set 28 units for Friday's full rules card and reached 27.7. Trim the card's margins so it gets there.
+
+**Acceptance:** AutoPilot `[Rules]` line for Friday's full card at 1600×900 ≥ 28, Monday's unchanged, 0 overflowing or
+overlapping texts in the text audit.
+**Verify:** AutoPilot log and a screenshot.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the
+text audit, the nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared
+with its state at the start of the round.
