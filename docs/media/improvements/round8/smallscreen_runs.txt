@@ -1,0 +1,99 @@
+== 1280x720@1
+Desktop is 1280 x 720 @ 60 Hz
+[Window] desktop 1280x720, window 1600x900: now 1124x632
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1280,"height":720} scale=1
+[geom] window 'Lost & Found' frame={"x":78,"y":30,"width":1124,"height":660} fullscreen=false
+== 1280x720@1_before
+Desktop is 1280 x 720 @ 60 Hz
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1280,"height":720} scale=1
+[geom] window 'Lost & Found' frame={"x":0,"y":0,"width":1600,"height":928} fullscreen=false
+== 1366x768@1
+Desktop is 1366 x 768 @ 60 Hz
+[Window] desktop 1366x768, window 1600x900: now 1200x674
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":83,"y":33,"width":1200,"height":702} fullscreen=false
+== 1366x768@1_before
+Desktop is 1366 x 768 @ 60 Hz
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":0,"y":0,"width":1600,"height":928} fullscreen=false
+== 1366x768@1_fstrip
+Desktop is 1366 x 768 @ 60 Hz
+[Window] desktop 1366x768, window 1600x900: now 1200x674
+[Window] before the trip: 1200x674 Windowed
+[Window] fullscreen on a 1366x768 desktop
+[Window] fullscreen: 1366x768 FullScreenWindow
+[Window] desktop 1366x768, window 1366x768 leaving fullscreen: now 1200x674
+[Window] back in a window: 1200x674 Windowed
+[geom] at 9s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":83,"y":33,"width":1200,"height":702} fullscreen=false
+[geom] at 16s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":0,"y":0,"width":1366,"height":768} fullscreen=true
+[geom] at 24s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":83,"y":33,"width":1200,"height":702} fullscreen=false
+== 1366x768@1_remembered
+Desktop is 1366 x 768 @ 60 Hz
+[Window] desktop 1366x768, window 1200x674: fits
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":83,"y":33,"width":1200,"height":702} fullscreen=false
+== 1366x768@1_startfull
+Desktop is 1366 x 768 @ 60 Hz
+[Window] fullscreen on a 1366x768 desktop
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1366,"height":768} scale=1
+[geom] window 'Lost & Found' frame={"x":0,"y":0,"width":1366,"height":768} fullscreen=true
+== 1440x900@1
+Desktop is 1440 x 900 @ 60 Hz
+[Window] desktop 1440x900, window 1600x900: now 1324x744
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1440,"height":900} scale=1
+[geom] window 'Lost & Found' frame={"x":58,"y":64,"width":1324,"height":772} fullscreen=false
+== 1440x900@1_before
+Desktop is 1440 x 900 @ 60 Hz
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1440,"height":900} scale=1
+[geom] window 'Lost & Found' frame={"x":0,"y":0,"width":1600,"height":928} fullscreen=false
+== 1920x1080@1
+Desktop is 1920 x 1080 @ 60 Hz
+[Window] desktop 1920x1080, window 1600x900: fits
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1920,"height":1080} scale=1
+[geom] window 'Lost & Found' frame={"x":160,"y":76,"width":1600,"height":928} fullscreen=false
+== 1920x1080@1_before
+Desktop is 1920 x 1080 @ 60 Hz
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1920,"height":1080} scale=1
+[geom] window 'Lost & Found' frame={"x":160,"y":76,"width":1600,"height":928} fullscreen=false
+Desktop is 1920 x 1080 @ 60 Hz
+[Window] desktop 1920x1080, window 1600x900: fits
+[geom] at 9s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1920,"height":1080} scale=1
+[geom] window 'Lost & Found' frame={"x":160,"y":76,"width":1600,"height":928} fullscreen=false
+Desktop is 1920 x 1080 @ 60 Hz
+[Window] desktop 1920x1080, window 1600x900: fits
+[geom] at 9s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1920,"height":1080} scale=1
+[geom] window 'Lost & Found' frame={"x":160,"y":76,"width":1600,"height":928} fullscreen=false
+Desktop is 1920 x 1080 @ 60 Hz
+[Window] desktop 1920x1080, window 1600x900: fits
+[geom] at 9s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1920,"height":1080} scale=1
+[geom] window 'Lost & Found' frame={"x":160,"y":76,"width":1600,"height":928} fullscreen=false
+== 2560x1600@2
+Desktop is 1280 x 800 @ 60 Hz
+[Window] desktop 1280x800, window 1600x900: now 1176x662
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1280,"height":800} scale=2
+[geom] window 'Lost & Found' frame={"x":52,"y":55,"width":1176,"height":690} fullscreen=false
+== 2560x1600@2_before
+Desktop is 1280 x 800 @ 60 Hz
+[geom] at 14s
+[geom] output Virtual-0 {"x":0,"y":0,"width":1280,"height":800} scale=2
+[geom] window 'Lost & Found' frame={"x":0,"y":0,"width":1600,"height":928} fullscreen=false

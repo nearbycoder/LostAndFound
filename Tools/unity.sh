@@ -30,6 +30,13 @@
 #                                  Choose a Day again and again in one process, logging memory and live objects after each
 #                                  rebuild; log in Logs/soak.log, screenshots in Screenshots/soak/
 #                                  LAF_SOAK_SAVE=<path> starts it from an existing save (a finished week, say) instead of a new one
+#   Tools/unity.sh smallscreen [w] [h] [scale] [player args]
+#                                  a first launch on a screen of that size: the player (a short smoke run) inside a headless KWin of
+#                                  its own (its own D-Bus session and scratch folders: nothing shows on the desktop, and the
+#                                  real session's settings aren't touched). KWin reports where the window is, and spectacle
+#                                  photographs the whole screen, at each of LAF_SHOTS seconds (default 14). Results in
+#                                  Screenshots/smallscreen/<w>x<h>@<scale>/. LAF_KB_LAYOUT=fr (and LAF_KB_VARIANT) sets the
+#                                  keyboard layout, LAF_KEEP_PREFS=1 keeps the last run's window prefs, LAF_SECONDS the run's length.
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #   Tools/unity.sh film <name> [player args]
@@ -169,6 +176,27 @@ case "${1:-open}" in
                  -logFile "$PROJECT/Logs/soak.log" "${@:3}"
                grep -a "\[Soak\]" "$PROJECT/Logs/soak.log" | tail -n 14
                grep -a -q "\[Soak\] PASS" "$PROJECT/Logs/soak.log" ;;
+  smallscreen) w="${2:-1366}"; h="${3:-768}"; scale="${4:-1}"
+               out="$PROJECT/Screenshots/smallscreen/${w}x${h}@${scale}${LAF_TAG:+_$LAF_TAG}"; rm -rf "$out"; mkdir -p "$out/shots"
+               cfg="$PROJECT/Logs/config/smallscreen"; xdg="$PROJECT/Logs/config/smallscreen-xdg"
+               [ "${LAF_KEEP_PREFS:-0}" = 1 ] || rm -rf "$cfg/unity3d"   # a first launch, unless asked to keep the last run's prefs
+               rm -f "$cfg/kwinoutputconfig.json"   # KWin remembers the last run's output scale there
+               mkdir -p "$cfg" "$xdg/data" "$xdg/cache" "$xdg/state"
+               printf '[Layout]\nLayoutList=%s\nVariantList=%s\nUse=true\n' "${LAF_KB_LAYOUT:-us}" "${LAF_KB_VARIANT:-}" > "$cfg/kxkbrc"
+               printf '#!/bin/bash\nexec "%s" timeout -s KILL %s "%s" -lafSmoke "%s" -lafSave "%s" -lafSeconds %s -logFile "%s"' \
+                 "$PROJECT/Tools/smallscreen_session.sh" $(( ${LAF_SECONDS:-12} + 90 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
+                 "$out/shots" "$out/shots/save.json" "${LAF_SECONDS:-12}" "$out/player.log" > "$out/session.sh"
+               for a in "${@:5}"; do printf ' %q' "$a" >> "$out/session.sh"; done; chmod +x "$out/session.sh"
+               st=0
+               guarded smallscreen sh -c 'log=$1; shift; exec "$@" > "$log" 2>&1' _ "$out/kwin.log" env -u DISPLAY -u WAYLAND_DISPLAY XDG_CONFIG_HOME="$cfg" XDG_DATA_HOME="$xdg/data" XDG_CACHE_HOME="$xdg/cache" \
+                 XDG_STATE_HOME="$xdg/state" SDL_VIDEODRIVER=wayland KWIN_SCREENSHOT_NO_PERMISSION_CHECKS=1 QT_FORCE_STDERR_LOGGING=1 \
+                 QT_LOGGING_RULES="js.debug=true" LAF_SMALLSCREEN=1 LAF_OUT="$out" LAF_SCALE="$scale" LAF_SHOTS="${LAF_SHOTS:-14}" \
+                 timeout -s KILL $(( ${LAF_SECONDS:-12} + 150 )) dbus-run-session -- kwin_wayland --virtual --width "$w" --height "$h" \
+                 --socket "laf-smallscreen-$$" --no-lockscreen --exit-with-session "$out/session.sh" || st=$?
+               grep -a "Desktop is\|\[Window\]\|\[Keys\]" "$out/player.log" | awk '!seen[$0]++' | head -n 12
+               grep -a "js: \[geom\]\|^\[geom\] at" "$out/kwin.log" | sed 's/^js: //'
+               ls "$out" | grep screen_
+               [ $st -ne 99 ] ;;
   trailer)     out="$PROJECT/Recordings"; rm -rf "$out/raw"; mkdir -p "$out/raw"
                player trailer timeout -s KILL 1500 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out/raw/shots" -lafDay 4 -lafSpeed 1 \
                  -lafDemo "$out/raw" -lafRecordOnly -lafRecordFrom 4.5 -lafSave "$out/raw/save.json" -lafNoVsync \
@@ -194,5 +222,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|soak|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

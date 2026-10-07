@@ -48,6 +48,13 @@ namespace LostAndFound
                 Debug.Log($"[Smoke] picture quality set to {GraphicsQuality.Names[Settings.PictureQuality]}");
                 SettingsPanel.Open(null);   // the screenshots from here on show the panel with the new value
             }
+            // -lafFullscreenTrip: Settings > Fullscreen on, then off again, as the toggle does (only ever run inside
+            // Tools/unity.sh smallscreen's headless KWin, never on a real desktop)
+            if (Game.Arg("-lafFullscreenTrip") != null)
+            {
+                if (System.Environment.GetEnvironmentVariable("LAF_SMALLSCREEN") == "1") StartCoroutine(FullscreenTrip());
+                else Debug.LogWarning("[Window] -lafFullscreenTrip ignored: only inside Tools/unity.sh smallscreen");
+            }
             int n = 0;
             float t = 0f;
             int lastFrame = Time.frameCount;
@@ -69,6 +76,20 @@ namespace LostAndFound
             }
             Debug.Log("[Smoke] done");
             Application.Quit();
+        }
+
+        IEnumerator FullscreenTrip()
+        {
+            yield return new WaitForSecondsRealtime(8f);
+            Debug.Log($"[Window] before the trip: {Screen.width}x{Screen.height} {Screen.fullScreenMode}");
+            Settings.Fullscreen = true;
+            Game.ApplyDisplay();
+            yield return new WaitForSecondsRealtime(6f);
+            Debug.Log($"[Window] fullscreen: {Screen.width}x{Screen.height} {Screen.fullScreenMode}");
+            Settings.Fullscreen = false;
+            Game.ApplyDisplay();
+            yield return new WaitForSecondsRealtime(6f);
+            Debug.Log($"[Window] back in a window: {Screen.width}x{Screen.height} {Screen.fullScreenMode}");
         }
     }
 }

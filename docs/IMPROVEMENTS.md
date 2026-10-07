@@ -929,7 +929,7 @@ and scratch config folders, so nothing appears on the shared desktop and the rea
 own scripting interface reports where the game's window lands, and `spectacle` can photograph its screen. The first probe
 answered round 7's question at once: **on a 1366×768 laptop the game opens a 1600×900 window** (KWin: frame 1600×928 on a
 1366×768 output), so the shelf arrow, the claim slip, the hint bar and every control strip are off the screen
-(`before_1366x768_screen.jpg`). With the output scaled to 200% (a 2732×1536 panel), Unity sees a 1366×768 desktop and does
+(`window_1366x768_before_after.jpg`, left). With the output scaled to 200% (a 2732×1536 panel), Unity sees a 1366×768 desktop and does
 the same. That's the first item. Following what else a new player meets in the first minutes turned up the rest.
 
 ### R8-A. The window fits the screen

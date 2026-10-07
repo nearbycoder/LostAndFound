@@ -141,6 +141,7 @@ namespace LostAndFound
             ui.AddComponent<PauseMenu>();
             ui.AddComponent<RulesHotkey>();
             ApplyDisplay();
+            if (!rebuilt) LogKeyLabels();
 
             var deskGo = new GameObject("Desk");
             deskGo.transform.SetParent(transform, false);
@@ -212,11 +213,47 @@ namespace LostAndFound
             Director.I.ReplayDay(day);
         }
 
+        static bool windowChecked;
+
+        /// <summary>What the keyboard's letter keys are printed with, as the player's keyboard layout says (a diagnostic).</summary>
+        static void LogKeyLabels()
+        {
+            var kb = UnityEngine.InputSystem.Keyboard.current;
+            if (kb == null) return;
+            var keys = new[] { "A", "D", "Q", "E", "W", "S", "Z", "H", "R", "L", "T", "M" };
+            Debug.Log("[Keys] printed on: " + string.Join(" ", keys.Select(k =>
+                $"{k}='{kb[(UnityEngine.InputSystem.Key)Enum.Parse(typeof(UnityEngine.InputSystem.Key), k)].displayName}'")) + $" (layout '{kb.keyboardLayout}')");
+        }
+
+        /// <summary>Fullscreen or a window, as Settings says. A window is made to fit the desktop (WindowFit) the first time
+        /// the game starts in one, and whenever it leaves fullscreen, which otherwise keeps the whole screen's size as a
+        /// window. A size given on the command line (-screen-width, as the test tools do) is left as it is.</summary>
         public static void ApplyDisplay()
         {
-            if (Application.isEditor) return;
+            if (Application.isEditor || Application.platform == RuntimePlatform.WebGLPlayer) return;
             var mode = Settings.Fullscreen ? FullScreenMode.FullScreenWindow : FullScreenMode.Windowed;
-            if (Screen.fullScreenMode != mode) Screen.fullScreenMode = mode;
+            bool leaving = mode == FullScreenMode.Windowed && Screen.fullScreenMode != FullScreenMode.Windowed;
+            bool first = !windowChecked;
+            windowChecked = true;
+            var desk = Screen.currentResolution;
+            if (mode != FullScreenMode.Windowed)
+            {
+                // on Wayland, changing fullScreenMode alone leaves an ordinary window (KWin says so in Tools/unity.sh smallscreen)
+                if (Screen.fullScreenMode != mode)
+                {
+                    Debug.Log($"[Window] fullscreen on a {desk.width}x{desk.height} desktop");
+                    Screen.SetResolution(desk.width, desk.height, mode);
+                }
+                return;
+            }
+            if (!(first || leaving)) return;
+            var size = leaving ? WindowFit.Default : new Vector2Int(Screen.width, Screen.height);
+            bool given = Arg("-screen-width") != null || Arg("-screen-height") != null;
+            var fit = given && !leaving ? size : WindowFit.Fit(size, desk.width, desk.height);
+            Debug.Log($"[Window] desktop {desk.width}x{desk.height}, window {Screen.width}x{Screen.height}" +
+                      (leaving ? " leaving fullscreen" : "") + (given ? " (size given on the command line)" : "") +
+                      (fit == size && !leaving ? ": fits" : $": now {fit.x}x{fit.y}"));
+            if (leaving || fit != size) Screen.SetResolution(fit.x, fit.y, FullScreenMode.Windowed);
         }
 
         /// <summary>Play earlier days with the solver's verdicts so a later day can start from a sensible state.</summary>
