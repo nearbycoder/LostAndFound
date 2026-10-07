@@ -590,3 +590,82 @@ hashes were identical at the end and at 20:28, when R4-D went in.
 - WebGL: Firefox and Safari, audible sound, browser input devices, a proper page template, hosting (above).
 - macOS on a Mac and Windows (blocked on the module), and the trailer and README screenshots, which predate rounds 1–4.
 - Interactive editor sessions (`Tools/unity.sh` with no command, or `headless`) still use the real config folder.
+
+## Round 5 scope (6 Oct 2026)
+
+Branch `improvements-5`, one commit per item. Screenshots go in
+[`media/improvements/round5/`](media/improvements/round5/). Before choosing, I reread the core loop in the
+code. The thing it hinges on, what a claimant **answers** when you ask about a finding, is only spoken. It's
+never written down, so a quick click past the answer loses the evidence, and the only way back is to ask
+again. That's item A. The rest is about reading, the editor guard, the browser page and the README pictures.
+
+### R5-A. What they said, beside the slip
+Claims go on the claim slip, but answers to your questions, and everything else claimants say, scroll away.
+- While you read the slip (hover, `Tab` or View, and while carrying a stamp over it), a card beside it lists
+  everything said in this claim, in order: each claimant's lines, your questions and their answers. Two
+  claimants are told apart by name. The card sits in the free space to the right of the slip, measured from
+  where the slip actually is on screen, so it never covers the slip or the stamps. If a claim runs long, the
+  oldest lines give way to the newest, and the claimant's opening is always kept.
+- No new key or button: it comes with the slip.
+
+**Acceptance:** the AutoPilot (`-lafTranscript`) asks about every finding in every case of the `best` week, then
+reads the slip. At each claim, the card holds exactly the lines spoken in that claim (counted as the dialogue
+box says them), and is fully on screen and clear of the slip. It still ends 24/24 on *The 9:40*. Screenshots at
+1600×900, at 1280×720 with Large text, and at 4:3 (1024×768).
+**Verify:** the AutoPilot log (`[Transcript]` lines, 0 problems) and the screenshots.
+
+### R5-B. Plain lettering, and a check that no text overflows
+The clerk's handwriting (Caveat) on tags and the slip, and Agnes's (Kalam) on notes, the rules and nudges,
+are period-right but harder to read for some players (dyslexia, low vision, reading in a second language).
+- Settings, *Plain lettering*: those two hands switch to the game's clear book face (Crimson Pro), at once,
+  everywhere they're used. Signatures stay as signatures.
+- A text audit for the AutoPilot (`-lafTextAudit`): at every screenshot it checks every visible piece of text
+  and reports any that runs outside its box.
+
+**Acceptance:** the switch applies live and persists. Full AutoPilot weeks with the text audit on report **no
+overflowing text** with plain lettering, at 1600×900 and at 1280×720 with Large text, and no more than with the
+normal hands (that baseline is measured first and recorded either way). The tag card, slip, a note, the rules
+card, a nudge and the ledger look right in both, in screenshots.
+**Verify:** AutoPilot logs (`[TextAudit]` lines), screenshot pairs, a prefs check in a scratch folder.
+
+### R5-C. The interactive editor doesn't touch the real save or settings either
+Rounds 3 and 4 sandboxed every built player and batch editor run. `Tools/unity.sh` with no command, or with
+`headless`, still runs the editor against the real `~/.config/unity3d/Nearby/Lost & Found/`, so pressing Play in
+the editor reads and writes the real save and settings.
+- Both get the same scratch config folder as the batch editor (links back to everything else in `~/.config`),
+  and the same before-and-after guard.
+
+**Acceptance:** a `headless` session started and stopped through the script, and a GUI editor opened and
+closed, leave the real folder's sizes, timestamps and hashes unchanged and print the guard's line. The editor
+still finds its licence.
+**Verify:** the guard lines, the real folder's state before and after, the editor logs.
+
+### R5-D. A WebGL page of the game's own
+The WebGL build still uses Unity's white default page with a fixed 960×600 canvas.
+- A page template in the game's colours: the canvas fills the window at 16:9, a loading bar while the 66 MB
+  downloads, a fullscreen button, a clear message if the browser has no WebGL 2 or the load fails, and a note
+  on phones that the game wants a mouse and keyboard. The game's `?laf…` test options keep working, and so does
+  the save flush to IndexedDB.
+
+**Acceptance:** built with `build-webgl`, it loads in headless Chrome on the real GPU, shows the loading bar,
+then the title filling the window at 1600×900 and at 1280×720, and the AutoPilot plays Monday through it with
+0 errors in the console. The save still survives a browser restart (quit after 1.2, reopen, *Continue* at 1.3).
+Nothing is hosted, and the desktop build is unchanged.
+**Verify:** `Tools/webgl_check.py` console logs and screenshots of the loading and title states.
+
+### R5-E. README screenshots of the game as it is now
+The ten README screenshots were cut from the v0.1.0 takes, before rounds 1–4: the umbrellas still lie on the
+shelf, the rules card isn't on the desk, and there's no findings count.
+- Film new takes of Monday to Thursday into **new** take folders (`Recordings/r5_day1` and so on, so the
+  original takes behind the trailer stay as they are) and cut the ten stills from them with `make_trailer.py
+  stills`, which gets an option to read from those takes. The trailer, its poster and the teaser aren't
+  touched: re-cutting them is the owner's call.
+
+**Acceptance:** each new still shows the same moment as the old one, from the current build: the umbrella stand,
+Agnes's card on the desk, the findings count where the object is held. Every take logs 0 details needing the
+recorder's fallback. Only the ten `screenshot_*.jpg` files change in `docs/media/`.
+**Verify:** the take logs, and a look at each still next to the old one.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies,
+the nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared
+with its state at the start of the round.
