@@ -27,6 +27,15 @@ namespace LostAndFound.Tests
         }
 
         [Test]
+        public void ReplayingTheDayFromTheLedgerAsksForTheWholeDay()
+        {
+            // the Day Ledger's "Replay the day" comes after every claim of the day is decided
+            Assert.AreEqual("Click again to undo today's five claims", ProgressGuard.RestartDay(5));
+            Assert.AreEqual("Click again to undo today's four claims", ProgressGuard.RestartDay(4));
+            Assert.IsNull(ProgressGuard.RestartDay(0), "a day whose claims all went elsewhere: nothing to undo");
+        }
+
+        [Test]
         public void ChoosingAnEarlierDayDuringAWeekSaysWhereTheWeekIs()
         {
             var thursday = At(4, 2);

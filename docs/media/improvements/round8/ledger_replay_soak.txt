@@ -1,0 +1,8 @@
+[Soak] "Replay the day" asked first: "Click again to undo today's four claims"
+[Soak] replayed day 1 from the ledger: its morning again, 0 claims decided
+[Soak] 3 cycles in 71s; 3 menu choices asked for a second click; too few cycles to judge memory (20 or more)
+[Soak] PASS
+12-cycle run: [Soak] "Replay the day" asked first: "Click again to undo today's four claims"
+12-cycle run: [Soak] replayed day 1 from the ledger: its morning again, 0 claims decided
+12-cycle run: [Soak] 12 cycles in 171s; 9 menu choices asked for a second click; too few cycles to judge memory (20 or more)
+12-cycle run: [Soak] PASS

@@ -170,7 +170,27 @@ namespace LostAndFound
             var nb = UiKit.Button(book.transform, "Next", d.Day >= d.Db.DayCount ? "Close the desk  ›" : "Next morning  ›", Fonts.Title, 40f, () => next = true);
             nb.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(-60f, -90f), new Vector2(420f, 60f));
             nb.normal = new Color(0.95f, 0.88f, 0.74f);
-            var rb = UiKit.Button(book.transform, "Replay", "Replay the day", Fonts.TitleItalic, 30f, () => replay = true);
+            // replaying undoes every claim of the day just finished: like the pause menu's "Start the day again", it says so
+            // and asks for a second click
+            PaperButton rb = null;
+            bool asked = false;
+            rb = UiKit.Button(book.transform, "Replay", "Replay the day", Fonts.TitleItalic, 30f, () =>
+            {
+                string loses = ProgressGuard.RestartDay(d.Save.casesDone);
+                if (loses != null && !asked)
+                {
+                    asked = true;
+                    rb.label.text = loses;
+                    // wider, to the right (clear of "Next morning"), so the warning reads on one line
+                    rb.GetComponent<RectTransform>().Place(new Vector2(400f, -88f), new Vector2(460f, 60f));
+                    rb.label.enableAutoSizing = true;
+                    rb.label.fontSizeMin = 20f;
+                    rb.label.fontSizeMax = 30f;
+                    rb.normal = rb.hover = new Color(0.96f, 0.62f, 0.5f);   // a warning red that reads on the dark below the book
+                    return;
+                }
+                replay = true;
+            });
             rb.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(320f, -88f), new Vector2(300f, 60f));
             rb.normal = new Color(0.8f, 0.72f, 0.6f);
             float waited = 0f;

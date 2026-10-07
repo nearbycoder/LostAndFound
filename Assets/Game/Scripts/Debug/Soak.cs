@@ -114,8 +114,35 @@ namespace LostAndFound
                 yield return Measure(cycle, what);
                 if (Time.realtimeSinceStartup - t0 > 3000f) { problems.Add("timed out"); break; }
             }
+            yield return LedgerReplay();
             Summary(Time.realtimeSinceStartup - t0);
             Application.Quit();
+        }
+
+        /// <summary>Decide the rest of today's claims, then on the Day Ledger click "Replay the day": it should ask first
+        /// (every claim of the day would be undone), and the second click should start the day again from its morning.</summary>
+        IEnumerator LedgerReplay()
+        {
+            if (Director.I == null || !Director.I.Running) { problems.Add("no day to finish for the ledger"); yield break; }
+            int day = Director.I.Day;
+            float until = Time.realtimeSinceStartup + 600f;
+            while (Time.realtimeSinceStartup < until && (UIRoot.I == null || UIRoot.I.root.Find("Ledger") == null))
+            {
+                var d = Director.I;
+                if (d != null && d.Running && d.CanUseStamps && d.Current != null && !UIRoot.ModalOpen) yield return DecideOne();
+                else yield return null;
+            }
+            if (UIRoot.I.root.Find("Ledger") == null) { problems.Add("the Day Ledger never came"); yield break; }
+            Director.I.autoAdvance = false;   // the ledger moves on by itself when talking along: hold it for the clicks
+            while (Time.realtimeSinceStartup < until && Button("Replay the day") == null) yield return null;
+            yield return new WaitForSecondsRealtime(0.5f);
+            int done = Game.I.Save.casesDone;
+            Debug.Log($"[Soak] the Day Ledger for day {day}, {done} claim(s) decided");
+            yield return Click("Replay the day", done > 0);
+            yield return UntilDay();
+            if (Director.I == null || Director.I.Day != day || Game.I.Save.casesDone != 0)
+                problems.Add($"\"Replay the day\" didn't start day {day} again (day {Director.I?.Day}, {Game.I.Save.casesDone} decided)");
+            else Debug.Log($"[Soak] replayed day {day} from the ledger: its morning again, 0 claims decided");
         }
 
         // ------------------------------------------------------------------ steps
