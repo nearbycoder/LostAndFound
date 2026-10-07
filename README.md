@@ -214,7 +214,7 @@ Tools/unity.sh film grey -lafDay 4 -lafUntil 5 -lafVerdicts 4.2=return:vell,5.5=
 .venv/bin/python Tools/make_trailer.py    # -> docs/media/trailer.mp4, screenshots, teaser.webp
 ```
 
-Takes are frame-locked 30 fps captures without the score. `make_trailer.py` cuts every shot relative to event markers the recorder writes, so a re-filmed take keeps its cuts on the same moments. It then lays the game's own music under the shots and ducks it beneath the sound effects and voices.
+Takes are frame-locked 30 fps captures without the score. `make_trailer.py stills --takes r5_` cuts only the README stills, from takes filmed under other names (`film r5_day1 -lafUntil 1` and so on), leaving the trailer's takes alone. `make_trailer.py` cuts every shot relative to event markers the recorder writes, so a re-filmed take keeps its cuts on the same moments. It then lays the game's own music under the shots and ducks it beneath the sound effects and voices.
 
 ## Project structure
 
@@ -294,7 +294,7 @@ Known gaps and rough edges:
 - Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
 - How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations. Agnes's nudges now lead a stuck player to every deciding detail, but only the AutoPilot has followed them so far.
 - WebGL isn't released or hosted. It now builds as a 66 MB download, plays the week at 60 fps in Chrome on this machine's GPU (a Radeon 8060S iGPU) with the desktop's picture, and its save survives closing the browser. It's been checked in Chrome only (headless, on the real GPU), not Firefox or Safari, and nobody has played it by hand. It has a page of its own: the game fills the window at 16:9, with a loading bar, a fullscreen button, plain words if the browser has no WebGL 2, and a warning (before the 66 MB download) on phones and tablets. See [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md), round 4.
-- The trailer and the screenshots above were captured before these fixes (the trailer's umbrellas still lie on the shelf, its lunch tin was sealed, and there are no nudges).
+- The trailer and the teaser loop at the top were filmed for v0.1.0, before these fixes (the trailer's umbrellas still lie on the shelf, its lunch tin was sealed, and there are no nudges). The screenshots were re-cut in round 5 from new takes of the current build (`make_trailer.py stills --takes r5_`); re-cutting the trailer is the owner's call.
 
 ## License
 

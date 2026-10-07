@@ -130,8 +130,11 @@ namespace LostAndFound
                 mast.margin = new Vector4(20f, 14f, 20f, 0f);
                 var head = UiKit.Label(paper.transform, "Head", g.headline, Fonts.Title, 34f, UiKit.Ink, TextAlignmentOptions.Top);
                 head.rectTransform.Fill();
-                head.margin = new Vector4(26f, 60f, 26f, 0f);
+                head.margin = new Vector4(26f, 60f, 26f, 300f - 156f);   // its own band above the article
                 head.fontStyle = FontStyles.Bold;
+                head.enableAutoSizing = true;   // a three-line headline ("…LOST IN 1934") writes smaller rather than over the article
+                head.fontSizeMin = 22f;
+                head.fontSizeMax = 34f;
                 var body = UiKit.Label(paper.transform, "Body", g.body, Fonts.Body, 21f, UiKit.InkSoft, TextAlignmentOptions.TopJustified);
                 body.rectTransform.Fill();
                 body.margin = new Vector4(30f, 160f, 30f, 16f);

@@ -15,6 +15,9 @@ then:
 
     .venv/bin/python Tools/make_trailer.py [trailer] [stills] [teaser]    (default: all three)
 
+`stills --takes r5_` cuts the README stills from takes filmed under other names (Recordings/r5_day1 and so on),
+leaving the takes behind the trailer as they are.
+
 Every cut is anchored to an event in Recordings/<take>/markers.tsv, so re-filmed takes keep their cuts
 on the same moments. The score is laid in here from Assets/Game/Resources/Music, ducked under the
 game's own sound effects and voices. Output: docs/media/.
@@ -811,9 +814,9 @@ def trailer():
 
 
 
-def stills():
-    """The README screenshots: one frame each from the takes, chosen by marker."""
-    d = {n: take(n) for n in ("day1", "day2", "day3", "day4")}
+def stills(prefix=""):
+    """The README screenshots: one frame each from the takes, chosen by marker (from Recordings/<prefix>day1 ...)."""
+    d = {n: take(prefix + n) for n in ("day1", "day2", "day3", "day4")}
     shots = [
         ("screenshot_title", "day1", d["day1"].at("title") + 3.4),
         ("screenshot_drawers", "day1", d["day1"].at("tag wallet_brown") + 1.5),
@@ -824,11 +827,12 @@ def stills():
         ("screenshot_frost", "day3", d["day3"].at("arrive 3.5") + 7.0),
         ("screenshot_lamp", "day4", d["day4"].at("discover chit_vell.hidden") - 0.6),
         ("screenshot_photographs", "day4", d["day4"].at("photos-begin") + 7.4),
-        ("screenshot_ledger", "day1", d["day1"].at("ledger 1") + 6.2),
+        # the finished page: the game holds it 2.5 s once the Gazette is down, then fades for 0.8 s before "ledger-closed"
+        ("screenshot_ledger", "day1", d["day1"].at("ledger-closed") - 2.0),
     ]
     WORK.mkdir(parents=True, exist_ok=True)
     OUT.mkdir(parents=True, exist_ok=True)
-    return [still(tk, t, name) for name, tk, t in shots]
+    return [still(prefix + tk, t, name) for name, tk, t in shots]
 
 
 def teaser_loop():
@@ -843,9 +847,15 @@ def teaser_loop():
 
 
 if __name__ == "__main__":
-    what = sys.argv[1:] or ["trailer", "stills", "teaser"]   # or "poster" alone
+    args = sys.argv[1:]
+    prefix = ""
+    if "--takes" in args:
+        i = args.index("--takes")
+        prefix = args[i + 1]
+        del args[i:i + 2]
+    what = args or ["trailer", "stills", "teaser"]   # or "poster" alone
     if "stills" in what:
-        stills()
+        stills(prefix)
     if "teaser" in what:
         teaser_loop()
     if "trailer" in what:
