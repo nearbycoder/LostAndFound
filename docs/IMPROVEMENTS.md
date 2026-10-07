@@ -984,6 +984,16 @@ background, which the test tools need), and a pointer that leaves the window at 
 return (logged), with the toggle off the master volume goes to 0 and back.
 **Verify:** the `smallscreen` log.
 
+### R8-E. The button under the pointer stays readable (added during the round)
+Found while checking R8-B's confirm: the Day Ledger's *Next morning* and *Replay the day*, the ending's *Close the shutter*
+and the week summary's *Back to the title* are light words on the dark below the page, but turn the paper buttons' oxblood
+when pointed at, so the button you're about to click all but disappears.
+- They turn gold instead, as the title's menu does.
+
+**Acceptance:** the hovered *Next morning* reads at 4.5:1 or better against the dark behind it (measured on a soak
+screenshot before and after, as in round 1).
+**Verify:** the two screenshots and the measured contrast.
+
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the
 text audit, the nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared
 with its state at the start of the round.

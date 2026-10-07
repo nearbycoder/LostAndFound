@@ -72,6 +72,7 @@ namespace LostAndFound
             var b = UiKit.Button(panel, "Done", "Close the shutter  ›", Fonts.Title, 40f, () => done = true);
             b.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(420f, 70f), new Vector2(460f, 60f));
             b.normal = new Color(0.95f, 0.88f, 0.74f);
+            b.hover = UiKit.Gold;   // on the dark, as the title's menu
             float waited = 0f;
             while (!done)
             {

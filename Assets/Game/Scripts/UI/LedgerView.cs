@@ -170,6 +170,7 @@ namespace LostAndFound
             var nb = UiKit.Button(book.transform, "Next", d.Day >= d.Db.DayCount ? "Close the desk  ›" : "Next morning  ›", Fonts.Title, 40f, () => next = true);
             nb.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(-60f, -90f), new Vector2(420f, 60f));
             nb.normal = new Color(0.95f, 0.88f, 0.74f);
+            nb.hover = UiKit.Gold;   // light on the dark below the book: the paper buttons' oxblood all but vanished there
             // replaying undoes every claim of the day just finished: like the pause menu's "Start the day again", it says so
             // and asks for a second click
             PaperButton rb = null;
@@ -193,6 +194,7 @@ namespace LostAndFound
             });
             rb.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(320f, -88f), new Vector2(300f, 60f));
             rb.normal = new Color(0.8f, 0.72f, 0.6f);
+            rb.hover = UiKit.Gold;
             float waited = 0f;
             while (!next && !replay)
             {

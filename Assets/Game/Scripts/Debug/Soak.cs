@@ -136,6 +136,17 @@ namespace LostAndFound
             Director.I.autoAdvance = false;   // the ledger moves on by itself when talking along: hold it for the clicks
             while (Time.realtimeSinceStartup < until && Button("Replay the day") == null) yield return null;
             yield return new WaitForSecondsRealtime(0.5f);
+            // the button under the pointer, as a player sees it just before clicking (it should stay readable)
+            var next = Button("Next morning");
+            if (next != null)
+            {
+                next.OnPointerEnter(null);
+                yield return new WaitForSecondsRealtime(0.5f);
+                Shot("ledger_hover_next");
+                yield return null;
+                next.OnPointerExit(null);
+                yield return new WaitForSecondsRealtime(0.5f);
+            }
             int done = Game.I.Save.casesDone;
             Debug.Log($"[Soak] the Day Ledger for day {day}, {done} claim(s) decided");
             yield return Click("Replay the day", done > 0);

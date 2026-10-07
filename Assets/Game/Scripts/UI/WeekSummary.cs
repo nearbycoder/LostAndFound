@@ -89,6 +89,7 @@ namespace LostAndFound
             var b = UiKit.Button(book.transform, "Done", "Back to the title  ›", Fonts.Title, 40f, () => done = true);
             b.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(0f, -90f), new Vector2(460f, 60f));
             b.normal = new Color(0.95f, 0.88f, 0.74f);
+            b.hover = UiKit.Gold;   // on the dark below the page, as the title's menu
 
             yield return Tween.Run(0.8f, k => group.alpha = k, Ease.InOutSine, true);
             yield return UIRoot.I.fader.FadeTo(0f, 0.01f);
