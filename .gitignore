@@ -54,3 +54,6 @@ Thumbs.db
 desktop.ini
 *.swp
 *~
+# written by each build (the commit it was built from)
+/Assets/Game/Resources/BuildInfo.txt
+/Assets/Game/Resources/BuildInfo.txt.meta

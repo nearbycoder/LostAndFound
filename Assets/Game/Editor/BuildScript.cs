@@ -64,6 +64,7 @@ namespace LostAndFound.EditorTools
             }
             ValidateContent();
             ProjectSetup.Apply();
+            StampCommit();
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = Scenes,
@@ -86,6 +87,7 @@ namespace LostAndFound.EditorTools
             }
             ValidateContent();
             ProjectSetup.Apply();
+            StampCommit();
             PlayerSettings.SetScriptingBackend(NamedBuildTarget.Standalone, ScriptingImplementation.Mono2x);
             string product = PlayerSettings.productName;
             if (productName != null) PlayerSettings.productName = productName;
@@ -104,6 +106,34 @@ namespace LostAndFound.EditorTools
             var s = report.summary;
             Debug.Log($"[LostAndFound] {target} build {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
             Quit(s.result == BuildResult.Succeeded);
+        }
+
+        /// <summary>Writes the commit being built (with "+" if the working tree has changes) to Resources/BuildInfo.txt, which
+        /// the title shows beside the version (BuildInfo). The file is in .gitignore: it changes with every commit.</summary>
+        static void StampCommit()
+        {
+            static string Git(string args)
+            {
+                try
+                {
+                    var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("git", args)
+                    {
+                        RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true,
+                        WorkingDirectory = System.IO.Path.GetDirectoryName(Application.dataPath),
+                    });
+                    string o = p.StandardOutput.ReadToEnd();
+                    p.WaitForExit();
+                    return p.ExitCode == 0 ? o.Trim() : null;
+                }
+                catch { return null; }
+            }
+            string head = Git("rev-parse --short HEAD");
+            string dirty = Git("status --porcelain --untracked-files=no");
+            string stamp = head == null ? "unknown build" : head + (string.IsNullOrEmpty(dirty) ? "" : "+");
+            const string file = "Assets/Game/Resources/BuildInfo.txt";
+            System.IO.File.WriteAllText(file, stamp + "\n");
+            AssetDatabase.ImportAsset(file, ImportAssetOptions.ForceUpdate);
+            Debug.Log($"[LostAndFound] building commit {stamp}");
         }
 
         // quit only when launched as a one-shot (-executeMethod), not inside a resident editor

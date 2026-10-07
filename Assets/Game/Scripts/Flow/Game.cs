@@ -170,6 +170,7 @@ namespace LostAndFound
 
         void Start()
         {
+            Debug.Log($"[Build] Lost & Found {BuildInfo.Line}, Unity {Application.unityVersion}, {Application.platform}");
             Debug.Log($"[Save] {SaveGame.PathOnDisk}");
             Save = SaveGame.Load() ?? new SaveGame();
             string dayArg = Arg("-lafDay");

@@ -70,6 +70,10 @@ namespace LostAndFound
             cur.rectTransform.Anchor(Vector2.zero, Vector2.zero, Vector2.zero).Place(new Vector2(126f, 70f), new Vector2(700f, 40f));
             var credit = UiKit.Label(panel, "Credit", "Agnes's desk, as she left it.", Fonts.Agnes, 28f, new Color(0.8f, 0.74f, 0.62f, 0.8f), TextAlignmentOptions.BottomLeft);
             credit.rectTransform.Anchor(Vector2.zero, Vector2.zero, Vector2.zero).Place(new Vector2(126f, 30f), new Vector2(700f, 40f));
+            // which build this is, for a bug report: small, in the corner
+            var build = UiKit.Label(panel, "Build", BuildInfo.Line, Fonts.Type, 18f, new Color(0.8f, 0.74f, 0.62f, 0.75f), TextAlignmentOptions.BottomRight);
+            build.rectTransform.Anchor(new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f)).Place(new Vector2(-34f, 22f), new Vector2(520f, 30f));
+            TextBacking.Add(build, 0.7f, 14f, 6f);
 
             group.alpha = 0f;
             g.StartCoroutine(Fade(group, 1f, 1.2f));
