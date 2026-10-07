@@ -8,15 +8,19 @@ namespace LostAndFound
     /// -lafTextAudit (with the AutoPilot): at every screenshot, every piece of text on screen is checked against its box.
     /// Text that runs outside it (past a card's edge, off a tag) is logged as "[TextAudit] … overflows". Autosized text
     /// that had to shrink below 60% of its size is logged as "small", which isn't a failure but is worth a look.
+    /// Texts are also checked against each other: two texts on the same card or panel whose drawn letters cross on screen
+    /// are logged as "[TextAudit] … runs into …". Texts on different panels (a hint bar over the slip, a modal over the
+    /// desk) are layered by design and aren't compared.
     /// </summary>
     public static class TextAudit
     {
-        public static int Shots, Overflows, Small;
-        static readonly HashSet<string> seenOverflow = new(), seenSmall = new();
+        public static int Shots, Overflows, Small, Overlaps;
+        static readonly HashSet<string> seenOverflow = new(), seenSmall = new(), seenOverlap = new();
 
         public static void Check(string shot)
         {
             Shots++;
+            var drawn = new List<(TMP_Text t, Transform group, List<Rect> glyphs, Rect all)>();
             foreach (var t in Object.FindObjectsByType<TMP_Text>())
             {
                 if (!t.isActiveAndEnabled || string.IsNullOrEmpty(t.text) || !Visible(t)) continue;
@@ -44,11 +48,67 @@ namespace LostAndFound
                     if (seenSmall.Add(who))
                         Debug.Log($"[TextAudit] {shot}: {who} is small: autosized to {t.fontSize / t.fontSizeMax:P0} of its size ({t.fontSize:0.###} of {t.fontSizeMax:0.###}, {ti.lineCount} lines, text {b.size.y:0.###} high in a box {inner.height:0.###} high)");
                 }
+                var glyphs = Glyphs(t);
+                if (glyphs.Count > 0) drawn.Add((t, Group(t), glyphs, Enclose(glyphs)));
             }
+            for (int i = 0; i < drawn.Count; i++)
+                for (int j = i + 1; j < drawn.Count; j++)
+                {
+                    var (a, b) = (drawn[i], drawn[j]);
+                    if (a.group != b.group || !a.all.Overlaps(b.all)) continue;
+                    int crossing = 0;
+                    foreach (var ga in a.glyphs)
+                        if (ga.Overlaps(b.all))
+                            foreach (var gb in b.glyphs) if (ga.Overlaps(gb)) { crossing++; break; }
+                    if (crossing == 0) continue;
+                    Overlaps++;
+                    string pair = Describe(a.t) + " runs into " + Describe(b.t);
+                    if (seenOverlap.Add(pair)) Debug.Log($"[TextAudit] {shot}: {pair} ({crossing} letters cross)");
+                }
+        }
+
+        /// <summary>Where each visible letter is drawn on screen, trimmed of the padding around the glyph, so letters that only
+        /// kiss (a descender over the next line's capital) don't count.</summary>
+        static List<Rect> Glyphs(TMP_Text t)
+        {
+            var list = new List<Rect>();
+            var ti = t.textInfo;
+            int max = Mathf.Min(ti.characterCount, t.maxVisibleCharacters);
+            var canvas = t is TextMeshProUGUI ui ? ui.canvas?.rootCanvas : null;
+            var cam = canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay ? (canvas.worldCamera != null ? canvas.worldCamera : Camera.main)
+                : canvas == null ? Camera.main : null;
+            for (int i = 0; i < max; i++)
+            {
+                var c = ti.characterInfo[i];
+                if (!c.isVisible || c.lineNumber >= t.maxVisibleLines) continue;
+                Vector3 p0 = t.transform.TransformPoint(c.vertex_BL.position), p1 = t.transform.TransformPoint(c.vertex_TR.position);
+                if (cam != null) { p0 = cam.WorldToScreenPoint(p0); p1 = cam.WorldToScreenPoint(p1); if (p0.z <= 0f || p1.z <= 0f) continue; }
+                var r = Rect.MinMaxRect(Mathf.Min(p0.x, p1.x), Mathf.Min(p0.y, p1.y), Mathf.Max(p0.x, p1.x), Mathf.Max(p0.y, p1.y));
+                float ix = r.width * 0.15f, iy = r.height * 0.2f;
+                r = Rect.MinMaxRect(r.xMin + ix, r.yMin + iy, r.xMax - ix, r.yMax - iy);
+                if (r.width > 0f && r.height > 0f) list.Add(r);
+            }
+            return list;
+        }
+
+        static Rect Enclose(List<Rect> rs)
+        {
+            var r = rs[0];
+            foreach (var g in rs) r = Rect.MinMaxRect(Mathf.Min(r.xMin, g.xMin), Mathf.Min(r.yMin, g.yMin), Mathf.Max(r.xMax, g.xMax), Mathf.Max(r.yMax, g.yMax));
+            return r;
+        }
+
+        /// <summary>The card or panel a text belongs to: the canvas's own child that holds it, or a 3D text's parent.</summary>
+        static Transform Group(TMP_Text t)
+        {
+            if (!(t is TextMeshProUGUI)) return t.transform.parent;
+            var tr = t.transform;
+            while (tr.parent != null && tr.parent.GetComponent<Canvas>() == null) tr = tr.parent;
+            return tr;
         }
 
         public static void Summary() =>
-            Debug.Log($"[TextAudit] {Shots} screenshots checked: {Overflows} overflowing texts ({seenOverflow.Count} distinct), {seenSmall.Count} distinct texts autosized below 60%");
+            Debug.Log($"[TextAudit] {Shots} screenshots checked: {Overflows} overflowing texts ({seenOverflow.Count} distinct), {seenSmall.Count} distinct texts autosized below 60%, {Overlaps} texts running into another ({seenOverlap.Count} distinct pairs)");
 
         static bool Visible(TMP_Text t)
         {

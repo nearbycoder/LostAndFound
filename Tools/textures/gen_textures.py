@@ -368,6 +368,7 @@ def gen_ui():
         for yv in range(200, h - 20, 9):
             dd.line([(x0, yv), (x0 + 170, yv)], fill=(120, 115, 105, 90), width=2)
     base.save(os.path.join(UI, "gazette.png"))
+    gazette_tall()
 
     # photo border
     w, h = 300, 360
@@ -430,6 +431,21 @@ def gen_ui():
     d = ImageDraw.Draw(im)
     d.line([(44, 10), (14, 48), (44, 86)], fill=255, width=10, joint="curve")
     rgba_from(im.filter(ImageFilter.GaussianBlur(0.8)), (255, 255, 255)).save(os.path.join(UI, "chevron.png"))
+
+
+def gazette_tall():
+    """The Gazette as a tall clipping, standing in the Day Ledger's margin beside the rows: the masthead's double rule at
+    the top, and a few columns of small print only along the foot, below where the story is set."""
+    w, h = 400, 640
+    base = Image.fromarray(paper_base(w, h, (1, 1, 1), 0.2, seed=46)).convert("RGBA")
+    dd = ImageDraw.Draw(base)
+    dd.line([(18, 54), (w - 18, 54)], fill=(40, 40, 40, 255), width=2)
+    dd.line([(18, 58), (w - 18, 58)], fill=(40, 40, 40, 255), width=1)
+    for k in range(2):
+        x0 = 24 + k * 182
+        for yv in range(h - 74, h - 18, 9):
+            dd.line([(x0, yv), (x0 + 168, yv)], fill=(120, 115, 105, 90), width=2)
+    base.save(os.path.join(UI, "gazette_tall.png"))
 
 
 def gen_cursors():

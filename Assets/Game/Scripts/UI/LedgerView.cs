@@ -13,6 +13,12 @@ namespace LostAndFound
     /// </summary>
     public static class LedgerView
     {
+        const float BookWidth = 1500f, GazetteRoom = 1830f - 1500f;
+
+        /// <summary>The spread at full size if it fits (1080-high, 16:9), smaller on a narrower or shorter screen.</summary>
+        static float FitScale(RectTransform root, float width) =>
+            Mathf.Min(1f, (root.rect.width - 40f) / width, (root.rect.height / 2f - 10f) / 520f);
+
         public static IEnumerator Show(Director d)
         {
             var root = UIRoot.I.root;
@@ -26,9 +32,15 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
 
-            // the open ledger book
-            var book = UiKit.Image(panel, "Book", "ledger_page", new Color(0.95f, 0.91f, 0.81f), 40f);
-            book.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(new Vector2(0f, 20f), new Vector2(1500f, 900f));
+            // the open ledger book, and the Gazette standing in its right margin beside the rows (never over them). The two
+            // together are 1830 wide, and with the buttons below the book they reach 470 above the middle and 520 below: on a
+            // narrower (4:3) or shorter (21:9) screen the whole spread scales down to fit. A day with no Gazette centres the book.
+            var g = d.DayDef.gazette.FirstOrDefault(x => d.State.Check(x.condition));
+            float spreadWidth = BookWidth + (g != null ? GazetteRoom : 0f), BookX = -(spreadWidth - BookWidth) / 2f;
+            var spread = UiKit.Rect("Spread", panel).Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(spreadWidth, 900f));
+            spread.localScale = Vector3.one * FitScale(root, spreadWidth);
+            var book = UiKit.Image(spread, "Book", "ledger_page", new Color(0.95f, 0.91f, 0.81f), 40f);
+            book.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(new Vector2(BookX, 20f), new Vector2(1500f, 900f));
             var title = UiKit.Label(book.transform, "Title", "The Day Ledger", Fonts.Title, 64f, UiKit.Ink, TextAlignmentOptions.Top);
             title.rectTransform.Fill();
             title.margin = new Vector4(60f, 40f, 60f, 0f);
@@ -61,8 +73,9 @@ namespace LostAndFound
                 var who = string.Join(" & ", c.claimants.Select(id => d.Db.Commuter(id)?.name ?? id));
                 string verdict = rec.verdict switch { "return" => "Returned" + (string.IsNullOrEmpty(rec.to) ? "" : " to " + (d.Db.Commuter(rec.to)?.ShortName ?? "")), "seal" => "Sealed in the Iron Drawer", "missing" => "Not here", _ => "Refused" };
                 var line = UiKit.Label(book.transform, "Line", $"<font=\"SpecialElite\"><size=70%>{who.ToUpperInvariant()}</size></font>   {(def != null ? def.name : "<i>nothing in storage</i>")}   <color=#5a4a40>—  {verdict}</color>", Fonts.Hand, 36f, UiKit.Ink, TextAlignmentOptions.TopLeft);
-                line.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(90f, y), new Vector2(-320f, 44f));
-                // one line, always: a long name and object (in the wider Plain lettering face) writes a little smaller
+                // it ends where the "found" column begins (372 from the page's right edge), never under it
+                line.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0f, 1f)).Place(new Vector2(90f, y), new Vector2(-90f - 372f, 44f));
+                // one line, always: a long name, object and verdict (in the wider Plain lettering face) writes a little smaller
                 line.enableAutoSizing = true;
                 line.fontSizeMin = 24f;
                 line.fontSizeMax = 36f;
@@ -119,25 +132,31 @@ namespace LostAndFound
             }
 
             // the Gazette
-            var g = d.DayDef.gazette.FirstOrDefault(x => d.State.Check(x.condition));
             if (g != null)
             {
-                var paper = UiKit.Image(book.transform, "Gazette", "gazette", new Color(0.88f, 0.85f, 0.76f), 0f);
-                paper.rectTransform.Anchor(new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f)).Place(new Vector2(-70f, 50f), new Vector2(600f, 300f));
+                // a tall clipping: masthead, the headline in its own band, then the story
+                var paper = UiKit.Image(spread, "Gazette", "gazette_tall", new Color(0.88f, 0.85f, 0.76f), 0f);
+                paper.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(new Vector2(BookX + 750f - 70f + 200f, 0f), new Vector2(400f, 640f));
                 paper.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 2.5f);
                 var mast = UiKit.Label(paper.transform, "Mast", "The Ninefold Gazette", Fonts.Title, 30f, UiKit.Ink, TextAlignmentOptions.Top);
                 mast.rectTransform.Fill();
-                mast.margin = new Vector4(20f, 14f, 20f, 0f);
+                mast.margin = new Vector4(16f, 12f, 16f, 0f);
+                mast.enableAutoSizing = true;
+                mast.fontSizeMin = 22f;
+                mast.fontSizeMax = 30f;
                 var head = UiKit.Label(paper.transform, "Head", g.headline, Fonts.Title, 34f, UiKit.Ink, TextAlignmentOptions.Top);
                 head.rectTransform.Fill();
-                head.margin = new Vector4(26f, 60f, 26f, 300f - 156f);   // its own band above the article
+                head.margin = new Vector4(22f, 72f, 22f, 640f - 262f);   // its own band above the story
                 head.fontStyle = FontStyles.Bold;
-                head.enableAutoSizing = true;   // a three-line headline ("…LOST IN 1934") writes smaller rather than over the article
+                head.enableAutoSizing = true;   // a four-line headline writes smaller rather than over the story
                 head.fontSizeMin = 22f;
                 head.fontSizeMax = 34f;
-                var body = UiKit.Label(paper.transform, "Body", g.body, Fonts.Body, 21f, UiKit.InkSoft, TextAlignmentOptions.TopJustified);
+                var body = UiKit.Label(paper.transform, "Body", g.body, Fonts.Body, 23f, UiKit.InkSoft, TextAlignmentOptions.TopJustified);
                 body.rectTransform.Fill();
-                body.margin = new Vector4(30f, 160f, 30f, 16f);
+                body.margin = new Vector4(26f, 276f, 26f, 86f);   // above the small print along the foot
+                body.enableAutoSizing = true;
+                body.fontSizeMin = 18f;
+                body.fontSizeMax = 23f;
                 AudioDirector.Play("newspaper", 0.7f);
                 yield return Tween.Run(0.5f, k =>
                 {

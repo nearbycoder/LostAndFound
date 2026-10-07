@@ -100,10 +100,14 @@ namespace LostAndFound
                     yield return new WaitForSecondsRealtime(0.5f);
                     break;
                 }
-                if (UIRoot.ModalOpen && d.DayDef != null && d.Day != lastLedgerDay && GameObject.Find("Ledger") != null)
+                if (UIRoot.ModalOpen && d.DayDef != null && d.Day != lastLedgerDay && UIRoot.I.root.Find("Ledger") != null)
                 {
                     lastLedgerDay = d.Day;
-                    yield return new WaitForSecondsRealtime(2.2f);
+                    // the finished page: every row, the tally, the Gazette and the buttons (they come last, and at -lafSpeed
+                    // the AutoPilot's own advance follows them quickly, so shoot the first frame they're there)
+                    var ledger = UIRoot.I.root.Find("Ledger");   // the page, not the ledger book on the desk
+                    float until = Time.realtimeSinceStartup + 30f;
+                    while (ledger != null && ledger.Find("Spread/Book/Next") == null && Time.realtimeSinceStartup < until) yield return null;
                     Shot($"day{d.Day}_ledger");
                 }
                 if (!noteShot && UIRoot.I.note.Open)
