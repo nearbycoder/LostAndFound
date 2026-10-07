@@ -94,7 +94,7 @@ namespace LostAndFound
         static Vector2 Screen2(Vector3 w) => Camera.main.WorldToScreenPoint(w);
 
         /// <summary>The visible point nearest an interactable's middle where a click would land on it.</summary>
-        static Vector2 AimPoint(Interactable t)
+        internal static Vector2 AimPoint(Interactable t)
         {
             var rs = t.HighlightRenderers;
             var b = rs[0].bounds;

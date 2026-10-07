@@ -1,0 +1,32 @@
+# Tools/unity.sh taptest: each press and release queued in the same input update
+# Before (main, 1c36ea9's input code), load average 26:
+[TapTest] key tap (Space) rings the bell: MISSED (tapped at frame 345, press and release both processed in frame 346)
+[TapTest] key tap (H) asks Agnes for a nudge: MISSED (tapped at frame 593, press and release both processed in frame 594)
+[TapTest] key tap (A) turns to the drawers: MISSED (tapped at frame 662, press and release both processed in frame 663)
+[TapTest] mouse tap opens drawer A: MISSED (tapped at frame 759, press and release both processed in frame 760)
+[TapTest] mouse tap picks up the wallet: MISSED (tapped at frame 858, press and release both processed in frame 859)
+[TapTest] key tap (T) puts it on the tray: MISSED (tapped at frame 963, press and release both processed in frame 964)
+[TapTest] pad tap (d-pad left) takes control and asks Agnes: MISSED (tapped at frame 1066, press and release both processed in frame 1067)
+[TapTest] pad tap (A) takes up the RETURN stamp: MISSED (tapped at frame 1298, press and release both processed in frame 1299)
+[TapTest] pad tap (A) stamps the slip: MISSED (tapped at frame 1449, press and release both processed in frame 1450)
+[TapTest] case 1.1: return->walter (best)
+[TapTest] key tap (Esc) pauses: MISSED (tapped at frame 1691, press and release both processed in frame 1692)
+[TapTest] mouse tap on a menu button (Back to the desk): ok (tapped at frame 1773, press and release both processed in frame 1774)
+[TapTest] 1 of 11 taps worked; missed: key tap (Space) rings the bell; key tap (H) asks Agnes for a nudge; key tap (A) turns to the drawers; mouse tap opens drawer A; mouse tap picks up the wallet; key tap (T) puts it on the tray; pad tap (d-pad left) takes control and asks Agnes; pad tap (A) takes up the RETURN stamp; pad tap (A) stamps the slip; key tap (Esc) pauses
+[TapTest] FAIL
+
+# After (R4-A), load average 30:
+[TapTest] key tap (Space) rings the bell: ok (tapped at frame 353, press and release both processed in frame 354)
+[TapTest] key tap (H) asks Agnes for a nudge: ok (tapped at frame 534, press and release both processed in frame 535)
+[TapTest] key tap (A) turns to the drawers: ok (tapped at frame 535, press and release both processed in frame 536)
+[TapTest] mouse tap opens drawer A: ok (tapped at frame 563, press and release both processed in frame 564)
+[TapTest] mouse tap picks up the wallet: ok (tapped at frame 595, press and release both processed in frame 596)
+[TapTest] key tap (T) puts it on the tray: ok (tapped at frame 620, press and release both processed in frame 621)
+[TapTest] pad tap (d-pad left) takes control and asks Agnes: ok (tapped at frame 645, press and release both processed in frame 646)
+[TapTest] pad tap (A) takes up the RETURN stamp: ok (tapped at frame 810, press and release both processed in frame 811)
+[TapTest] pad tap (A) stamps the slip: ok (tapped at frame 938, press and release both processed in frame 939)
+[TapTest] case 1.1: return->walter (best)
+[TapTest] key tap (Esc) pauses: ok (tapped at frame 1119, press and release both processed in frame 1120)
+[TapTest] mouse tap on a menu button (Back to the desk): ok (tapped at frame 1133, press and release both processed in frame 1134)
+[TapTest] 11 of 11 taps worked
+[TapTest] PASS

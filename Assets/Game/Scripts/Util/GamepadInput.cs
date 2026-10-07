@@ -61,13 +61,19 @@ namespace LostAndFound
             return v / m * k * k;   // fine control near the centre, full speed at the rim
         }
 
+        /// <summary>The buttons the game uses (InputX latches quick presses of these).</summary>
+        public static UnityEngine.InputSystem.Controls.ButtonControl[] Buttons(Gamepad pad) => new[]
+        {
+            pad.buttonSouth, pad.buttonEast, pad.buttonWest, pad.buttonNorth, pad.leftShoulder, pad.rightShoulder,
+            pad.startButton, pad.selectButton, pad.dpad.up, pad.dpad.down, pad.dpad.left, pad.dpad.right,
+        };
+
         static bool Used(Gamepad pad)
         {
             if (pad.leftStick.ReadValue().sqrMagnitude > 0.09f || pad.rightStick.ReadValue().sqrMagnitude > 0.09f) return true;
             if (pad.leftTrigger.ReadValue() > 0.3f || pad.rightTrigger.ReadValue() > 0.3f) return true;
-            foreach (var b in new[] { pad.buttonSouth, pad.buttonEast, pad.buttonWest, pad.buttonNorth, pad.leftShoulder, pad.rightShoulder,
-                                      pad.startButton, pad.selectButton, pad.dpad.up, pad.dpad.down, pad.dpad.left, pad.dpad.right })
-                if (b.isPressed) return true;
+            foreach (var b in Buttons(pad))
+                if (InputX.Pressed(b)) return true;
             return false;
         }
 
@@ -76,7 +82,7 @@ namespace LostAndFound
         {
             foreach (var d in InputSystem.devices)
                 if (d is Mouse m && m != virtualMouse && m.added && !m.name.StartsWith("Demo")
-                    && (m.delta.ReadValue().sqrMagnitude > 9f || m.leftButton.isPressed || m.rightButton.isPressed)) return m;
+                    && (m.delta.ReadValue().sqrMagnitude > 9f || InputX.Pressed(m.leftButton) || InputX.Pressed(m.rightButton))) return m;
             return null;
         }
 
@@ -133,8 +139,8 @@ namespace LostAndFound
 
             virtualMouse.MakeCurrent();
             var st = new MouseState { position = pos, delta = pos - lastSent, scroll = new Vector2(0f, scroll) }
-                .WithButton(MouseButton.Left, pad.buttonSouth.isPressed)
-                .WithButton(MouseButton.Right, pad.buttonEast.isPressed);
+                .WithButton(MouseButton.Left, InputX.Pressed(pad.buttonSouth))
+                .WithButton(MouseButton.Right, InputX.Pressed(pad.buttonEast));
             InputSystem.QueueStateEvent(virtualMouse, st);
             lastSent = pos;
         }
@@ -146,15 +152,15 @@ namespace LostAndFound
             if (pad == null || !Active) return false;
             return k switch
             {
-                Key.A => pad.leftShoulder.isPressed,
-                Key.D => pad.rightShoulder.isPressed,
-                Key.T => pad.buttonWest.isPressed,
-                Key.R => pad.buttonNorth.isPressed,
-                Key.Tab => pad.selectButton.isPressed,
-                Key.Escape => pad.startButton.isPressed,
-                Key.L => pad.dpad.up.isPressed,
-                Key.Space => pad.dpad.down.isPressed,
-                Key.H => pad.dpad.left.isPressed,
+                Key.A => InputX.Pressed(pad.leftShoulder),
+                Key.D => InputX.Pressed(pad.rightShoulder),
+                Key.T => InputX.Pressed(pad.buttonWest),
+                Key.R => InputX.Pressed(pad.buttonNorth),
+                Key.Tab => InputX.Pressed(pad.selectButton),
+                Key.Escape => InputX.Pressed(pad.startButton),
+                Key.L => InputX.Pressed(pad.dpad.up),
+                Key.Space => InputX.Pressed(pad.dpad.down),
+                Key.H => InputX.Pressed(pad.dpad.left),
                 _ => false,
             };
         }
