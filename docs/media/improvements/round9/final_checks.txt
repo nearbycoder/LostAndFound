@@ -1,0 +1,66 @@
+HEAD 6aca5e3
+== build  (start 18:16:18, load average: 24.91, 28.94, 27.30)
+   exit 0 (end 18:16:48)
+[Validate] 28 objects, 5 days, 25 cases, 0 issues
+[LostAndFound] building commit 6aca5e3
+[LostAndFound] StandaloneLinux64 build Succeeded: 221 MB, 0 errors, 00:00:08.3990220
+== test  (start 18:16:48, load average: 21.36, 27.70, 26.94)
+   exit 0 (end 18:17:13)
+testcasecount="92" result="Passed" total="92" passed="92" failed="0"
+== audit  (start 18:17:13, load average: 20.23, 26.96, 26.71)
+   exit 0 (end 18:18:16)
+[guard] real save and settings untouched (scratch prefs in Logs/config/audit)
+[Audit] requisition_vell.seal        secret       44.5%  (shut 44.5%, open -)  ok
+[Audit] 84 details checked, 0 below 10%
+[Audit] PASS
+== ap_best  (start 18:18:16, load average: 23.00, 25.88, 26.32)
+   exit 0 (end 18:21:41)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 202s
+[TextAudit] 108 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+   ledger book pages 11, matching their evening 11
+== ap_worst  (start 18:21:41, load average: 15.89, 22.82, 25.19)
+   exit 0 (end 18:24:49)
+[Auto] week done: 24 cases, 1 best, 5 skipped, ending grey, 0 problems, 184s
+[TextAudit] 90 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+   ledger book pages 11, matching their evening 11
+== ap_wait  (start 18:24:49, load average: 46.20, 27.07, 26.02)
+   exit 0 (end 18:28:11)
+[Auto] week done: 24 cases, 23 best, 0 skipped, ending longwait, 0 problems, 198s
+[TextAudit] 102 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+   ledger book pages 11, matching their evening 11
+== ap_refuse  (start 18:28:11, load average: 58.71, 46.59, 34.22)
+   exit 0 (end 18:31:26)
+[Auto] week done: 24 cases, 6 best, 0 skipped, ending longwait, 0 problems, 191s
+[TextAudit] 106 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+   ledger book pages 11, matching their evening 11
+== nudgetour  (start 18:31:26, load average: 44.53, 38.58, 33.02)
+   exit 0 (end 18:36:42)
+[Tour] case 5.5: find → the item glows
+[Tour] case 5.5: Find → Decide
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 312s
+[Tour] 210 nudges asked for; 21 details found by clicking the glint, 2 by working the part that lit up
+[Auto] PASS
+== soak  (start 18:36:42, load average: 24.10, 39.18, 35.42)
+   exit 0 (end 18:42:44)
+[Soak] textures: 203 → 203 over the last 10 cycles (+0.0%), most 203
+[Soak] gameobjects: 547 → 547 over the last 10 cycles (+0.0%), most 547
+[Soak] unity MB: 382.8 → 384.1 over the last 10 cycles (+0.3%), most 384.1
+[Soak] managed MB: 7.3 → 7.3 over the last 10 cycles (+0.8%), most 7.4
+[Soak] 30 cycles in 359s; 21 menu choices asked for a second click; steady
+[Soak] PASS
+== edgetest  (start 18:42:44, load average: 16.62, 23.45, 29.42)
+   exit 0 (end 18:43:35)
+[EdgeTest] PASS (7 holds)
+done 18:43:35
+== padtest load average: 15.63, 22.28, 28.69
+   exit 0
+[PadTest] PASS
+== taptest load average: 15.00, 20.29, 27.35
+   exit 0
+[TapTest] 14 of 14 taps worked
+[TapTest] PASS
+Real ~/.config/unity3d/Nearby/Lost & Found/: identical (sizes, timestamps, hashes) at 18:5x and at 17:15, the round's start; no laf. key in unknown/unknown/prefs.

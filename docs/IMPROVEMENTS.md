@@ -1118,3 +1118,62 @@ morning's fade, and measure again. If nothing stalls, record that and stop.
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
 audit, the nudge tour, the padtest, the taptest and the soak, with the load average noted, and the real config folder compared
 with its state at the start of the round.
+
+## Round 9 results (7 Oct 2026)
+
+All four planned items and the stretch measurement landed on `improvements-9`, one commit each, plus one to the test tooling
+(found before the first player run). Screenshots and logs are in [`media/improvements/round9/`](media/improvements/round9/).
+Load average 13–31 from the other sessions on the machine, noted with each run.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **Test windows off the desktop** (tooling, added) | Only `smallscreen` ran the player in a private headless KWin; the AutoPilot, audit, nudge tour, padtest, taptest, soak and filmed play opened ordinary windows on the shared desktop. Every built-player command in `Tools/unity.sh` now runs inside `kwin_wayland --virtual` (2560×1440, its own D-Bus session, socket and scratch XDG folders, `DISPLAY` and `WAYLAND_DISPLAY` unset), and passes the player's exit status back. `LAF_DESKTOP=1` opts out. | Every player run this round went through it: smoke at 113–126 fps, AutoPilot weeks at the usual pace, and the guard's "untouched" each time. Nothing appeared on the desktop. |
+| **R9-A. Brightness** | Settings › *Brightness*: −0.6 to +1.2 stops of post exposure on the 3D scene, the middle being the game as it was; the screen-space paper UI isn't post-processed, so it's unchanged. Settings rows close up slightly to fit it (and R9-C's toggle). Smoke runs can now run the text audit too. | AutoPilot case 1.1 at five settings, same moments: the scene's mean luminance **0.151 → 0.169 → 0.189 → 0.230 → 0.275** (near-black pixels 52% → 25%), the speech bubble 0.847–0.848 throughout (`brightness.txt`, `brightness_darkest_default_brightest.jpg`). 1 new unit test (default, clamp, round trip). The Settings card at 1920×1080, 2560×1080 and the fitted 1200×674: 0 overflowing, 0 overlapping. |
+| **R9-B. The week's ledger at hand** | The ledger book on the desk and the pause menu's *The week so far* open every closed day's Day Ledger page as it was that evening: drawn from the next morning's snapshot, so the Gazette is the one that ran even after later choices changed the flags. Nothing from today. ‹ › (arrows, A/D, LB/RB) turn the pages; Esc, right click, B or *Put it back* close it. The evening ledger now builds its page with the same code and reveals it as before. Gus mentions the book on Tuesday morning; the Controls card and README list it. | 5 new unit tests (92 in all): Monday's book is empty, closed days only (a claim decided today never shows), each page from its own evening, a replay drops the later days and rewrites its own, an older save without snapshots. The AutoPilot reads every page each morning: `best` at 1600×900, `worst` at 1024×768 and `best` at 1280×720 with Large text and Plain lettering each showed **10 pages, all 10 identical to their evening's** (the `worst` week's own headlines included), with 0 overflowing and 0 overlapping texts (`ledger_book_runs.txt`). On Tuesday it opened the book through the pause menu's real button. The game's own picking reaches the book on the desk from 11–43 points at 1600×900, 1024×768, 2560×1080 and 1200×674. `book_*.jpg`, `pause_menu_week_so_far.jpg`. |
+| **R9-C. Turning at the screen's edge** | Settings › *Turn at the screen's edge* (on by default, as before). New `Tools/unity.sh edgetest`: a virtual mouse held at each side of the screen in the real player; the headless KWin's session opens another window once the test says it's ready, so the timing doesn't depend on load. | `edgetest` PASS, 7 holds: the desk turned left and right with the setting on, didn't with it off, **didn't while another window had the focus** (round 8's guard, which nothing could exercise then), and turned again once the focus came back (`edgetest.txt`). The first run failed only because the session's trigger was matched as a regular expression (`[EdgeTest]` is a character class); fixed with `grep -F`. **Not checked:** a real pointer leaving the window by its side (no pointer tool); the README says what's likely and that the toggle avoids it. |
+| **R9-D. Which build is this?** | Each build writes the commit it's built from (`+` if the working tree had changes) to `Resources/BuildInfo.txt` (gitignored). The title shows `v0.1.0 · <commit>` small in its bottom-right corner, on a dark backing, and the player log's first lines say the same. The version is unchanged. The README says where the log is and what to send. | Built from a clean tree at `348c4f3`: the build log said "building commit 348c4f3", the player log `[Build] Lost & Found v0.1.0 · 348c4f3`, matching `git rev-parse --short HEAD`, and the tree stayed clean. Title at 1920×1080 and 1200×674: 0 overflowing, 0 overlapping (`title_build_line_*.jpg`; about 11 px tall in the small window). |
+| **R9-E. Stretch: first-use hitches** | Measured, nothing to fix. `-lafHitches` logs frames over 100 ms with what was happening; `-lafNoShots` leaves out the AutoPilot's screenshots, which stall a frame themselves. | Two `best` weeks at 1600×900: Monday, where every first use falls, had **no frame over 100 ms in either**. Run 1 (load 18–31) had none at all in 20,261 frames; run 2 (load 26–30) had 52 over 100 ms (worst 224 ms), clustered on Tuesday and Wednesday as claimants walked in, at moments that were smooth in run 1: the machine's load, not first use (`hitches.txt`). |
+
+### Final checks (final Linux build at `6aca5e3`, load average 15–59)
+Linux build and validator: 28 objects, 5 days, 25 cases, **0 issues**. **92/92 unit tests.** Audit: PASS, 84/84 details, 0
+below 10%. AutoPilot with the text audit at 1600×900: `best` 24/24 *The 9:40*; `worst` *Grey Ninefold*; `wait` *The Long Wait*
+(23/24); `refuse` (6/24). **0 overflowing and 0 overlapping texts** in every one, and in each the ledger book showed 11 pages
+(10 in the mornings, 1 from the pause menu), **all 11 identical to their evening's**. Nudge tour: 210 nudges, 24/24, 21 details
+at the glint and 2 by the part that lit up. Soak, 30 cycles: PASS, live objects flat over the last 10 (textures 203,
+GameObjects 547). Edge test PASS (7 holds). Padtest PASS and taptest 14 of 14, each started below load 24 (16 and 15). Every run
+in the headless KWin, and every one printed the guard's "untouched". The real `~/.config/unity3d/Nearby/Lost & Found/` was
+**identical (sizes, timestamps, hashes) at the end of the round and at its start**, and no `laf.` key appeared in
+`unknown/unknown/prefs`. `final_checks.txt`.
+
+### Found along the way
+- **Test windows were on the shared desktop.** Only `smallscreen` used the private KWin; now every player command does (above).
+- **My own loop passed one size as one argument** (`-screen-width "1920 1080"`) in the first Settings audit: zsh doesn't split
+  words as bash does. It ran inside the headless KWin, so nothing reached the desktop; the three audits were redone with separate
+  arguments, and only those results are reported.
+- A screenshot named after the pause menu showed the ledger book: a capture is taken at the end of the frame, and the AutoPilot
+  had clicked the menu's button in the same frame. It now waits a frame.
+
+### Not done, and why
+- **A real pointer leaving the window by its side** (R9-C) can't be checked: there's no pointer tool, and a uinput device would
+  move the shared desktop's pointer. The README says what's likely, and the new toggle avoids it.
+- **The ledger book stays where it was**, in the bottom-right corner, partly out of frame. Moving desk props changes framing the
+  audit and the README stills rely on; the pause menu and Gus's line point to it. Whether to bring it into view is a design call.
+- **Brightness's range** (−0.6 to +1.2 stops) was chosen by eye on this machine's screen captures; nobody has tried it on a dim
+  laptop panel.
+- **The WebGL build** still predates rounds 7–9. Brightness and the ledger book would work there too (and its builds would stamp
+  their commit), but a 12-minute WebGL build wasn't worth it for an unhosted build on a busy machine.
+- The trailer, the GUI editor's Play, macOS on a Mac, physical gamepads and touchpads: as round 8 left them.
+
+### Still open after round 9
+- No human has played any of it. That now includes the ledger book, the brightness range and Gus's new line.
+- Keyboard layouts other than US, WebGL in other browsers and hosting, real input hardware, macOS, Windows: as before.
+
+### Needs a decision from the owner
+- **The version number.** The title now names the build as `v0.1.0 · <commit>`, but the game has had nine rounds since v0.1.0;
+  bumping the version (and any release or tag) is the owner's call.
+- **Undoing a misplaced stamp.** A stamp commits the verdict at once; the only way back is replaying the whole day. Whether a
+  last-stamp undo fits the game's weight is a design call.
+- Whether the ledger book should sit more prominently on the desk (above).
+- Unchanged from round 8: fullscreen by default on small screens, choosing a keyboard layout or rebinding keys, re-cutting the
+  trailer and teaser, hosting WebGL, curiosities across weeks, installing tools outside the repo, and the licence, releases and
+  tags, signing, and Windows Build Support.
