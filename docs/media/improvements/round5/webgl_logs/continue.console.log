@@ -1,0 +1,357 @@
+    0.5 log     [Shot] page_loading
+    0.6 log     [UnityCache] 'http://127.0.0.1:8764/Build/WebGL.data.br' successfully revalidated and served from the browser cache
+    0.7 log     [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+    0.8 log         "memorysetup-bucket-allocator-granularity=16"
+
+    0.8 log         "memorysetup-bucket-allocator-bucket-count=8"
+
+    0.8 log         "memorysetup-bucket-allocator-block-size=4194304"
+
+    0.8 log         "memorysetup-bucket-allocator-block-count=1"
+
+    0.8 log         "memorysetup-main-allocator-block-size=16777216"
+
+    0.8 log         "memorysetup-thread-allocator-block-size=16777216"
+
+    0.8 log         "memorysetup-main-allocator-mimalloc-enabled=1"
+
+    0.8 log         "memorysetup-gfx-main-allocator-block-size=16777216"
+
+    0.8 log         "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+    0.8 log         "memorysetup-cache-allocator-block-size=4194304"
+
+    0.8 log         "memorysetup-typetree-allocator-block-size=2097152"
+
+    0.8 log         "memorysetup-profiler-bucket-allocator-granularity=16"
+
+    0.8 log         "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+    0.8 log         "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+    0.8 log         "memorysetup-profiler-bucket-allocator-block-count=1"
+
+    0.8 log         "memorysetup-profiler-allocator-block-size=16777216"
+
+    0.8 log         "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+    0.8 log         "memorysetup-temp-allocator-size-main=4194304"
+
+    0.8 log         "memorysetup-job-temp-allocator-block-size=2097152"
+
+    0.8 log         "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+    0.8 log         "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+    0.8 log         "memorysetup-temp-allocator-size-background-worker=32768"
+
+    0.8 log         "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+    0.8 log         "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+    0.8 log         "memorysetup-temp-allocator-size-audio-worker=65536"
+
+    0.8 log         "memorysetup-remapper-allocator-initial-capacity=32768"
+
+    0.8 log     CodeReloadManager initialized
+
+    0.8 log     Input System module state changed to: Initialized.
+
+    0.8 log     [Physics::Module] Initialized fallback backend.
+
+    0.8 log     [Physics::Module] Id: 0xdecafbad
+
+    0.8 log     Loading player data from data.unity3d
+
+    0.8 log     Initialize engine version: 6000.6.2f1 (770e33f6875c)
+
+    0.8 log     [EntityIdStore] init: page-table path, blockCount=1048576, entitiesPerBlock=256, top-level=8388608 bytes, sizeof(Block)=4128 (lazily allocated per committed block)
+
+    0.8 log     Creating WebGL 2.0 context.
+    0.8 log     Renderer: WebKit WebGL
+
+    0.8 log     Vendor:   WebKit
+
+    0.8 log     Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+    0.8 log     GLES:     3
+
+    0.8 log      EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_texture_float_linear WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile G
+
+    0.8 log     L_NV_shader_noperspective_interpolation GL_OES_texture_float_linear GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_astc GL_WEBGL_compressed_texture_etc GL_WEBGL_compressed_texture_etc1 GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw
+
+    0.8 log     OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+    0.9 log     [Physics::Module] Selected backend.
+
+    0.9 log     [Physics::Module] Name: PhysX
+
+    0.9 log     [Physics::Module] Id: 0xf2b8ea05
+
+    0.9 log     [Physics::Module] SDK Version: 4.1.2
+
+    0.9 log     [Physics::Module] Integration Version: 1.0.0
+
+    0.9 log     [Physics::Module] Threading Mode: Single-Threaded
+
+    0.9 log     Input System initialize...
+
+    0.9 log     UnloadTime: 1.200000 ms
+
+    0.9 log     [Fonts] plain lettering off
+
+    1.1 log     [Shot] page_ready
+    1.1 log     Audio context resumed after 0.234 seconds.
+    1.1 log     [Save] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9/lostandfound_save.json
+
+    1.1 log     [Quality] High: render scale 1
+
+    1.1 log     [Game] continue at day 1, after 2 case(s) (frame 1)
+
+    1.1 log     [Day] 1: resuming after 2 case(s)
+
+    1.1 log     Trying to get length of sound which is not loaded yet.
+    1.1 log     Trying to get metadata of sound which is not loaded.
+    1.1 log     Trying to get length of sound which is not loaded yet.
+    1.1 log     Trying to get metadata of sound which is not loaded.
+    1.1 log     Trying to get length of sound which is not loaded yet.
+    1.1 log     Trying to get metadata of sound which is not loaded.
+    1.1 log     Trying to get length of sound which is not loaded yet.
+    1.1 log     Trying to get metadata of sound which is not loaded.
+    1.1 log     Trying to get length of sound which is not loaded yet.
+    1.1 log     Trying to get metadata of sound which is not loaded.
+    1.1 log     Shader 'Hidden/Universal Render Pipeline/GaussianDepthOfField' is not supported or has been stripped from the build (in 'DepthOfFieldGaussianPostProcessPass'). PostProcessing render passes will not execute.
+
+    1.2 log     Shader 'Hidden/Universal Render Pipeline/GaussianDepthOfField' is not supported or has been stripped from the build (in 'DepthOfFieldGaussianPostProcessPass'). PostProcessing render passes will not execute.
+
+    1.2 log     Shader 'Hidden/Universal Render Pipeline/BokehDepthOfField' is not supported or has been stripped from the build (in 'DepthOfFieldBokehPostProcessPass'). PostProcessing render passes will not execute.
+
+    1.2 log     Shader 'Hidden/Universal Render Pipeline/PaniniProjection' is not supported or has been stripped from the build (in 'PaniniProjectionPostProcessPass'). PostProcessing render passes will not execute.
+
+    1.2 warning Shader 'Hidden/Universal Render Pipeline/Edge Adaptive Spatial Upsampling' is not supported or has been stripped from the build (in 'Blit FSR Upscaling'). PostProcessing render passes will not execute.
+
+    1.4 log     Trying to get length of sound which is not loaded yet.
+    1.5 log     Trying to get metadata of sound which is not loaded.
+    2.6 log     Trying to get length of sound which is not loaded yet.
+    3.1 log     Trying to get metadata of sound which is not loaded.
+    3.1 log     Trying to get length of sound which is not loaded yet.
+    3.1 log     Trying to get metadata of sound which is not loaded.
+    3.1 log     Trying to get length of sound which is not loaded yet.
+    3.1 log     Trying to get metadata of sound which is not loaded.
+    3.1 log     Trying to get length of sound which is not loaded yet.
+    3.1 log     Trying to get metadata of sound which is not loaded.
+    3.1 log     Trying to get length of sound which is not loaded yet.
+    3.9 log     Trying to get metadata of sound which is not loaded.
+[webgl] WebGL renderer: ANGLE (AMD, AMD Radeon 8060S Graphics (radeonsi strix_halo ACO), OpenGL ES 3.2)
+    3.9 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.5 log     Trying to get metadata of sound which is not loaded.
+    4.5 log     Trying to get length of sound which is not loaded yet.
+    4.5 log     Trying to get metadata of sound which is not loaded.
+    4.5 log     Trying to get length of sound which is not loaded yet.
+    4.5 log     Trying to get metadata of sound which is not loaded.
+    4.5 log     [Shot] 000_case1.3_window
+
+    5.4 log     Trying to get length of sound which is not loaded yet.
+    5.4 log     Trying to get metadata of sound which is not loaded.
+    5.4 log     Trying to get length of sound which is not loaded yet.
+    5.4 log     Trying to get metadata of sound which is not loaded.
+    5.6 log     [Shot] 001_day1_rules_card
+
+    6.1 log     [Shot] 002_case1.3_tag
+
+    6.6 log     Trying to get length of sound which is not loaded yet.
+    6.7 log     Trying to get metadata of sound which is not loaded.
+    6.7 log     Trying to get length of sound which is not loaded yet.
+    6.7 log     Trying to get metadata of sound which is not loaded.
+    6.7 log     Trying to get length of sound which is not loaded yet.
+    6.7 log     Trying to get metadata of sound which is not loaded.
+    6.7 log     Trying to get length of sound which is not loaded yet.
+    6.7 log     Trying to get metadata of sound which is not loaded.
+    6.7 log     Trying to get length of sound which is not loaded yet.
+    6.9 log     Trying to get metadata of sound which is not loaded.
+    6.9 log     [Shot] 003_case1.3_inspect
+
+    7.2 log     Trying to get length of sound which is not loaded yet.
+    7.2 log     Trying to get metadata of sound which is not loaded.
+    7.2 log     Trying to get length of sound which is not loaded yet.
+    7.2 log     Trying to get metadata of sound which is not loaded.
+    7.2 log     [Auto] day 1 case 1.3: refuse (reggie: contradicted by detail:namestrip) (authored best refuse)
+
+    7.3 log     Trying to get length of sound which is not loaded yet.
+    7.3 log     Trying to get metadata of sound which is not loaded.
+    7.3 log     [Shot] 004_case1.3_verdict
+
+    7.8 log     Trying to get length of sound which is not loaded yet.
+    7.8 log     Trying to get metadata of sound which is not loaded.
+    7.8 log     Trying to get length of sound which is not loaded yet.
+    7.8 log     Trying to get metadata of sound which is not loaded.
+    7.8 log     Trying to get length of sound which is not loaded yet.
+    7.9 log     Trying to get metadata of sound which is not loaded.
+    8.9 log     Trying to get length of sound which is not loaded yet.
+    9.5 log     Trying to get metadata of sound which is not loaded.
+    9.5 log     Trying to get length of sound which is not loaded yet.
+    9.5 log     Trying to get metadata of sound which is not loaded.
+    9.5 log     [Shot] 005_day1_note
+
+    9.9 log     Trying to get length of sound which is not loaded yet.
+    9.9 log     Trying to get metadata of sound which is not loaded.
+    9.9 log     Trying to get length of sound which is not loaded yet.
+    9.9 log     Trying to get metadata of sound which is not loaded.
+    9.9 log     Trying to get length of sound which is not loaded yet.
+    9.9 log     Trying to get metadata of sound which is not loaded.
+    9.9 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.0 log     Trying to get metadata of sound which is not loaded.
+   10.0 log     Trying to get length of sound which is not loaded yet.
+   10.8 log     Trying to get metadata of sound which is not loaded.
+   10.8 log     [Shot] 006_case1.4_window
+
+   11.6 log     Trying to get length of sound which is not loaded yet.
+   11.6 log     Trying to get metadata of sound which is not loaded.
+   11.6 log     Trying to get length of sound which is not loaded yet.
+   11.6 log     Trying to get metadata of sound which is not loaded.
+   11.8 log     Trying to get length of sound which is not loaded yet.
+   11.8 log     Trying to get metadata of sound which is not loaded.
+   11.8 log     [Shot] 007_case1.4_inspect
+
+   12.1 log     Trying to get length of sound which is not loaded yet.
+   12.1 log     Trying to get metadata of sound which is not loaded.
+   12.1 log     Trying to get length of sound which is not loaded yet.
+   12.1 log     Trying to get metadata of sound which is not loaded.
+   12.1 log     Trying to get length of sound which is not loaded yet.
+   12.1 log     Trying to get metadata of sound which is not loaded.
+   12.1 log     Trying to get length of sound which is not loaded yet.
+   12.1 log     Trying to get metadata of sound which is not loaded.
+   12.1 log     [Auto] day 1 case 1.4: return->odile (odile: it hums for them) (authored best return->odile)
+
+   12.1 log     [Shot] 008_case1.4_verdict
+
+   12.7 log     Trying to get length of sound which is not loaded yet.
+   12.7 log     Trying to get metadata of sound which is not loaded.
+   12.7 log     Trying to get length of sound which is not loaded yet.
+   12.9 log     Trying to get metadata of sound which is not loaded.
+   14.9 log     Trying to get length of sound which is not loaded yet.
+   15.2 log     Trying to get metadata of sound which is not loaded.
+   15.2 log     Trying to get length of sound which is not loaded yet.
+   15.2 log     Trying to get metadata of sound which is not loaded.
+   15.2 log     Trying to get length of sound which is not loaded yet.
+   15.2 log     Trying to get metadata of sound which is not loaded.
+   17.2 log     Trying to get length of sound which is not loaded yet.
+   17.3 log     Trying to get metadata of sound which is not loaded.
+   18.3 log     Trying to get length of sound which is not loaded yet.
+   18.5 log     Trying to get metadata of sound which is not loaded.
+   18.5 log     Trying to get length of sound which is not loaded yet.
+   19.5 log     Trying to get metadata of sound which is not loaded.
+   19.5 log     Trying to get length of sound which is not loaded yet.
+   19.5 log     Trying to get metadata of sound which is not loaded.
+   19.5 log     Trying to get length of sound which is not loaded yet.
+   19.5 log     Trying to get metadata of sound which is not loaded.
+   19.5 log     Trying to get length of sound which is not loaded yet.
+   19.5 log     Trying to get metadata of sound which is not loaded.
+   19.5 log     Trying to get length of sound which is not loaded yet.
+   19.5 log     Trying to get metadata of sound which is not loaded.
+   20.5 log     Trying to get length of sound which is not loaded yet.
+   20.7 log     Trying to get metadata of sound which is not loaded.
+   20.7 log     [Shot] 009_day1_ledger
+
+   20.9 log     Trying to get length of sound which is not loaded yet.
+   21.1 log     Trying to get metadata of sound which is not loaded.
+   22.1 log     Trying to get length of sound which is not loaded yet.
+   23.0 log     Trying to get metadata of sound which is not loaded.
+   24.0 log     [Day] 2: morning
+
+   28.8 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   29.3 log     Trying to get length of sound which is not loaded yet.
+   29.3 log     Trying to get metadata of sound which is not loaded.
+   30.3 log     [Shot] 010_case2.1_window
+
+   31.0 log     [Shot] 011_day2_rules_card
+
+   31.5 log     [Shot] 012_case2.1_tag
+
+   32.0 log     [Shot] 013_case2.1_inspect
+
+   32.6 log     [Auto] day 2 case 2.1: return->bramble (story matches) (authored best return->bramble)
+
+   32.6 log     [Shot] 014_case2.1_verdict
+
+   34.2 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.0 log     Trying to get metadata of sound which is not loaded.
+   35.0 log     Trying to get length of sound which is not loaded yet.
+   35.2 log     Trying to get metadata of sound which is not loaded.
+   36.2 log     [Shot] 015_case2.2_window
+
+   36.8 log     Trying to get length of sound which is not loaded yet.
+   36.8 log     Trying to get metadata of sound which is not loaded.
+   36.8 log     Trying to get length of sound which is not loaded yet.
+   36.8 log     Trying to get metadata of sound which is not loaded.
+   37.1 log     [Shot] 016_case2.2_inspect
+
+   37.4 log     Trying to get length of sound which is not loaded yet.
+   37.4 log     Trying to get metadata of sound which is not loaded.
+   37.4 log     Trying to get length of sound which is not loaded yet.
+   37.4 log     Trying to get metadata of sound which is not loaded.
+   37.4 log     [Auto] day 2 case 2.2: return->cecily (rosalind: contradicted by detail:note) (authored best return->cecily)
+
+   37.4 log     [Shot] 017_case2.2_verdict
+
+[idbfs] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9 (folder)
+[idbfs] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9/lostandfound_save.json 5828 bytes
+[idbfs] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9/lostandfound_save.json.bak 5280 bytes

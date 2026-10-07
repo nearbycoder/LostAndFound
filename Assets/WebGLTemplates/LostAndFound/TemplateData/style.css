@@ -1,0 +1,135 @@
+@font-face {
+  font-family: "IM Fell English";
+  src: url("imfell.ttf") format("truetype");
+  font-display: swap;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #0e0b09;
+  color: #efe4cf;
+  font-family: "IM Fell English", Georgia, serif;
+}
+
+/* the 16:9 box the game draws in, centred in the window (sized by the page's script) */
+#stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: #14100c;
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.6);
+}
+
+#unity-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  outline: none;
+}
+
+#loader {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 40%, #2a2017 0%, #0e0b09 70%);
+  transition: opacity 0.6s ease;
+}
+
+#loader.done { opacity: 0; pointer-events: none; }
+#loader[hidden] { display: none; }
+
+#loader .card {
+  width: min(640px, 86vw);
+  text-align: center;
+}
+
+#loader h1 {
+  margin: 0;
+  font-weight: normal;
+  font-size: clamp(44px, 8vw, 92px);
+  letter-spacing: 0.02em;
+  color: #f3e7cf;
+}
+
+#loader .sub {
+  margin: 0.4em 0 2.2em;
+  font-style: italic;
+  font-size: clamp(15px, 2vw, 21px);
+  color: #b9a888;
+}
+
+#bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(201, 161, 90, 0.18);
+  overflow: hidden;
+}
+
+#bar[hidden] { display: none; }
+
+#fill {
+  width: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #9c7a3c, #e2bd72);
+  transition: width 0.25s ease;
+}
+
+#status {
+  margin: 1em 0 0;
+  min-height: 1.4em;
+  font-size: 18px;
+  color: #c9b48d;
+}
+
+#loader.failed #status {
+  font-size: 20px;
+  line-height: 1.5;
+  color: #f0c2a8;
+}
+
+#note p {
+  margin: 0 0 1.2em;
+  font-size: 19px;
+  line-height: 1.5;
+  color: #e3d5ba;
+}
+
+#note[hidden] { display: none; }
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+#anyway {
+  padding: 0.5em 1.4em;
+  font-size: 20px;
+  color: #1a140e;
+  background: #d9b46a;
+  border: none;
+  border-radius: 4px;
+}
+
+#fullscreen {
+  position: fixed;
+  right: 14px;
+  bottom: 12px;
+  width: 38px;
+  height: 38px;
+  font-size: 22px;
+  line-height: 1;
+  color: #e9dcc2;
+  background: rgba(20, 15, 11, 0.6);
+  border: 1px solid rgba(201, 161, 90, 0.45);
+  border-radius: 4px;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+
+#fullscreen:hover { opacity: 1; }
+#fullscreen[hidden] { display: none; }
