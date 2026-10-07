@@ -64,9 +64,9 @@ namespace LostAndFound
 #if UNITY_WEBGL && !UNITY_EDITOR
         [System.Runtime.InteropServices.DllImport("__Internal")] static extern void LafSyncFS();
         /// <summary>In a browser the files live in memory until they're flushed to IndexedDB (Plugins/WebGL/LafSyncFS.jslib).</summary>
-        static void Persist() => LafSyncFS();
+        public static void Persist() => LafSyncFS();
 #else
-        static void Persist() { }
+        public static void Persist() { }
 #endif
 
         /// <summary>The save at path. If it can't be read (a crash mid-write, a full disk), the previous save from the
