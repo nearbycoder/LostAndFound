@@ -772,3 +772,57 @@ restart. `Mobile_RPAsset.asset` and the `Data/` folder the build leaves are reve
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies, the
 nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared with its
 state at the start of the round.
+
+## Round 6 results (7 Oct 2026)
+
+All five planned items landed on `improvements-6`, with one fix to this round's own tooling. Screenshots are in
+[`media/improvements/round6/`](media/improvements/round6/). The machine was shared with about 15 other sessions: load
+average 8–90 during this round, noted with each measurement below where it mattered.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R6-A. No text runs into another** | The text audit now compares texts on the same card or panel letter by letter on screen. On the current build it caught the ledger's long verdict running under "2 of 2 found". **It then found a bigger problem once the AutoPilot shot the finished ledger page**: it had been shooting 2.2 s after the ledger opened, before the tally and the Gazette, and `GameObject.Find("Ledger")` could return the ledger *prop* on the desk. On every five-case day **the Gazette landed on the last rows' explanations and "found" counts** (7 overlaps in a week). Fixes: a verdict line ends where the "found" column begins; the Gazette is now a tall clipping standing in the book's right margin, beside the rows (a new `gazette_tall` texture); a day without a Gazette centres the book; and the whole spread scales to fit. **At 21:9 the ledger's "Next morning"/"Close the desk" button was below the bottom of the screen**, which I only noticed while checking the new layout. | Full `best` week at 1600×900 with the audit: **7 texts running into another before, 0 after**, 0 overflowing. `worst` and `wait` weeks at 1600×900 and a `best` week at 1280×720 with Large text and Plain lettering: 0 and 0. Friday at 2560×1080 and 1024×768: 0, with the buttons on screen. A built-before/after at 21:9 shows the button missing, then present (`ledger_friday_21x9_before_after.jpg`). `ledger_day2_before_after_1600.jpg`, `ledger_day3_gazette_beside_1600.jpg`, `ledger_friday_1024x768.jpg`. |
+| **R6-B. Agnes's rules readable all week** | A short spacer replaces the blank line between rules, the glosses are 80% of the rule (from 70%), the full card is 1500 wide (scaled to fit a short 21:9 window) and the hover card 1000 wide, ending above the slip. | AutoPilot `[Rules]` lines. Friday, 1600×900: **full card 21.6 → 27.7** (glosses 17.3 → 22.1), **hover card 17.5 → 21.8** (glosses 14 → 17.4), so the hover card is no longer the audit's "small" text. Monday's single rule is unchanged at 30. With Plain lettering (a wider face) at 1280×720 Large: full 25.7, hover 22.6. **Short of the 28 I set for the full card by 0.3**; it fills the card's height at 2560×1080. `rules_hover_thursday_before_after.jpg`, `rules_full_friday_1600.jpg`, `rules_full_friday_1280x720_large_plain.jpg`. |
+| **R6-C. The week, summed up** | After Friday's epilogue, a ledger page: each day's tally and stamps, findings, curiosities, and endings reached (*n* of 3; the ones not reached shown only as "another ending"), and a pointer to *Choose a Day*. The save keeps `endingsSeen` across new weeks; an older save starts with the ending it finished on. `LAF_AUTOPILOT_SAVE` lets AutoPilot runs share a save. | `best`, `worst` and `wait` on one save: **endings 1, 2, 3 of 3** (`[Week]` lines). The `worst` week's five tallies (0/4, 0/4, 1/3, 0/4, 0/4) and findings (42) match its five evening ledgers. Fits with 0 overflow and 0 overlap at 1600×900, 1280×720 Large, 1024×768 and 2560×1080. 2 new unit tests (72 in all). `week_3_of_3_endings_1600.jpg`, `week_worst_2_of_3_1600.jpg`, `week_1024x768.jpg`. |
+| **R6-D. Do v0.1.0 players keep their settings?** | **Yes.** No tracing tool (strace and the like) is installed, and installing one is the owner's call, so I planted values instead. The player's `-lafPrefsProbe` writes settings as v0.1.0 did (PlayerPrefs, saved at once; same engine and company/product names). They land in the game's own `Nearby/Lost & Found/prefs`, and starting this version on that folder brings them into `settings.json`. A value planted only in `unknown/unknown/prefs` is never read, and the file isn't written. Round 5's note that v0.1.0's settings went to `unknown/unknown` was wrong for the player; the README and `Settings.cs` are corrected. That shared file is written by other games on this machine at any time (it changed during this round while none of mine was running). | `Tools/prefs_probe.sh`, scratch config folders only: step 1 wrote `laf.music 0.2` and `laf.plain 1` to `Nearby/Lost & Found/prefs`, and step 2 imported them; with 0.3 planted in `unknown/unknown` and 0.4 in the game's folder, 0.4 was imported; with 0.3 only in `unknown/unknown`, nothing was. The real `Nearby/Lost & Found` was unchanged and no `laf.` key ever appeared in the real `unknown/unknown`. |
+| **R6-E. The WebGL build brought up to date** | Rebuilt with rounds 5 and 6 in it: **65 MB** (data 61.0 MB, wasm 7.3 MB, Brotli), 12 min 24 s to build, load average 8–20. As before, the build rewrote `Mobile_RPAsset.asset` and left `Data/` at the project root; both were reverted and removed. Not hosted. | Headless Chrome on the Radeon (ANGLE, confirmed by the renderer string), 1600×900, load average 8: **60 fps** in a 25 s smoke run. AutoPilot quit after 1.2, Chrome closed and reopened on the same profile: *Continue* resumed at claimant 1.3 ("resuming after 2 case(s)"), Monday finished and Tuesday began, with the new ledger page (`webgl_ledger_monday_1600x900.jpg`). IndexedDB held the save and its backup. Console in all three runs: only round 4's known FSR shader warning. Logs in `webgl_logs/`. |
+
+### Final checks (final Linux build, load average 8–27)
+Linux build and validator: 28 objects, 5 days, 25 cases, **0 issues**. **72/72 unit tests.** Audit: PASS, 84/84 details, 0
+below 10%. AutoPilot, each with the text audit: `best` 24/24 *The 9:40*, `worst` *Grey Ninefold*, `wait` *The Long Wait*
+(23/24), `refuse` (6/24) — **0 overflowing and 0 overlapping texts** in every one. Nudge tour: 210 nudges, 24/24, 21 details
+at the glint and 2 by the part that lit up. Padtest PASS (load 13). Taptest 14 of 14 (load 13). `Tools/prefs_probe.sh` as in
+R6-D. Every run printed the guard's "untouched". The real `~/.config/unity3d/Nearby/Lost & Found/` was **identical (sizes,
+timestamps, hashes) at the end of the round and at its start**.
+
+### Found along the way
+- **The AutoPilot never photographed a finished ledger page.** It shot 2.2 s after the ledger opened, and
+  `GameObject.Find("Ledger")` could pick up the desk's ledger prop. While I was changing the shot, one run looked for the
+  ledger's button on that prop, so it missed the ending, went back to the title, began a second week in the same process, and
+  **crashed (signal 11) on Thursday morning** at load average 74. It hasn't happened in the 20-odd runs since, so it's
+  recorded here, not explained.
+- The text audit's first overlap version flagged the desk calendar while the camera was turned to the shelf (fixed: it now
+  only checks 3D texts in view).
+- **Starting *A New Week* clears the curiosities found** (the save is deleted, and `discovered` also drives what the slip shows
+  as found, so it can't simply be kept). Noted in the README; whether curiosities should carry over is a design question.
+- The README's ledger screenshot showed the old layout; it's replaced with the AutoPilot's 1920×1080 Monday ledger at the same
+  moment (`readme_ledger_old_new.jpg`). The other nine stills and the trailer are unchanged.
+
+### Not done, and why
+- **The full rules card misses its 28-unit target by 0.3** (27.7). Going further means a smaller gloss or a taller card than
+  a 21:9 window allows; it's 28% larger than before and reads well in the screenshots.
+- **The trailer and teaser** still show v0.1.0 (and now an older ledger). Re-cutting them is the owner's call.
+- **The GUI editor's Play** (round 5) is still unverified on this Wayland session. I didn't try again: the cause looks
+  environmental, and testing it means changing the editor's licensing sandbox, which the rules for this round rule out.
+
+### Still open after round 6
+- No human has played any of it: the transcript card, plain lettering, the nudges, the WebGL page, and now the week summary.
+- WebGL in Firefox and Safari, audible sound, browser input devices, and hosting (owner).
+- Gamepad and touchpad on real hardware, macOS on a Mac, and Windows (blocked on the module).
+- Whether curiosities should survive a new week (above).
+
+### Needs a decision from the owner
+- Re-cutting the trailer and teaser from current takes (`Recordings/r5_day*`, plus Friday and Grey Ninefold takes still to film).
+- Hosting the WebGL build (it's current again as of this round; the host must send `.br` files with `Content-Encoding: br`).
+- Whether a tracing tool (`strace`) may be installed for future checks like R6-D. It wasn't needed this time.
+- Curiosities across weeks (above). Licence, releases and tags, signing, and Windows Build Support are unchanged from before.
