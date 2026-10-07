@@ -875,3 +875,46 @@ overlapping texts in the text audit.
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the
 text audit, the nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared
 with its state at the start of the round.
+
+## Round 7 results (7 Oct 2026)
+
+All three planned items landed on `improvements-7`, one commit each. Screenshots and logs are in
+[`media/improvements/round7/`](media/improvements/round7/). Load average 16–37 throughout, from the other sessions on the
+machine; it's noted with each run below.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R7-A. Play on without quitting** | **A real leak.** The game rebuilds itself in place on *Start the day again*, *Back to the title* and the end of the week, and each rebuild left about 11 materials and 1–2 textures behind: 5 made at runtime for the stamp's shadow, stamp marks and the like, 4 TextMesh Pro material instances, the window glass's and the lamp bulb's instances, and the title's gradient. Nothing ever let go of them, because no scene is loaded. Unused assets are now unloaded behind the fade each morning and on the way back to the title, as a scene load would do. New: `Tools/unity.sh soak` goes round the menus' own buttons in one process and logs memory and live objects after each rebuild, and AutoPilot `-lafWeeks 2` plays whole weeks back to back. | Soak, 30 cycles. **Before** (load 17–36): materials 590 → 1012, textures 204 → 253, resident memory 414 → 465 MB, FAIL. **After** (load 28–31): flat over the last 10 cycles (materials 681, textures 203, meshes 199, GameObjects 547, Unity 384 MB, resident 415 MB), PASS. Which assets grew was logged by name. **Two `best` weeks in one process** (round 6's crash path, load 26–36): both 24/24, *The 9:40*, no crash, 0 overflowing or overlapping texts in 192 screenshots, and the live object counts at the end of week 2 match week 1 exactly. `soak_before_after.txt`. |
+| **R7-B. No progress lost by surprise** | *Start the day again* in the pause menu, once a claim is decided, now reads "Click again to undo today's one claim" first. *Choose a Day* during a week asks before rewinding ("Monday · click again to rewind the week from Tuesday", or "…start it again (one claim undone)" for today). Choices that lose nothing act at once, as before. A replay after a finished week is a day under way again: the title offers *Continue* (before, it never appeared, so a half-played replay was lost). The ending stays reached. | 4 new unit tests (**76 in all**, all pass). The soak checks every click it makes: a confirm appeared exactly when it worked out that progress would be lost (20 of 20 in the 30-cycle run), a single click changed nothing, and a second click acted. Started from a finished `best` week: replaying Tuesday didn't ask, *Continue · Tuesday, claimant 2 of 5* was on the title and resumed after 1 claim, and the later rewinds asked. `confirm_start.jpg`, `confirm_monday.jpg`, `title_continue_after_finished_week.jpg`, `progress_guard_soak.txt`. |
+| **R7-C. The full rules card's size** | The rules now run to just above *Put it back*. | AutoPilot `[Rules]`: Friday's full card **27.7 → 28.6** at 1600×900 (glosses 22.8) and at 2560×1080; 25.7 → 26.6 at 1280×720 with Large text and Plain lettering; Monday's card unchanged at 30. 0 overflowing or overlapping texts in every run. `rules_full_friday_*.jpg`. |
+
+### Final checks (final Linux build, load average 16–37)
+Linux build and validator: 28 objects, 5 days, 25 cases, **0 issues**. **76/76 unit tests.** Audit: PASS, 84/84 details, 0
+below 10%. AutoPilot, each with the text audit: `best` 24/24 *The 9:40*; `worst` *Grey Ninefold*; `wait` *The Long Wait*
+(23/24); `refuse` (6/24); `best` at 1280×720 with Large text and Plain lettering 24/24; Friday at 2560×1080. **0 overflowing and
+0 overlapping texts** in every run. Nudge tour: 210 nudges, 24/24, 21 details at the glint and 2 by the part that lit up.
+Padtest PASS and taptest 14 of 14, each started below load 24 (21 and 23). Every run printed the guard's "untouched". The real
+`~/.config/unity3d/Nearby/Lost & Found/` was **identical (sizes, timestamps, hashes) at the end of the round and at its start**,
+and no `laf.` key appeared in `unknown/unknown/prefs`. `final_checks.txt`.
+
+### Not done, and why
+- **Resident memory over two weeks.** The live object counts are identical at the end of each week, and Unity's own count of
+  allocated memory rose 1.5 MB, but the process's resident memory rose 43 MB (486 → 528 MB). That looks like the allocator or
+  the graphics driver keeping pages rather than a leak in the game, but nothing here can prove it without a native memory
+  profiler. It's in the README's known issues.
+- **Round 6's signal 11 wasn't reproduced.** Its log was overwritten in round 6. The same path (a second week in one process)
+  ran cleanly three times this round, and the leak it may have been near is fixed. That's not proof that the leak was the cause.
+- **A first-launch window larger than a small screen** (the default is 1600×900, windowed) can't be checked here: there's no
+  virtual X server (Xvfb) on this machine, and installing one is outside the repo.
+- **The trailer and teaser** still show v0.1.0, and **the GUI editor's Play** is still unverified on Wayland. Both as before.
+
+### Still open after round 7
+- No human has played any of it. That now includes the new confirms' wording.
+- WebGL in Firefox and Safari, audible sound, browser input devices, and hosting (owner). The local WebGL build predates this
+  round. Nothing in it is WebGL-specific, so I didn't spend a 12-minute build on it.
+- Gamepad and touchpad on real hardware, macOS on a Mac, and Windows (blocked on the module).
+- Whether curiosities should survive a new week (owner).
+
+### Needs a decision from the owner
+Unchanged from round 6: re-cutting the trailer and teaser, hosting WebGL, curiosities across weeks, whether `strace` (or Xvfb,
+for checking small screens) may be installed, and the licence, releases and tags, signing, and Windows Build Support.

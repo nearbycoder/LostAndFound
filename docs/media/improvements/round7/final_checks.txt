@@ -1,0 +1,66 @@
+=== build 10:58:23 load 25.37 25.36 23.28
+exit 0
+[Validate] 28 objects, 5 days, 25 cases, 0 issues
+=== test 10:58:58 load 31.87 27.10 23.96
+exit 0
+testcasecount="76" passed="76" failed="0" 
+=== audit 10:59:23 load 36.97 28.69 24.57
+exit 0
+[guard] real save and settings untouched (scratch prefs in Logs/config/audit)
+[Audit] requisition_vell.seal        secret       44.5%  (shut 44.5%, open -)  ok
+[Audit] 84 details checked, 0 below 10%
+[Audit] PASS
+=== ap_best 11:00:26 load 29.30 27.77 24.50
+exit 0
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 198s
+[TextAudit] 96 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+=== ap_worst 11:03:47 load 23.09 25.12 24.05
+exit 0
+[Auto] week done: 24 cases, 1 best, 5 skipped, ending grey, 0 problems, 178s
+[TextAudit] 78 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+=== ap_wait 11:06:48 load 24.37 25.09 24.23
+exit 0
+[Auto] week done: 24 cases, 23 best, 0 skipped, ending longwait, 0 problems, 193s
+[TextAudit] 90 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+=== ap_refuse 11:10:03 load 22.89 23.82 23.87
+exit 0
+[Auto] week done: 24 cases, 6 best, 0 skipped, ending longwait, 0 problems, 184s
+[TextAudit] 94 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+=== ap_1280_large_plain 11:13:08 load 20.77 21.89 23.07
+exit 0
+[Rules] day5 full card: rules written at 26.6 (glosses 21.2) of at most 34, 23 lines, font CrimsonPro
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 197s
+[TextAudit] 96 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+=== ap_21x9 11:16:28 load 18.08 21.37 22.73
+exit 0
+[Rules] day5 full card: rules written at 28.6 (glosses 22.8) of at most 34, 23 lines, font Kalam
+[Auto] week done: 5 cases, 5 best, 0 skipped, ending nine40, 0 problems, 48s
+[TextAudit] 22 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+=== tour 11:17:18 load 16.51 20.48 22.36
+exit 0
+[Tour] case 5.4a: Find → Examine → Decide
+[Tour] case 5.5: find → the item glows
+[Tour] case 5.5: Find → Decide
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 311s
+[Tour] 210 nudges asked for; 21 details found by clicking the glint, 2 by working the part that lit up
+[Auto] PASS
+=== pad 11:22:31 load 21.37 21.65 22.31
+exit 0
+[PadTest] PASS
+=== tap 11:24:25 load 23.02 22.96 22.76
+exit 0
+[TapTest] 14 of 14 taps worked
+[TapTest] PASS
+      1 [guard] real save and settings untouched (scratch prefs in Logs/config/audit)
+      6 [guard] real save and settings untouched (scratch prefs in Logs/config/autopilot)
+      2 [guard] real save and settings untouched (scratch prefs in Logs/config/editor)
+      1 [guard] real save and settings untouched (scratch prefs in Logs/config/nudgetour)
+      1 [guard] real save and settings untouched (scratch prefs in Logs/config/padtest)
+      1 [guard] real save and settings untouched (scratch prefs in Logs/config/taptest)
+=== done 11:25:26 load 19.85 22.05 22.45
