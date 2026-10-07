@@ -997,3 +997,57 @@ screenshot before and after, as in round 1).
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the
 text audit, the nudge tour, the padtest and the taptest, with the load average noted, and the real config folder compared
 with its state at the start of the round.
+
+## Round 8 results (7 Oct 2026)
+
+Four of the five items landed on `improvements-8`, one commit each; R8-C was dropped after its probe, as the scope
+allowed. Screenshots and logs are in [`media/improvements/round8/`](media/improvements/round8/). Load average 16–37 from
+the other sessions on the machine (83 for a moment during the nudge tour), noted with each run.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R8-A. The window fits the screen** | **A real first-launch problem.** The player always asked for 1600×900, and KWin put that window's 1600×928 frame on a 1366×768 screen: the shelf arrow, the claim slip, the hint bar and every control strip were off the screen. The same happened at 1440×900 (a MacBook's default), 1280×720, and on a 2560×1600 panel at 200% (Unity sees a 1280×800 desktop there). A window that doesn't fit now becomes the largest 16:9 one that does, at the first launch, for a window remembered from a bigger screen, and on leaving fullscreen. **Also found: the *Fullscreen* setting did nothing on Wayland** (Unity reported `FullScreenWindow` while KWin showed an ordinary window); it now asks for the desktop's resolution in that mode. New `Tools/unity.sh smallscreen`: the player in a headless, sandboxed KWin of any size, with KWin's own report of the window and a picture of the whole screen. | KWin's frame on first launch, before → after: 1366×768 1600×928 → **1200×702** at (83, 33); 1280×800 at 200% → **1176×690**; 1440×900 → **1324×772**; 1280×720 → **1124×660**; 1920×1080 unchanged at 1600×928. Fullscreen on and off at 1366×768: KWin `fullscreen=true` at 1366×768, then back to 1200×702 (`fullscreen_round_trip_1366x768.jpg`). A game saved in fullscreen starts fullscreen; a remembered 1200×674 window is kept. 9 new unit tests. A full `best` week at the fitted 1200×674 with the text audit: 24/24, *The 9:40*, **0 overflowing and 0 overlapping texts** in 96 screenshots (load 23–31). `window_*_before_after.jpg`, `smallscreen_runs.txt`. |
+| **R8-B. The ledger's *Replay the day* asks first** | One click beside *Next morning* used to rewind the whole day just finished. It now reads "Click again to undo today's five claims" (ProgressGuard's wording, in a warning colour, on one line clear of *Next morning*) and replays on the second click. | 1 new unit test (86 in all). The soak now finishes a day and clicks the real button: one click asked and changed nothing; the second replayed the day from its morning with 0 claims decided (12-, 3- and 30-cycle runs). `ledger_replay_confirm.jpg`, `ledger_replay_soak.txt`. |
+| **R8-C. Keyboard layouts** | **Dropped.** Its probe: in the headless KWin with a French layout (KWin confirmed `fr`), and through the sandbox's own Xwayland set to French with `setxkbmap`, the Linux player reported US labels for every key and `layout 'us'`; German and Dvorak the same. The virtual seat has no physical keyboard, so this doesn't prove a real French keyboard is read the same way, but nothing here could show the layout-aware version working, so it wasn't built. The README's known issues now say what an AZERTY or Dvorak player meets. A `[Keys]` line in every player log records what the player sees. | `[Keys]` lines from the three runs and KWin's `getLayoutsList`. |
+| **R8-D. Quiet in the background** | Out of focus the game draws 10 frames a second (vsync off, since it overrides the cap); Settings › *Sound when in the background* (on by default) silences it there; a pointer that left the window by its side no longer turns the desk while out of focus. Test tools keep full speed. | Headless KWin with a `kdialog` window over the game from 14 s to 26 s (`LAF_STEAL`): **60 → 10.0 → 60 fps**, volume 1 throughout; with the setting off, volume 0 behind the other window and 1 on return (`background_runs.txt`, load 20–24). The Settings card fits at 1920×1080 and in the fitted 1366×768 window (`settings_1366x768.jpg`). **Not checked:** the edge-turn guard, since nothing here can move a pointer out of a window in the sandbox. |
+| **R8-E. The button under the pointer stays readable** (added during the round) | The ledger's buttons, the ending's *Close the shutter* and the week summary's *Back to the title* are light words on the dark, but turned the paper buttons' oxblood when pointed at. They turn gold now, as the title's menu does. | Soak screenshot of the ledger with *Next morning* under the pointer: **1.6:1 → 11.1:1** against the dark behind it (`ledger_hover_next_before_after.jpg`). Only the ledger's was photographed; the other two are the same one-line change. |
+
+### Final checks (final Linux build, load average 15–37)
+Linux build and validator: 28 objects, 5 days, 25 cases, **0 issues**. **86/86 unit tests.** Audit: PASS, 84/84 details, 0
+below 10%. AutoPilot with the text audit: `best` 24/24 *The 9:40*; `worst` *Grey Ninefold*; `wait` *The Long Wait* (23/24);
+`refuse` (6/24); **0 overflowing and 0 overlapping texts** in every one. Nudge tour: 210 nudges, 24/24, 21 details at the
+glint and 2 by the part that lit up. Padtest PASS and taptest 14 of 14, each started below load 24 (21 and 15). Soak, 30
+cycles plus the ledger's replay: PASS, live objects flat over the last 10 cycles (materials 681, textures 203, meshes 199,
+GameObjects 547). Every run printed the guard's "untouched". The real `~/.config/unity3d/Nearby/Lost & Found/` was **identical
+(sizes, timestamps, hashes) at the end of the round and at its start**, and no `laf.` key appeared in `unknown/unknown/prefs`.
+`final_checks.txt`.
+
+### About the headless KWin
+It's `kwin_wayland --virtual`, already installed, run under `dbus-run-session` with `XDG_CONFIG_HOME`, `XDG_DATA_HOME`,
+`XDG_CACHE_HOME` and `XDG_STATE_HOME` all under `Logs/config/`, a socket of its own, and `DISPLAY` and `WAYLAND_DISPLAY`
+unset, so it never talks to the desktop's KWin or its D-Bus session and nothing appears on screen. Screen pictures come from
+`spectacle` inside that session (`KWIN_SCREENSHOT_NO_PERMISSION_CHECKS=1`, which only affects that KWin). KWin keeps the last
+run's output scale in its scratch `kwinoutputconfig.json`, which the tool deletes before each run. Nothing was installed.
+
+### Not done, and why
+- **Keyboard layouts** (R8-C, above).
+- **The fitted window is small on a small screen.** At 1366×768 the game draws at 1200×674, so the UI is 62% of its
+  1080p size. It fits and nothing overflows, but *Fullscreen* or *Large text* may suit such a screen better. Opening
+  fullscreen on small screens by default is a design call I didn't make.
+- **HiDPI sharpness.** On a 200% screen Unity draws at the scaled size and the compositor enlarges it. That was so before
+  and is unchanged.
+- **macOS:** the window fitting uses Unity's own desktop size and should apply there too, but it hasn't been run on a Mac.
+- The local WebGL build still predates rounds 7 and 8 (neither changes the browser build), and resident memory over two
+  weeks, round 6's crash, the trailer and the GUI editor's Play are as round 7 left them.
+
+### Still open after round 8
+- No human has played any of it.
+- Keyboard layouts other than US (above). WebGL in Firefox and Safari, audible sound, browser input devices, and hosting
+  (owner). Gamepad and touchpad on real hardware, macOS on a Mac, and Windows (blocked on the module).
+- Whether curiosities should survive a new week (owner).
+
+### Needs a decision from the owner
+- Whether small screens should open fullscreen by default rather than in the fitted window.
+- Whether to let players choose a keyboard layout (or rebind keys) by hand, since the Linux player doesn't report it.
+- Unchanged from round 7: re-cutting the trailer and teaser, hosting WebGL, curiosities across weeks, installing `strace` or
+  Xvfb (the headless KWin now covers small screens), and the licence, releases and tags, signing, and Windows Build Support.

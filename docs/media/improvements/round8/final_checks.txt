@@ -1,0 +1,48 @@
+== test (start: load average: 19.28, 21.29, 21.78)
+   exit 0 (end: load average: 16.65, 20.53, 21.51)
+total="86" passed="86" failed="0"
+== audit (start: load average: 16.65, 20.53, 21.51)
+   exit 0 (end: load average: 21.12, 21.00, 21.60)
+[Audit] 84 details checked, 0 below 10%
+[Audit] PASS
+== autopilot_best (start: load average: 21.12, 21.00, 21.60)
+   exit 0 (end: load average: 22.25, 21.84, 21.81)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 200s
+[TextAudit] 96 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+== autopilot_worst (start: load average: 22.25, 21.84, 21.81)
+   exit 0 (end: load average: 36.49, 25.93, 23.19)
+[Auto] week done: 24 cases, 1 best, 5 skipped, ending grey, 0 problems, 179s
+[TextAudit] 78 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+== autopilot_wait (start: load average: 36.49, 25.93, 23.19)
+   exit 0 (end: load average: 24.80, 23.99, 22.84)
+[Auto] week done: 24 cases, 23 best, 0 skipped, ending longwait, 0 problems, 192s
+[TextAudit] 90 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+== autopilot_refuse (start: load average: 24.80, 23.99, 22.84)
+   exit 0 (end: load average: 16.80, 24.01, 23.33)
+[Auto] week done: 24 cases, 6 best, 0 skipped, ending longwait, 0 problems, 187s
+[TextAudit] 94 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs)
+[Auto] PASS
+== nudgetour (start: load average: 16.80, 24.01, 23.33)
+   exit 0 (end: load average: 82.90, 48.07, 32.35)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 329s
+[Tour] 210 nudges asked for; 21 details found by clicking the glint, 2 by working the part that lit up
+[Auto] PASS
+== padtest (start: load average: 21.42, 41.03, 33.40)
+   exit 0 (end: load average: 15.28, 33.66, 31.51)
+[PadTest] PASS
+== taptest (start: load average: 15.28, 33.66, 31.51)
+   exit 0 (end: load average: 18.25, 30.99, 30.72)
+[TapTest] 14 of 14 taps worked
+[TapTest] PASS
+== soak (start: load average: 18.25, 30.99, 30.72)
+   exit 0 (end: load average: 19.09, 23.07, 27.16)
+[Soak] cycle 30 (Choose a Day (Monday)): managed 7.4 MB, unity 381.9 MB, resident 438.6 MB; materials 681, meshes 199, textures 203, gameobjects 547; day 1, load 17.36
+[Soak] "Replay the day" asked first: "Click again to undo today's four claims"
+[Soak] replayed day 1 from the ledger: its morning again, 0 claims decided
+[Soak] from cycle 1 to 30: materials 578 → 681, meshes 165 → 199, textures 202 → 203, gameobjects 540 → 547, unity 366.8 MB → 381.9 MB, resident 423.2 MB → 438.6 MB
+[Soak] 30 cycles in 357s; 21 menu choices asked for a second click; steady
+[Soak] PASS
+== done Wed Oct  7 02:46:14 PM CDT 2026
