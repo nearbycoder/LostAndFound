@@ -35,28 +35,32 @@
 # so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
 #
 # Built players never touch the real save or settings: each run gets XDG_CONFIG_HOME under
-# Logs/config/<command>/ (Unity's Linux player keeps its prefs, and persistentDataPath, there), and the real
-# ~/.config/unity3d/Nearby/Lost & Found/ is hashed before and after. If it changed, the run fails.
+# Logs/config/<command>/ (Unity's Linux player keeps its prefs, and persistentDataPath, there). Batch editor runs
+# (builds, tests, run) get Logs/config/editor/, which links back to the real config folder for everything but this
+# game's own. The real ~/.config/unity3d/Nearby/Lost & Found/ is checked before and after (hashes and timestamps);
+# if anything there changed, the run fails with status 99. Only `open` and `headless` (interactive) aren't guarded.
 set -euo pipefail
 UNITY="${UNITY:-$HOME/Unity/Hub/Editor/6000.6.2f1/Editor/Unity}"
 PROJECT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LIBS="$PROJECT/.unity-libs"
 [ -e "$LIBS/libxml2.so.2" ] || { mkdir -p "$LIBS"; cp "$HOME/.local/share/ptt-unity-libs/libxml2.so.2"* "$LIBS/" 2>/dev/null || true; }
 export LD_LIBRARY_PATH="$LIBS${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-REAL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/unity3d/Nearby/Lost & Found"
+REAL_XDG="${XDG_CONFIG_HOME:-$HOME/.config}"
+REAL_CONFIG="$REAL_XDG/unity3d/Nearby/Lost & Found"
 
-# The real folder's files and their hashes (the editor's TestResults.xml aside: test runs write it, players don't).
-real_config_hashes() { [ -d "$REAL_CONFIG" ] && (cd "$REAL_CONFIG" && find . -type f ! -name TestResults.xml -print0 | sort -z | xargs -0 -r sha256sum) || true; }
+# The real folder's files: names, sizes, timestamps and hashes. Nothing this script runs may change any of them.
+real_config_state() {
+  [ -d "$REAL_CONFIG" ] || return 0
+  (cd "$REAL_CONFIG" && find . -type f -printf '%p %s %T@\n' | sort && find . -type f -print0 | sort -z | xargs -0 -r sha256sum)
+}
 
-# player <command> <args...>: run a built player with scratch prefs, then prove the real ones weren't touched.
-player() {
+# guarded <name> <command...>: run it, then prove the real save and settings weren't touched.
+guarded() {
   local name="$1"; shift
-  [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
-  local before; before="$(real_config_hashes)"
-  export XDG_CONFIG_HOME="$PROJECT/Logs/config/$name"; mkdir -p "$XDG_CONFIG_HOME"
+  local before; before="$(real_config_state)"
   local status=0
   "$@" || status=$?
-  if [ "$(real_config_hashes)" != "$before" ]; then
+  if [ "$(real_config_state)" != "$before" ]; then
     echo "[guard] the real save or settings in $REAL_CONFIG CHANGED during this run" >&2
     return 99
   fi
@@ -64,20 +68,46 @@ player() {
   return $status
 }
 
+# player <command> <args...>: run a built player with scratch prefs.
+player() {
+  local name="$1"; shift
+  [ -n "${WAYLAND_DISPLAY:-}" ] && export SDL_VIDEODRIVER=wayland
+  export XDG_CONFIG_HOME="$PROJECT/Logs/config/$name"; mkdir -p "$XDG_CONFIG_HOME"
+  guarded "$name" "$@"
+}
+
+# editor <args...>: run the batch editor. The editor keeps this project's PlayerPrefs (and the test runner its
+# TestResults.xml) in the same folder as the game, so it gets a config folder of its own under Logs/ that links back
+# to everything in the real one except this game's folder: its licence, preferences and the other projects' folders
+# are found where they live, and only "Lost & Found" is scratch. Links are rebuilt on every run.
+editor() {
+  local root="$PROJECT/Logs/config/editor"
+  mkdir -p "$root/unity3d/Nearby/Lost & Found"
+  find "$root" -maxdepth 3 -type l -delete
+  (
+    shopt -s dotglob nullglob
+    local e
+    for e in "$REAL_XDG"/*; do [ "${e##*/}" = unity3d ] || ln -s "$e" "$root/"; done
+    for e in "$REAL_XDG/unity3d"/*; do [ "${e##*/}" = Nearby ] || ln -s "$e" "$root/unity3d/"; done
+    for e in "$REAL_XDG/unity3d/Nearby"/*; do [ "${e##*/}" = "Lost & Found" ] || ln -s "$e" "$root/unity3d/Nearby/"; done
+  )
+  XDG_CONFIG_HOME="$root" guarded editor "$UNITY" "$@"
+}
+
 case "${1:-open}" in
   open)        exec "$UNITY" -projectPath "$PROJECT" ;;
   headless)    exec "$UNITY" -batchmode -projectPath "$PROJECT" -logFile "$PROJECT/Logs/headless.log" ;;
-  build-linux) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Linux64 \
+  build-linux) editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Linux64 \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildLinux -logFile "$PROJECT/Logs/build.log" ;;
-  build-mac)   exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget OSXUniversal \
+  build-mac)   editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget OSXUniversal \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildMac -logFile "$PROJECT/Logs/build-mac.log" ;;
-  build-webgl) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget WebGL \
+  build-webgl) editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget WebGL \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildWebGL -logFile "$PROJECT/Logs/build-webgl.log" ;;
-  build-windows) exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Win64 \
+  build-windows) editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget Win64 \
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildWindows -logFile "$PROJECT/Logs/build-windows.log" ;;
-  run)         exec "$UNITY" -batchmode -nographics -quit -projectPath "$PROJECT" \
+  run)         editor -batchmode -nographics -quit -projectPath "$PROJECT" \
                  -executeMethod "$2" -logFile "$PROJECT/Logs/run.log" ;;
-  test)        exec "$UNITY" -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
+  test)        editor -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
                  -testResults "$PROJECT/Logs/test-results.xml" -logFile "$PROJECT/Logs/test.log" ;;
   smoke)       rm -rf "$PROJECT/Screenshots/smoke"
                q=(); [ -n "${3:-}" ] && q=(-lafQuality "$3")   # optional picture quality 0|1|2 for this run
