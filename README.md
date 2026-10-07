@@ -48,7 +48,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Ring for the next claimant / advance dialogue | Click the bell or `Space` / click or `Enter` |
 | Read Agnes's rules | Hover her card beside the claim slip, or `R` at any time (`R` or `Esc` puts them back) |
 | Stuck? A nudge from Agnes | `H` during a claim (press again for a stronger one) |
-| Pause, settings, Agnes's rules, restart the day | `Esc` |
+| Pause: Agnes's rules, the controls, settings, restart the day | `Esc` |
 
 **With a gamepad** (Xbox-style layout; tested only with a virtual Input System gamepad, as no physical controller was to hand):
 
@@ -67,6 +67,8 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Read the claim slip · pause | View · Menu |
 
 Pick up the mouse and it takes over again at once. There's no touch support.
+
+Both tables are in the game too: **Controls** in the pause menu and on the title shows the one for whatever you're holding. Quick taps count: a touchpad's tap-to-click, or a click on a slow frame, is never lost.
 
 **Stuck?** Press `H` (d-pad left) during a claim for a nudge from Agnes, pinned at the right of the screen. It doesn't block anything. Each press goes a step further for wherever you've got to: finding the object, examining it, asking about it, deciding. The last nudge of each step shows you: the drawer or the object glows, or a glint marks the hidden detail once a click there would find it. Nudges only cite rules you've been given, never quote a finding you haven't found, and never say which stamp to use. After 90 seconds on a claim without progress, the hint bar offers one (*Offer Agnes's nudges when stuck* in Settings turns the offer off). Every nudge on the best path through the week is listed in [docs/nudges.md](docs/nudges.md) (spoilers).
 
@@ -148,7 +150,7 @@ Every evening the **Day Ledger** marks each case against the rules and explains 
 2. Unzip it and run `LostAndFound.x86_64` (`chmod +x LostAndFound.x86_64` first if your unzip tool dropped the permission).
 3. On a Wayland desktop, if the window doesn't appear, run it with `SDL_VIDEODRIVER=wayland ./LostAndFound.x86_64`.
 
-The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/`. If it runs slowly, try a lower *Picture quality* in Settings; *Large text* there makes the dialogue, hints, tags and notes 25% bigger.
+The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/`. Each save swaps in whole and keeps the one before as `lostandfound_save.json.bak`, so a crash mid-save can't lose the week. A save that can't be read is set aside as `.damaged` (never deleted), and the title says so. If it runs slowly, try a lower *Picture quality* in Settings; *Large text* there makes the dialogue, hints, tags and notes 25% bigger.
 
 **macOS and Windows:** there's no download for either yet. A universal (Intel and Apple silicon) macOS app can be built from source with `Tools/unity.sh build-mac`, but it **hasn't been run on a Mac**. It isn't signed or notarised, so macOS will refuse to open it until you right-click it and choose *Open* (or run `xattr -dr com.apple.quarantine "LostAndFound.app"`). On a Mac the app is called "Lost and Found". The Windows build is wired up (`Tools/unity.sh build-windows`) but needs Unity's Windows Build Support module, which the machine this was made on doesn't have, so it has never been built.
 
@@ -167,7 +169,7 @@ Tools/unity.sh                 # GUI editor
 Tools/unity.sh build-linux     # -> Builds/Linux/LostAndFound.x86_64
 Tools/unity.sh build-mac       # -> Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
 Tools/unity.sh build-windows   # -> Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
-Tools/unity.sh build-webgl     # -> Builds/WebGL/ (a measuring spike, not a release: see docs/IMPROVEMENTS.md, round 3)
+Tools/unity.sh build-webgl     # -> Builds/WebGL/ (not a release: see docs/IMPROVEMENTS.md, rounds 3 and 4)
 python3 Tools/package_release.py   # zip whatever's built into dist/LostAndFound-v<version>-<platform>.zip
 ```
 
@@ -190,16 +192,18 @@ All generated assets are committed, so you only need to regenerate them if you c
 
 | Check | Command | What it proves |
 |---|---|---|
-| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 53 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, the save file's round trip (including mid-day progress, and old saves), strays only leaving after their last case, the Curiosities count, and Agnes's nudges (every claim of the `best` and `worst` weeks followed nudge by nudge to a decision, with keyboard and gamepad wording: only rules already handed over, no unfound finding quoted, no stamp named, and the decision nudge agreeing with the solver). |
+| **Unit tests** | `Tools/unity.sh test` (results in `Logs/test-results.xml`) | 62 EditMode tests over the real content, no player needed: the validator, the solver deriving every case's best verdict, all three endings from whole weeks played in memory (the AutoPilot's three policies), Thursday's choice swapping Friday's case, scoring, when each rule arrives, story-flag expressions, every detail having a hotspot or a part that reveals it, short names, the save file's round trip (including mid-day progress, and old saves) and its crash safety (a truncated, empty or garbage save, a failed write), strays only leaving after their last case, the Curiosities count, and Agnes's nudges (every claim of the `best` and `worst` weeks followed nudge by nudge to a decision, with keyboard and gamepad wording: only rules already handed over, no unfound finding quoted, no stamp named, and the decision nudge agreeing with the solver). |
 | **Content validator** | runs in every `build-linux`, or `Tools/unity.sh run LostAndFound.EditorTools.BuildScript.ValidateContent` | The rules solver, using only what's discoverable at the desk, derives each case's authored best verdict. Current result: 28 objects, 5 days, 25 cases, 0 issues. |
 | **AutoPilot** | `Tools/unity.sh autopilot [speed] [startDay] [best\|worst\|wait\|refuse]` | The built player plays the whole week through the real desk systems, with a screenshot of every case (plus each day's rules card and first tag). `best` gets 24/24 and *The 9:40*; `worst` gives Vell everything and reaches *Grey Ninefold*; `wait` refuses Thomas the ring and reaches *The Long Wait*; `refuse` refuses everything (the fullest the shelves get, and Gus's basement trips). With the player's `-lafQuitAfter <case>` and then `-lafContinue`, it checks that *Continue* resumes mid-day. Results are in `Logs/autopilot.log`. |
 | **Gamepad test** | `Tools/unity.sh padtest` | Plays Monday's first case with only a virtual Input System gamepad (cursor, right stick, buttons, and the d-pad's left for two nudges in pad wording), counts any keyboard or mouse events during play (there should be none), then checks that moving a mouse takes control back. |
+| **Tap test** | `Tools/unity.sh taptest [w] [h] [player args]` | Plays Monday's first case with quick taps: each press and its release reach the game in the same input update, as a touchpad's tap-to-click does. Keys ring the bell, ask for a nudge, turn, use the tray and pause. Mouse taps open a drawer, pick up the wallet and work the pause menu and the Controls card. Pad taps take control, ask for a nudge, stamp the slip and put the card away. Before round 4's fix, 1 of 11 such taps worked. |
 | **Nudge tour** | `Tools/unity.sh nudgetour [speed] [w] [h] [player args]` | The AutoPilot plays the week as a stuck player: at every stage of every claim it asks for every nudge, then does what they say. It picks up what glows, works the part that lights up, turns the object until the glint appears and clicks on the glint, and asks what it's told to ask. It checks the glint only shows where a click finds the detail, and that the hint bar offers a nudge after 90 s idle. Log in `Logs/nudgetour.log`. |
 | **Hotspot audit** | `Tools/unity.sh audit` (table in `Screenshots/hotspots/coverage.txt`) | Holds every object as the inspect view does, lids shut and open, through 1,500 orientations at two zooms, and asks the game's own picking code whether each hidden detail could be clicked. Then, for every day with nothing yet returned (the fullest storage gets), it checks that every stored object has a real slot and can be hovered from its shelf or open drawer. Fails if any detail or object falls under 10%, and saves a picture of each detail that does. |
+| **WebGL in Chrome** | `python3 Tools/serve_webgl.py Builds/WebGL &` then `python3 Tools/webgl_check.py --url 'http://127.0.0.1:8764/?lafSmoke=smoke' --out Logs/webgl/smoke --profile Logs/webgl/profile` | Plays the WebGL build in Chrome on the real GPU (headless, ANGLE on EGL), records the console, screenshots every `[Shot]` the game logs, and lists what the page keeps in IndexedDB. In a browser the game reads its `-laf…` options from the query string, so the smoke test and AutoPilot run there too (`?lafAutopilot=x&lafQuitAfter=1.2`, then `?lafAutopilot=x&lafContinue` with the same `--profile` to check the save survived). |
 | **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0, 1 or 2 overrides the picture quality for that run only. |
 | **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. |
 
-Every player run above keeps its prefs in `Logs/config/<command>/` rather than your real `~/.config/unity3d/Nearby/Lost & Found/`. The script points `XDG_CONFIG_HOME` there and passes `-lafSave` for the save. It also hashes the real folder before and after each run and fails (`[guard] … CHANGED`) if anything in it changed, so testing can't overwrite your own save or settings.
+Every player run above keeps its prefs in `Logs/config/<command>/` rather than your real `~/.config/unity3d/Nearby/Lost & Found/`. The script points `XDG_CONFIG_HOME` there and passes `-lafSave` for the save. Batch editor runs (builds, `test`, `run`) get `Logs/config/editor/`, which links back to the real config folder for everything except this game's own, so the editor still finds its licence. Every one of these runs checks the real folder's hashes and timestamps before and after, and fails (`[guard] … CHANGED`) if anything in it changed, so testing can't overwrite your own save or settings. Only the interactive editor (`Tools/unity.sh` with no command, or `headless`) isn't guarded.
 
 ### The trailer and README media
 
@@ -280,6 +284,7 @@ Since v0.1.0 (not released yet; see [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
 - Agnes's rules are on a card on the desk (hover it, or press `R` at any time), and the inspect bar and Day Ledger count your findings.
 - 42 unit tests; a macOS build target, app icon and bundle identifier; a release packaging script; a *Picture quality* setting.
 - Round 2: shelves that never overflow (an umbrella stand, and Gus's basement for unclaimed strays); *Continue* resumes mid-day; the Curiosities page; a *Large text* option; gamepad support.
+- Round 4: **quick clicks and taps are never lost** (a touchpad's tap-to-click, or any click on a slow frame, used to be dropped); **a crash can't cost you the week** (saves swap in whole and keep a backup); a **Controls** card in the pause menu and on the title; editor test runs no longer touch your settings either; and the WebGL build plays at 60 fps on a real GPU and keeps its save in the browser.
 - Round 3: **Agnes's nudges** for a stuck player (`H` or the d-pad's left): step by step, ending with a glint on the spot a click would find. The Linux download is **22% smaller** (111 MB zipped, from 143 MB) through compressed meshes. A WebGL build can be made and measured (`build-webgl`, not released). The test tools can no longer touch your real save or settings. There are now 53 unit tests.
 
 Known gaps and rough edges:
@@ -288,7 +293,7 @@ Known gaps and rough edges:
 - Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here.
 - Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
 - How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations. Agnes's nudges now lead a stuck player to every deciding detail, but only the AutoPilot has followed them so far.
-- WebGL is a measured spike, not a release: the title loads (an 89 MB download), but its frame rate on a real GPU is unmeasured, depth of field is missing, and audio and browser saves need work. See [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
+- WebGL isn't released or hosted. It now builds as a 66 MB download, plays the week at 60 fps in Chrome on this machine's GPU (a Radeon 8060S iGPU) with the desktop's picture, and its save survives closing the browser. It's been checked in Chrome only (headless, on the real GPU), not Firefox or Safari, and nobody has played it by hand. The page is Unity's default template. See [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md), round 4.
 - The trailer and the screenshots above were captured before these fixes (the trailer's umbrellas still lie on the shelf, its lunch tin was sealed, and there are no nudges).
 
 ## License

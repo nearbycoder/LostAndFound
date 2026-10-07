@@ -551,3 +551,42 @@ real Radeon GPU (`ANGLE (AMD, AMD Radeon 8060S …)`, checked with a probe page)
 or the reason it doesn't, and DoF and audio results, all in "Round 4 results". Nothing is hosted, and the
 desktop build is unchanged. If it overruns its time box, what was learned is recorded instead.
 **Verify:** the browser console log, screenshots, the build log.
+
+## Round 4 results (6 Oct 2026)
+
+All five items landed on `improvements-4`, one commit each. Screenshots and logs are in
+[`media/improvements/round4/`](media/improvements/round4/). Final checks on the final Linux build are at the end
+of this section.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R4-A. Quick clicks and taps are never lost** | **A real bug.** `InputX` only polled whether buttons were held, so a press that went down and up between two frames was dropped. That covers a touchpad's tap-to-click, and any quick click, key or pad press on a slow frame. Presses are now also latched from the Input System's event stream and count for one frame. Pad buttons go through the same latch. Unity's own menu clicks (uGUI) were already safe. | New `Tools/unity.sh taptest`: each press and its release are queued in the same input update from fresh virtual devices. **Before: 1 of 11 taps worked** (only the uGUI menu button). **After: 11 of 11**, then 14 of 14 once R4-C added the card, at 1600×900 and at 1280×720 with Large text (load average 24–30). [`taptest_before_after.txt`](media/improvements/round4/taptest_before_after.txt). The padtest and AutoPilot `best` (24/24, *The 9:40*) still pass. This is the likeliest cause of round 3's unexplained padtest failures at high load, but those weren't reproduced, so it isn't proven. |
+| **R4-B. A crash can't cost you the week** | Saves are written to a temporary file, flushed to disk and swapped in with one rename. The previous save is kept as `.bak`. An unreadable save falls back to the backup, and the restored save becomes the save again. If neither can be read, the damaged file is moved to `.damaged` (or `.damaged-2`, and so on), never deleted. The title says what happened, on a dark band so it reads over the desk. | 9 new EditMode tests (62 in all): round trip, backup on every write, truncated, empty and missing saves falling back, damaged saves set aside and never overwritten, a failed write leaving the old save intact, and a save from another version. In the player, a save truncated mid-file after case 1.3 *Continue*d from the backup at claimant 1.3 and kept `save.json.damaged`. `save_restored_from_backup_title.jpg`, `save_damaged_set_aside_title.jpg`. |
+| **R4-C. The controls, in the game** | A **Controls** card in the pause menu and on the title, in keyboard and mouse words, or the pad's while the pad is in use. Esc, right click or B puts it away. The title's items close up slightly when the menu is at its longest (seven items), so they stay clear of the save note. | The taptest opens it from the pause menu with a mouse tap, closes it with Esc (the pause menu stays open), and with the pad in use closes it with B. Screenshots at 1280×720 with Large text in both wordings, and the title at its longest with the save note: `controls_*.jpg`, `title_longest_menu_with_save_note.jpg`. |
+| **R4-D. Editor runs don't touch the real settings** | Batch editor commands get `Logs/config/editor/`: links back to every entry in the real `~/.config`, `unity3d` and `Nearby` folders except `Lost & Found`. That folder is scratch, and it's where the editor's PlayerPrefs and the test runner's `TestResults.xml` now go. The guard now checks timestamps as well as hashes, and covers editor runs. | From the first sandboxed run onwards, the real folder's file sizes, timestamps and hashes were identical before and after every build and test (more than ten runs). The editor found its licence every time. **Not fully clean:** six `build-linux` runs earlier this session, before R4-D, rewrote the real `prefs` file's timestamp (round 3's known issue). Its contents are Unity's own player keys, with no game settings, and the save file was untouched. |
+| **R4-E. WebGL, second look on a real GPU** | **Saves were lost in the browser.** IndexedDB stayed empty even while the game ran, despite the template's `autoSyncPersistentDataPath`. A small `.jslib` now flushes the file system to IndexedDB after every save write. **Depth of field:** WebGL used the *Mobile* quality level, whose pipeline asset strips DoF. It now uses *PC*, like the desktop (WebGL only; the desktop builds are unchanged). **Audio:** in a browser the pause muffle is a dip in volume rather than a low-pass filter (browsers have no audio filters), and looping sounds start at the beginning, because a browser can't seek compressed clips. In a browser the game reads its `-laf…` options from the page's query string, and `Tools/webgl_check.py` drives Chrome through its DevTools protocol (stdlib only). | **Download:** 66 MB Brotli (data 61.0, wasm 7.3 MB), 122 MB unpacked. Round 3's was 89 MB. Builds took 11 min, then 6 min. **Frame rate,** Chrome on the Radeon 8060S (headless, ANGLE on EGL, confirmed by the WebGL renderer string): High holds **60 fps**, the 60 Hz cap, at 960×600 (the template's canvas) and at 1600×900, load average 8–18. Low also holds 60. At load 30–75 from other sessions, High dipped to 35–60. A visible Chrome window wasn't usable here: on this shared desktop the window is never shown, so `requestAnimationFrame` never fires (that run measured 2 fps). **Picture:** a WebGL frame against Linux High at the same size and moment: vignette, grain and edge sharpness behind and in front of the focus all within 1% (`webgl_vs_linux_high_960x600.jpg`). **Console:** no audio warnings in a 45 s run. Round 3 had `getFrequency()` and filter warnings. One warning remains: URP's FSR upscaling shader is stripped. Upscaling is unused, and post-processing runs, as the comparison shows. **Saves:** quit after 1.2, closed Chrome, reopened it with the same profile and a different URL: *Continue* resumed at 1.3, and IndexedDB held the save and its backup. Before the flush, the same test restarted the morning. |
+
+### WebGL: where it stands (for the owner)
+Technically it's close to releasable: 66 MB, 60 fps on this iGPU, the desktop's picture, and saves that stick. Not
+yet checked: Firefox and Safari, a person playing by hand, whether the sound is actually heard (headless Chrome
+can't tell), touchpads and gamepads in a browser, and anything mobile. The page is still Unity's default white
+template. Hosting is the owner's call. A host must send the `.br` files with `Content-Encoding: br`, as
+`Tools/serve_webgl.py` does. Building WebGL still rewrites `Mobile_RPAsset.asset` and leaves `Data/` at the project
+root; both were reverted and removed after each build.
+
+### Final checks (final Linux build)
+The Linux build and validator pass (28 objects, 5 days, 25 cases, 0 issues). **62/62 unit tests.** The audit passes
+(84/84 details, 0 below 10%, 0 storage problems). All four AutoPilot policies pass: `best` (24/24, *The 9:40*),
+`worst` (*Grey Ninefold*), `wait` (*The Long Wait*) and `refuse`. The nudge tour passes (210 nudges, 24/24, 21 details
+found at the glint, 2 by the part that lit up), as do the padtest and the taptest (14/14). Load average 2–8 for all
+of these. Every run printed `[guard] real save and settings untouched`. The real folder's sizes, timestamps and
+hashes were identical at the end and at 20:28, when R4-D went in.
+
+### Still open after round 4
+- No human has played any of it. The nudges' tone, how findable details are, and now the Controls card's wording
+  all want a person.
+- The tap fix is proven with virtual devices. No physical touchpad or gamepad has been tried, so round 3's padtest
+  failures can't be confirmed as this bug.
+- WebGL: Firefox and Safari, audible sound, browser input devices, a proper page template, hosting (above).
+- macOS on a Mac and Windows (blocked on the module), and the trailer and README screenshots, which predate rounds 1–4.
+- Interactive editor sessions (`Tools/unity.sh` with no command, or `headless`) still use the real config folder.
