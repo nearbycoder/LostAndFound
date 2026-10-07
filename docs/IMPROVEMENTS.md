@@ -903,7 +903,7 @@ and no `laf.` key appeared in `unknown/unknown/prefs`. `final_checks.txt`.
   the graphics driver keeping pages rather than a leak in the game, but nothing here can prove it without a native memory
   profiler. It's in the README's known issues.
 - **Round 6's signal 11 wasn't reproduced.** Its log was overwritten in round 6. The same path (a second week in one process)
-  ran cleanly three times this round, and the leak it may have been near is fixed. That's not proof that the leak was the cause.
+  ran cleanly once this round, alongside 36 soak rebuilds, and the leak it may have been near is fixed. That's not proof that the leak was the cause.
 - **A first-launch window larger than a small screen** (the default is 1600×900, windowed) can't be checked here: there's no
   virtual X server (Xvfb) on this machine, and installing one is outside the repo.
 - **The trailer and teaser** still show v0.1.0, and **the GUI editor's Play** is still unverified on Wayland. Both as before.
