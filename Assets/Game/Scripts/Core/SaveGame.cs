@@ -32,6 +32,7 @@ namespace LostAndFound
         public int unlockedDay = 1;      // highest day reachable from Day Select
         public bool finished;
         public string ending = "";
+        public List<string> endingsSeen = new();  // every ending reached, by id; kept when a new week begins
         public StoryState state = new();
         public List<DaySnapshot> snapshots = new();
         public List<DayBest> best = new();
@@ -100,7 +101,7 @@ namespace LostAndFound
             {
                 if (!File.Exists(path)) return null;
                 var s = JsonUtility.FromJson<SaveGame>(File.ReadAllText(path));
-                if (s != null && s.version == 1 && s.state != null) return s;
+                if (s != null && s.version == 1 && s.state != null) { s.NoteEnding(s.ending); return s; }
                 why = "isn't a save this version understands";
             }
             catch (Exception e) { why = "can't be read (" + e.Message + ")"; }
@@ -153,6 +154,13 @@ namespace LostAndFound
                 Persist();
             }
             catch { }
+        }
+
+        /// <summary>Remember an ending as reached (a save from before endingsSeen existed starts with the one it finished on).</summary>
+        public void NoteEnding(string id)
+        {
+            endingsSeen ??= new List<string>();
+            if (!string.IsNullOrEmpty(id) && !endingsSeen.Contains(id)) endingsSeen.Add(id);
         }
 
         public void Snapshot(int day, StoryState s)

@@ -22,6 +22,7 @@ namespace LostAndFound
             phase = Phase.Evening;
             var e = ChooseEnding();
             Save.ending = e != null ? e.id : "";
+            Save.NoteEnding(Save.ending);
             Save.Write();
             yield return EndingView.Show(this, e);
         }

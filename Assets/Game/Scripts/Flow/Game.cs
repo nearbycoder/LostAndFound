@@ -233,8 +233,10 @@ namespace LostAndFound
 
         public void NewWeek()
         {
+            var seen = Save?.endingsSeen;
             SaveGame.Delete();
             Save = new SaveGame();
+            if (seen != null) Save.endingsSeen.AddRange(seen);   // the endings you've reached stay reached
             BeginWeek(1);
         }
 

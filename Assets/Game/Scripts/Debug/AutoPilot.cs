@@ -106,6 +106,15 @@ namespace LostAndFound
                     while (GameObject.Find("Ending") == null) yield return null;
                     yield return new WaitForSecondsRealtime(3.5f);
                     Shot("ending");
+                    // then the week summed up, which hands back to the title
+                    float until = Time.realtimeSinceStartup + 30f;
+                    while (UIRoot.I.root.Find("Week") == null && Time.realtimeSinceStartup < until) yield return null;
+                    if (UIRoot.I.root.Find("Week") == null) problems.Add("the week summary never appeared");
+                    else
+                    {
+                        yield return new WaitForSecondsRealtime(1.0f);
+                        Shot("week");
+                    }
                     yield return new WaitForSecondsRealtime(0.5f);
                     break;
                 }

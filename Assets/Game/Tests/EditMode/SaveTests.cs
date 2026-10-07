@@ -46,6 +46,32 @@ namespace LostAndFound.Tests
         }
 
         [Test]
+        public void EndingsReachedSurviveARoundTrip()
+        {
+            var s = Day(5);
+            s.NoteEnding("nine40");
+            s.NoteEnding("grey");
+            s.NoteEnding("nine40");   // twice is still once
+            s.NoteEnding("");
+            s.WriteTo(path);
+            var back = SaveGame.LoadFrom(path);
+            CollectionAssert.AreEqual(new[] { "nine40", "grey" }, back.endingsSeen);
+        }
+
+        [Test]
+        public void ASaveFromBeforeEndingsWereRememberedStartsWithItsEnding()
+        {
+            // round 5's save format: a finished week, no endingsSeen
+            File.WriteAllText(path, "{\"version\":1,\"currentDay\":5,\"unlockedDay\":6,\"finished\":true,\"ending\":\"longwait\",\"state\":{}}");
+            var back = SaveGame.LoadFrom(path);
+            Assert.IsNotNull(back);
+            Assert.IsTrue(back.finished);
+            CollectionAssert.AreEqual(new[] { "longwait" }, back.endingsSeen);
+            File.WriteAllText(path, "{\"version\":1,\"currentDay\":2,\"state\":{}}");
+            CollectionAssert.IsEmpty(SaveGame.LoadFrom(path).endingsSeen, "a week not yet finished has reached no ending");
+        }
+
+        [Test]
         public void NoSaveMeansNothingToLoad()
         {
             Assert.IsNull(SaveGame.LoadFrom(path));

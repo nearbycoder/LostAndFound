@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace LostAndFound
 {
-    /// <summary>The ending: the final photograph, the epilogue lines, and the credits.</summary>
+    /// <summary>The ending: the final photograph and the epilogue lines, then the week summed up (WeekSummary).</summary>
     public static class EndingView
     {
         public static IEnumerator Show(Director d, EndingDef e)
@@ -82,6 +82,7 @@ namespace LostAndFound
             yield return UIRoot.I.fader.FadeTo(1f, 1f);
             Object.Destroy(panel.gameObject);
             UIRoot.I.PopModal();
+            yield return WeekSummary.Show(d);
             Game.I.ToTitle();
         }
     }
