@@ -68,12 +68,14 @@ namespace LostAndFound
                 Debug.Log($"[Smoke] fps {fps:0.0} ({SystemInfo.graphicsDeviceType})");
                 if (Application.platform == RuntimePlatform.WebGLPlayer) Debug.Log($"[Shot] smoke_{n:00}");   // Tools/webgl_check.py takes it
                 else ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"smoke_{n:00}.png"));
+                if (Game.Arg("-lafTextAudit") != null) TextAudit.Check($"smoke_{n:00}");   // the title, Settings, Controls...
                 Debug.Log($"[Smoke] shot {n} at {t:0.0}s phase ok, frame {Time.frameCount}");
                 n++;
                 if (n == 2 && TitleScreen.Showing) TitleScreen.Begin(Game.I);   // past the title, into the week
                 yield return new WaitForSeconds(3f);
                 t += 3f;
             }
+            if (Game.Arg("-lafTextAudit") != null) TextAudit.Summary();
             Debug.Log("[Smoke] done");
             Application.Quit();
         }

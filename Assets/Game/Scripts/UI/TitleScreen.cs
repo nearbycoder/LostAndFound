@@ -254,6 +254,8 @@ namespace LostAndFound
     /// <summary>Volume, text speed, mouse, comfort and display options. Opens over the title or the pause menu.</summary>
     public static class SettingsPanel
     {
+        const float CardHeight = 1050f;
+
         public static void Open(System.Action onClose)
         {
             UIRoot.I.PushModal();
@@ -262,21 +264,22 @@ namespace LostAndFound
             dim.rectTransform.Fill();
             dim.raycastTarget = true;
             var card = UiKit.Image(panel, "Card", "paper_card", UiKit.Paper, 28f);
-            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, 1024f));
+            card.rectTransform.Anchor(new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(900f, CardHeight));
             // a wide, short window (21:9) has less than the card's height: scale it to fit
             Canvas.ForceUpdateCanvases();
-            card.rectTransform.localScale = Vector3.one * Mathf.Min(1f, (UIRoot.I.root.rect.height - 30f) / 1024f);
+            card.rectTransform.localScale = Vector3.one * Mathf.Min(1f, (UIRoot.I.root.rect.height - 30f) / CardHeight);
             var t = UiKit.Label(card.transform, "Title", "Settings", Fonts.Title, 56f, UiKit.Ink, TextAlignmentOptions.Top);
             t.rectTransform.Fill();
             t.margin = new Vector4(0f, 34f, 0f, 0f);
 
-            float y = -130f;
+            // rows are 44 high: a slider's step is 46 and a toggle's 44, so twenty rows fit above "Done"
+            float y = -124f;
             void Slider(string label, float min, float max, System.Func<float> get, System.Action<float> set)
             {
                 var l = UiKit.Label(card.transform, label, label, Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
                 l.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(300f, 44f));
                 var s = PaperSlider.Create(card.transform, new Vector2(380f, y), 420f, Mathf.InverseLerp(min, max, get()), v => set(Mathf.Lerp(min, max, v)));
-                y -= 52f;
+                y -= 46f;
             }
             void Toggle(string label, System.Func<bool> get, System.Action<bool> set)
             {
@@ -285,7 +288,7 @@ namespace LostAndFound
                 b = UiKit.Button(card.transform, label, Text(), Fonts.Body, 30f, () => { set(!get()); b.label.text = Text(); });
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 48f;
+                y -= 44f;
             }
             Slider("Volume", 0f, 1f, () => Settings.MasterVolume, v => Settings.MasterVolume = v);
             Slider("Music", 0f, 1f, () => Settings.MusicVolume, v => Settings.MusicVolume = v);
@@ -297,6 +300,7 @@ namespace LostAndFound
             Slider("Text speed", 0.5f, 2.5f, () => Settings.TextSpeed, v => Settings.TextSpeed = v);
             Slider("Turning speed", 0.4f, 2f, () => Settings.MouseSensitivity, v => Settings.MouseSensitivity = v);
             y -= 10f;
+            Slider("Brightness", -1f, 1f, () => Settings.Brightness, v => Settings.Brightness = v);
             Toggle("Screen shake", () => Settings.ScreenShake, v => Settings.ScreenShake = v);
             Toggle("Reduce motion", () => Settings.ReduceMotion, v => Settings.ReduceMotion = v);
             Toggle("Film effects (grain, blur, vignette)", () => Settings.PostEffects, v => Settings.PostEffects = v);
@@ -308,7 +312,7 @@ namespace LostAndFound
                 b = UiKit.Button(card.transform, "Quality", Text(), Fonts.Body, 30f, () => { Settings.PictureQuality = (Settings.PictureQuality + 2) % 3; b.label.text = Text(); });
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 48f;
+                y -= 44f;
             }
             Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
             Toggle("Plain lettering (no handwriting on tags and notes)", () => Settings.PlainLettering, v => Settings.PlainLettering = v);

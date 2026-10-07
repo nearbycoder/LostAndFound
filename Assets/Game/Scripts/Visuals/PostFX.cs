@@ -124,7 +124,7 @@ namespace LostAndFound
             vignette.intensity.Override(0.3f + 0.12f * inspectBlend + pulse * 0.25f);
             vignette.color.Override(Color.Lerp(new Color(0.07f, 0.04f, 0.03f), pulseColor, Mathf.Clamp01(pulse)));
             color.saturation.Override(Mathf.Lerp(4f, -72f, greyness));
-            color.postExposure.Override(0.35f + exposure);
+            color.postExposure.Override(0.35f + exposure + Settings.BrightnessEV);   // Settings > Brightness
             pulse = Mathf.MoveTowards(pulse, 0f, dt * 1.2f);
         }
     }

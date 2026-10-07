@@ -32,7 +32,7 @@ namespace LostAndFound
             dirty = false;
         }
 
-        static readonly string[] FloatKeys = { "master", "music", "sfx", "voice", "ambience", "mouse", "textspeed", "textsize", "quality" };
+        static readonly string[] FloatKeys = { "master", "music", "sfx", "voice", "ambience", "mouse", "textspeed", "textsize", "quality", "brightness" };
         static readonly string[] BoolKeys = { "shake", "reducemotion", "post", "fullscreen", "plain", "offernudges", "bgsound" };
 
         static Dictionary<string, float> Values
@@ -145,6 +145,20 @@ namespace LostAndFound
         public static bool OfferNudges { get => B("offernudges", true); set => SetB("offernudges", value); }
         /// <summary>Keep the sound on while another window has the focus (see BackgroundMode).</summary>
         public static bool SoundInBackground { get => B("bgsound", true); set => SetB("bgsound", value); }
+        /// <summary>-1 darkest, 0 the game as lit, 1 brightest: the 3D scene's exposure (see BrightnessEV), never the paper UI.</summary>
+        public static float Brightness { get => Mathf.Clamp(F("brightness", 0f), -1f, 1f); set => SetF("brightness", Mathf.Clamp(value, -1f, 1f)); }
+        /// <summary>The brightness in force (the setting, or -lafBrightness for one run, not saved) as stops of exposure:
+        /// down to -0.6 for a bright panel in a dark room, up to +1.2 for a dim one, since the desk is mostly lit for mood.</summary>
+        public static float BrightnessEV
+        {
+            get
+            {
+                brightnessArg ??= float.TryParse(Game.Arg("-lafBrightness") ?? "", System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float o) ? Mathf.Clamp(o, -1f, 1f) : float.NaN;
+                float b = float.IsNaN(brightnessArg.Value) ? Brightness : brightnessArg.Value;
+                return b < 0f ? b * 0.6f : b * 1.2f;
+            }
+        }
+        static float? brightnessArg;   // read once: PostFX asks every frame
         /// <summary>0 Low, 1 Medium, 2 High (see GraphicsQuality).</summary>
         public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 2); set => SetF("quality", Mathf.Clamp(value, 0, 2)); }
     }

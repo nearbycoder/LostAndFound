@@ -35,6 +35,7 @@ namespace LostAndFound.Tests
             Assert.AreEqual(0, Settings.TextSize);
             Assert.AreEqual(2, Settings.PictureQuality);
             Assert.IsTrue(Settings.OfferNudges);
+            Assert.AreEqual(0f, Settings.Brightness);
             Assert.IsFalse(File.Exists(path), "reading alone writes nothing");
         }
 
@@ -54,6 +55,22 @@ namespace LostAndFound.Tests
             Assert.AreEqual(0, Settings.PictureQuality);
             Assert.AreEqual(0.25f, Settings.MusicVolume, 1e-5f);
             Assert.IsFalse(Settings.OfferNudges);
+        }
+
+        [Test]
+        public void BrightnessIsTheGameAsLitUntilChanged()
+        {
+            Assert.AreEqual(0f, Settings.Brightness, "the middle of the slider is the game as it was");
+            Assert.AreEqual(0f, Settings.BrightnessEV, 1e-6f);
+            Settings.Brightness = 3f;   // the slider can't go past its ends, nor can a hand-edited file
+            Assert.AreEqual(1f, Settings.Brightness);
+            Assert.AreEqual(1.2f, Settings.BrightnessEV, 1e-5f);
+            Settings.Brightness = -1f;
+            Assert.AreEqual(-0.6f, Settings.BrightnessEV, 1e-5f);
+            Settings.Brightness = 0.5f;
+            Settings.UseFile(path);   // as the next launch reads it
+            Assert.AreEqual(0.5f, Settings.Brightness, 1e-5f);
+            Assert.AreEqual(0.6f, Settings.BrightnessEV, 1e-5f);
         }
 
         [Test]

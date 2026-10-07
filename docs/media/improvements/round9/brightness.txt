@@ -1,0 +1,13 @@
+R9-A brightness: AutoPilot case 1.1 (-lafQuitAfter 1.1 -lafBrightness b), same moments, 1600x900, nested KWin, load average 13-20.
+Mean luminance (Rec.709 on sRGB values); scene = the left 55% between the top and the hint bar; dialogue = the speech bubble (UI).
+window  -1   mean 0.204  scene 0.151  near-black 52%  dialogue 0.847
+window  -0.5 mean 0.222  scene 0.169  near-black 48%  dialogue 0.848
+window   0   mean 0.240  scene 0.189  near-black 46%  dialogue 0.848
+window   0.5 mean 0.281  scene 0.230  near-black 36%  dialogue 0.848
+window   1   mean 0.327  scene 0.275  near-black 25%  dialogue 0.848
+inspect -1   mean 0.198  scene 0.159  near-black 51%
+inspect -0.5 mean 0.216  scene 0.180  near-black 48%
+inspect  0   mean 0.234  scene 0.200  near-black 46%
+inspect  0.5 mean 0.275  scene 0.245  near-black 41%
+inspect  1   mean 0.319  scene 0.292  near-black 32%
+Settings card, smoke -lafShowSettings -lafTextAudit: 1920x1080, 2560x1080 and 1200x674 windows: 0 overflowing, 0 overlapping texts.
