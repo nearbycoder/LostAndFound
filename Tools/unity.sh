@@ -36,7 +36,9 @@
 #                                  real session's settings aren't touched). KWin reports where the window is, and spectacle
 #                                  photographs the whole screen, at each of LAF_SHOTS seconds (default 14). Results in
 #                                  Screenshots/smallscreen/<w>x<h>@<scale>/. LAF_KB_LAYOUT=fr (and LAF_KB_VARIANT) sets the
-#                                  keyboard layout, LAF_KEEP_PREFS=1 keeps the last run's window prefs, LAF_SECONDS the run's length.
+#                                  keyboard layout, LAF_KEEP_PREFS=1 keeps the last run's window prefs, LAF_SECONDS the run's length,
+#                                  LAF_SETTINGS='<settings.json>' starts from those settings, LAF_STEAL="10 20" puts another window
+#                                  over the game from 10 s to 20 s (add -lafBackgroundTest to see the game go quiet behind it).
 #   Tools/unity.sh trailer         film Thursday's last case and the photographs changing to Recordings/the_ring.mp4
 #   Tools/unity.sh demo            record the scripted first case to Recordings/demo.mp4 (needs ffmpeg)
 #   Tools/unity.sh film <name> [player args]
@@ -182,6 +184,7 @@ case "${1:-open}" in
                [ "${LAF_KEEP_PREFS:-0}" = 1 ] || rm -rf "$cfg/unity3d"   # a first launch, unless asked to keep the last run's prefs
                rm -f "$cfg/kwinoutputconfig.json"   # KWin remembers the last run's output scale there
                mkdir -p "$cfg" "$xdg/data" "$xdg/cache" "$xdg/state"
+               if [ -n "${LAF_SETTINGS:-}" ]; then mkdir -p "$cfg/unity3d/Nearby/Lost & Found"; printf '%s' "$LAF_SETTINGS" > "$cfg/unity3d/Nearby/Lost & Found/settings.json"; fi
                printf '[Layout]\nLayoutList=%s\nVariantList=%s\nUse=true\n' "${LAF_KB_LAYOUT:-us}" "${LAF_KB_VARIANT:-}" > "$cfg/kxkbrc"
                printf '#!/bin/bash\nexec "%s" timeout -s KILL %s "%s" -lafSmoke "%s" -lafSave "%s" -lafSeconds %s -logFile "%s"' \
                  "$PROJECT/Tools/smallscreen_session.sh" $(( ${LAF_SECONDS:-12} + 90 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
@@ -193,7 +196,8 @@ case "${1:-open}" in
                  QT_LOGGING_RULES="js.debug=true" LAF_SMALLSCREEN=1 LAF_OUT="$out" LAF_SCALE="$scale" LAF_SHOTS="${LAF_SHOTS:-14}" \
                  timeout -s KILL $(( ${LAF_SECONDS:-12} + 150 )) dbus-run-session -- kwin_wayland --virtual --width "$w" --height "$h" \
                  --socket "laf-smallscreen-$$" --no-lockscreen --exit-with-session "$out/session.sh" || st=$?
-               grep -a "Desktop is\|\[Window\]\|\[Keys\]" "$out/player.log" | awk '!seen[$0]++' | head -n 12
+               grep -a "\[steal\]" "$out/kwin.log"
+               grep -a "Desktop is\|\[Window\]\|\[Keys\]\|\[Background\]" "$out/player.log" | awk '!seen[$0]++' | head -n 12
                grep -a "js: \[geom\]\|^\[geom\] at" "$out/kwin.log" | sed 's/^js: //'
                ls "$out" | grep screen_
                [ $st -ne 99 ] ;;

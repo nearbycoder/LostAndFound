@@ -1,0 +1,33 @@
+== 1920x1080, another window from 14 s to 26 s (background)
+[steal] another window opened at 14s
+[steal] it closed at 26s
+[Smoke] fps 0.0 (Vulkan)
+[Smoke] fps 59.7 (Vulkan)
+[Smoke] fps 59.9 (Vulkan)
+[Smoke] fps 59.7 (Vulkan)
+[Background] out of focus: 10 fps, volume 1
+[Smoke] fps 45.0 (Vulkan)
+[Smoke] fps 10.0 (Vulkan)
+[Smoke] fps 10.0 (Vulkan)
+[Smoke] fps 10.0 (Vulkan)
+[Background] back in focus, volume 1
+[Smoke] fps 27.5 (Vulkan)
+[Smoke] fps 60.0 (Vulkan)
+[Smoke] fps 59.7 (Vulkan)
+== 1920x1080, another window from 14 s to 26 s (background_silent)
+[steal] another window opened at 14s
+[steal] it closed at 26s
+[Smoke] fps 0.0 (Vulkan)
+[Smoke] fps 60.2 (Vulkan)
+[Smoke] fps 54.4 (Vulkan)
+[Smoke] fps 57.2 (Vulkan)
+[Background] out of focus: 10 fps, volume 0
+[Smoke] fps 43.7 (Vulkan)
+[Smoke] fps 10.0 (Vulkan)
+[Smoke] fps 10.0 (Vulkan)
+[Smoke] fps 10.0 (Vulkan)
+[Background] back in focus, volume 1
+[Smoke] fps 23.8 (Vulkan)
+[Smoke] fps 55.8 (Vulkan)
+[Smoke] fps 50.9 (Vulkan)
+load average 20-24

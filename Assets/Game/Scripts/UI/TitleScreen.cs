@@ -276,7 +276,7 @@ namespace LostAndFound
                 var l = UiKit.Label(card.transform, label, label, Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
                 l.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(300f, 44f));
                 var s = PaperSlider.Create(card.transform, new Vector2(380f, y), 420f, Mathf.InverseLerp(min, max, get()), v => set(Mathf.Lerp(min, max, v)));
-                y -= 56f;
+                y -= 52f;
             }
             void Toggle(string label, System.Func<bool> get, System.Action<bool> set)
             {
@@ -285,13 +285,15 @@ namespace LostAndFound
                 b = UiKit.Button(card.transform, label, Text(), Fonts.Body, 30f, () => { set(!get()); b.label.text = Text(); });
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 52f;
+                y -= 48f;
             }
             Slider("Volume", 0f, 1f, () => Settings.MasterVolume, v => Settings.MasterVolume = v);
             Slider("Music", 0f, 1f, () => Settings.MusicVolume, v => Settings.MusicVolume = v);
             Slider("Sound effects", 0f, 1f, () => Settings.SfxVolume, v => Settings.SfxVolume = v);
             Slider("Voices", 0f, 1f, () => Settings.VoiceVolume, v => Settings.VoiceVolume = v);
             Slider("Station sounds", 0f, 1f, () => Settings.AmbienceVolume, v => Settings.AmbienceVolume = v);
+            Toggle("Sound when in the background", () => Settings.SoundInBackground, v => Settings.SoundInBackground = v);
+            y -= 4f;
             Slider("Text speed", 0.5f, 2.5f, () => Settings.TextSpeed, v => Settings.TextSpeed = v);
             Slider("Turning speed", 0.4f, 2f, () => Settings.MouseSensitivity, v => Settings.MouseSensitivity = v);
             y -= 10f;
@@ -306,7 +308,7 @@ namespace LostAndFound
                 b = UiKit.Button(card.transform, "Quality", Text(), Fonts.Body, 30f, () => { Settings.PictureQuality = (Settings.PictureQuality + 2) % 3; b.label.text = Text(); });
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 52f;
+                y -= 48f;
             }
             Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
             Toggle("Plain lettering (no handwriting on tags and notes)", () => Settings.PlainLettering, v => Settings.PlainLettering = v);

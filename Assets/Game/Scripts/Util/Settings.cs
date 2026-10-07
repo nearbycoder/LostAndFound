@@ -33,7 +33,7 @@ namespace LostAndFound
         }
 
         static readonly string[] FloatKeys = { "master", "music", "sfx", "voice", "ambience", "mouse", "textspeed", "textsize", "quality" };
-        static readonly string[] BoolKeys = { "shake", "reducemotion", "post", "fullscreen", "plain", "offernudges" };
+        static readonly string[] BoolKeys = { "shake", "reducemotion", "post", "fullscreen", "plain", "offernudges", "bgsound" };
 
         static Dictionary<string, float> Values
         {
@@ -143,6 +143,8 @@ namespace LostAndFound
         public static bool PlainLettering { get => B("plain", false); set => SetB("plain", value); }
         /// <summary>After a while stuck on a claim, the hint bar offers one of Agnes's nudges (H works either way).</summary>
         public static bool OfferNudges { get => B("offernudges", true); set => SetB("offernudges", value); }
+        /// <summary>Keep the sound on while another window has the focus (see BackgroundMode).</summary>
+        public static bool SoundInBackground { get => B("bgsound", true); set => SetB("bgsound", value); }
         /// <summary>0 Low, 1 Medium, 2 High (see GraphicsQuality).</summary>
         public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 2); set => SetF("quality", Mathf.Clamp(value, 0, 2)); }
     }

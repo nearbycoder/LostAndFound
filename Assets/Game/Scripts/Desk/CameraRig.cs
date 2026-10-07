@@ -174,7 +174,8 @@ namespace LostAndFound
 
         void UpdateEdgeTurn(float dt)
         {
-            if (!allowTurn || Mouse.current == null || UIRoot.ModalOpen || hasFocus || !MouseLive) { edgeTimer = 0f; edgeDir = 0; return; }
+            // not while another window has the focus: a pointer that left the window by its side still reads as at the edge
+            if (!allowTurn || Mouse.current == null || UIRoot.ModalOpen || hasFocus || !MouseLive || !Application.isFocused) { edgeTimer = 0f; edgeDir = 0; return; }
             float x = Mouse.current.position.ReadValue().x / Mathf.Max(1, Screen.width);
             int dir = x < 0.025f ? -1 : x > 0.975f ? 1 : 0;
             if (dir != edgeDir) { edgeDir = dir; edgeTimer = 0f; }

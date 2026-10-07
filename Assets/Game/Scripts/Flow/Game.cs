@@ -103,6 +103,7 @@ namespace LostAndFound
             gameObject.AddComponent<AudioDirector>();
             gameObject.AddComponent<CursorController>();
             gameObject.AddComponent<GamepadInput>();
+            gameObject.AddComponent<BackgroundMode>();
 
             // camera
             var rig = new GameObject("CameraRig");
