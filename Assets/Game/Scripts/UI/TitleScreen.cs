@@ -388,9 +388,18 @@ namespace LostAndFound
         RectTransform panel;
         float prevScale = 1f;
 
+        int depth, depthLastFrame;
+
         void Update()
         {
-            if (Open || UIRoot.ModalOpen || Director.I == null || !Director.I.Running) return;
+            if (Open)
+            {
+                // Esc again (the pad's Menu too) carries on, as Esc puts away every other card; not while a card opened from
+                // the menu is over it, nor in the frame that card's Esc put it away
+                if (InputX.KeyDown(UnityEngine.InputSystem.Key.Escape) && UIRoot.I.ModalDepth == depth && depthLastFrame == depth) Hide();
+                return;
+            }
+            if (UIRoot.ModalOpen || Director.I == null || !Director.I.Running) return;
             if (!InputX.KeyDown(UnityEngine.InputSystem.Key.Escape)) return;
             if (InspectController.I != null && InspectController.I.Held != null) return;   // Esc puts the object down
             if (StampTool.I != null && StampTool.I.Carrying != null) return;               // Esc puts the stamp back
@@ -402,6 +411,7 @@ namespace LostAndFound
             if (Open) return;
             Open = true;
             UIRoot.I.PushModal();
+            depth = depthLastFrame = UIRoot.I.ModalDepth;
             prevScale = Time.timeScale;
             Time.timeScale = 0f;
             AudioDirector.Muffle(true);
@@ -453,6 +463,11 @@ namespace LostAndFound
                 Game.I.Restart(Director.I.Day);
             });
             Btn("Back to the title", () => { Hide(); Game.I.Restart(0); });
+        }
+
+        void LateUpdate()
+        {
+            if (UIRoot.I != null) depthLastFrame = UIRoot.I.ModalDepth;
         }
 
         void Hide()

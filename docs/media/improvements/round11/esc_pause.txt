@@ -1,0 +1,25 @@
+# Tools/unity.sh taptest after the change (load ~16): the card's Esc still leaves the pause menu open
+[TapTest] key tap (Space) rings the bell: ok (tapped at frame 1024, press and release both processed in frame 1025)
+[TapTest] key tap (H) asks Agnes for a nudge: ok (tapped at frame 1532, press and release both processed in frame 1533)
+[TapTest] key tap (A) turns to the drawers: ok (tapped at frame 1533, press and release both processed in frame 1534)
+[TapTest] mouse tap opens drawer A: ok (tapped at frame 1612, press and release both processed in frame 1613)
+[TapTest] mouse tap picks up the wallet: ok (tapped at frame 1702, press and release both processed in frame 1703)
+[TapTest] key tap (T) puts it on the tray: ok (tapped at frame 1769, press and release both processed in frame 1770)
+[TapTest] pad tap (d-pad left) takes control and asks Agnes: ok (tapped at frame 1838, press and release both processed in frame 1839)
+[TapTest] pad tap (A) takes up the RETURN stamp: ok (tapped at frame 2326, press and release both processed in frame 2327)
+[TapTest] pad tap (A) stamps the slip: ok (tapped at frame 2703, press and release both processed in frame 2704)
+[TapTest] pad tap (B) puts the controls card away: ok (tapped at frame 3069, press and release both processed in frame 3070)
+[TapTest] case 1.1: return->walter (best)
+[TapTest] key tap (Esc) pauses: ok (tapped at frame 3206, press and release both processed in frame 3207)
+[TapTest] mouse tap on Controls in the pause menu opens the card: ok (tapped at frame 3242, press and release both processed in frame 3243)
+[TapTest] key tap (Esc) puts the controls card away, leaving the pause menu: ok (tapped at frame 3274, press and release both processed in frame 3275)
+[TapTest] mouse tap on a menu button (Back to the desk): ok (tapped at frame 3312, press and release both processed in frame 3313)
+[TapTest] 14 of 14 taps worked
+[TapTest] PASS
+
+# Tools/unity.sh realplay (real KWin keyboard), first claim of Monday
+[RealInput] ok   H asks Agnes for a nudge
+[RealInput] ok   Tab reads the slip
+[RealInput] ok   Tab again puts it back
+[RealInput] ok   Esc pauses
+[RealInput] ok   Esc again carries on

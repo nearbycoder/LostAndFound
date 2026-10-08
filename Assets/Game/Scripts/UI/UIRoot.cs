@@ -31,6 +31,8 @@ namespace LostAndFound
         int modalCount;
 
         public void PushModal() => modalCount++;
+        /// <summary>How many cards are open, one over another (the pause menu closes on Esc only when it's the top one).</summary>
+        public int ModalDepth => modalCount;
         public void PopModal() => modalCount = Mathf.Max(0, modalCount - 1);
 
         void Awake()
