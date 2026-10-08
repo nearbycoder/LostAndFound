@@ -32,6 +32,9 @@
 #   Tools/unity.sh pointertest [w] [h]  the headless KWin's own pointer (Tools/fakeptr.c, fake input granted to that KWin only)
 #                                  rests inside each side of the window (the desk turns) and leaves it by each side, quickly and
 #                                  slowly (it mustn't); log in Logs/pointertest.log
+#   Tools/unity.sh realplay [until day] [w] [h]  play from the title to the morning after that day (default Monday) as the film
+#                                  does, with real input: KWin's own pointer and keyboard (Tools/fakeptr.c) do what the play
+#                                  asks; nothing is recorded. Log in Logs/realplay.log ("[RealInput] PASS" with no fallbacks)
 #   Tools/unity.sh soak [cycles] [player args]  play on without quitting: restart the day, back to the title, Continue and
 #                                  Choose a Day again and again in one process, logging memory and live objects after each
 #                                  rebuild; log in Logs/soak.log, screenshots in Screenshots/soak/
@@ -243,6 +246,17 @@ case "${1:-open}" in
                [ $st -eq 99 ] && exit 99   # the guard: the real save or settings changed
                grep -a "\[ptr\]\|fakeptr" "$PROJECT/Logs/config/pointertest-xdg/kwin.log"; grep -a "\[PointerTest\]" "$PROJECT/Logs/pointertest.log"
                grep -a -q "\[PointerTest\] PASS" "$PROJECT/Logs/pointertest.log" ;;
+  realplay)    out="$PROJECT/Screenshots/realplay"; rm -rf "$out"; mkdir -p "$out" "$PROJECT/Builds/tools"; rm -f "$PROJECT/Logs/realplay.log"
+               cc -O2 -o "$PROJECT/Builds/tools/fakeptr" "$PROJECT/Tools/fakeptr.c" -lwayland-client -lm
+               export KWIN_WAYLAND_NO_PERMISSION_CHECKS=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="js.debug=true" \
+                 LAF_FAKEPTR="$PROJECT/Builds/tools/fakeptr" LAF_INPUT="$out/input.txt" LAF_PLAYER_LOG="$PROJECT/Logs/realplay.log" \
+                 LAF_KWIN_LOG="$PROJECT/Logs/config/realplay-xdg/kwin.log"
+               st=0; player realplay "$PROJECT/Tools/realplay_session.sh" timeout -s KILL $(( ${2:-1} * 1300 + 300 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
+                 -lafDemo "$out" -lafPlay -lafRealInput "$out/input.txt" -lafUntil "${2:-1}" -lafNoMusic -lafSave "$out/save.json" \
+                 -screen-width "${3:-1600}" -screen-height "${4:-900}" -screen-fullscreen 0 -logFile "$PROJECT/Logs/realplay.log" "${@:5}" || st=$?
+               [ $st -eq 99 ] && exit 99   # the guard: the real save or settings changed
+               grep -a "\[real\]\|fakeptr" "$PROJECT/Logs/config/realplay-xdg/kwin.log"; grep -a "\[RealInput\]" "$PROJECT/Logs/realplay.log"
+               grep -a -q "\[RealInput\] PASS" "$PROJECT/Logs/realplay.log" ;;
   soak)        rm -rf "$PROJECT/Screenshots/soak"; mkdir -p "$PROJECT/Screenshots/soak"
                player soak timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafSoak "$PROJECT/Screenshots/soak" -lafCycles "${2:-30}" \
                  -lafSave "${LAF_SOAK_SAVE:-$PROJECT/Screenshots/soak/save.json}" -lafNoMusic -lafNoVsync -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
@@ -298,5 +312,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|edgetest [w h]|pointertest [w h]|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|edgetest [w h]|pointertest [w h]|realplay [day w h]|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

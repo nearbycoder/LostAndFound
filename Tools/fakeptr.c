@@ -13,6 +13,7 @@
 //   sync            print "sync" on stdout once everything before it has reached the compositor
 //   down [B] | up [B]  press or release a button (default 272, BTN_LEFT)
 //   key CODE 1|0    press or release a key (evdev code)
+//   axis A V        turn the wheel: axis 0 vertical (V > 0 scrolls down), 1 horizontal
 //   wait MS         sleep
 // The protocol's interface is declared here by hand (from plasma-wayland-protocols' fake-input.xml, version 4), so no
 // generated code is needed: cc -O2 -o fakeptr fakeptr.c -lwayland-client -lm
@@ -40,7 +41,7 @@ static const struct wl_message fake_input_requests[] = {
 static const struct wl_interface fake_input_interface = {
     "org_kde_kwin_fake_input", 4, 11, fake_input_requests, 0, NULL,
 };
-enum { AUTHENTICATE = 0, POINTER_MOTION = 1, BUTTON = 2, POINTER_MOTION_ABSOLUTE = 9, KEYBOARD_KEY = 10 };
+enum { AUTHENTICATE = 0, POINTER_MOTION = 1, BUTTON = 2, AXIS = 3, POINTER_MOTION_ABSOLUTE = 9, KEYBOARD_KEY = 10 };
 
 static struct wl_proxy *fake;
 static uint32_t fake_version;
@@ -101,6 +102,8 @@ int main(int argc, char **argv)
             if (sscanf(line + (down ? 4 : 2), "%u", &u) != 1) u = 272;
             wl_proxy_marshal_flags(fake, BUTTON, NULL, fake_version, 0, u, down ? 1u : 0u);
         }
+        else if (sscanf(line, "axis %u %lf", &u, &a) == 2)
+            wl_proxy_marshal_flags(fake, AXIS, NULL, fake_version, 0, u, wl_fixed_from_double(a));
         else if (sscanf(line, "key %u %u", &u, &s) == 2 && fake_version >= 4)
             wl_proxy_marshal_flags(fake, KEYBOARD_KEY, NULL, fake_version, 0, u, s);
         else if (sscanf(line, "wait %lf", &a) == 1) { wl_display_flush(dpy); usleep((useconds_t)(a * 1000.0)); continue; }

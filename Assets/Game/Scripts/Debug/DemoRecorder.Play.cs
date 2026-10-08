@@ -90,7 +90,9 @@ namespace LostAndFound
                     Mark("begin");
                     yield return Click();
                 }
-                else TitleScreen.Begin(Game.I);
+                else { Fallback("no Begin on the title; beginning directly"); TitleScreen.Begin(Game.I); }
+                yield return Until(() => !TitleScreen.Showing, 5f);
+                if (TitleScreen.Showing) { Fallback("the click on Begin missed; beginning directly"); TitleScreen.Begin(Game.I); }
             }
             yield return Until(() => d.Running, 20f);
             if (until < 0) until = d.Day;
@@ -134,12 +136,13 @@ namespace LostAndFound
             yield return Hold(0.25f);
             yield return Click();
             yield return Hold(0.3f);
-            if (d.CanRing) desk.props.bell.Ring();
+            if (d.CanRing) { Fallback($"the bell click for {c.id} missed; ringing directly"); desk.props.bell.Ring(); }
             yield return Until(() => d.Current == c, 20f);
             Mark($"arrive {c.id} {string.Join("+", c.claimants)}");
             yield return Until(() => d.CanUseStamps || d.Current != c, 120f);
             if (d.Current != c) { Mark($"vignette {c.id}"); yield return Until(() => d.CanRing || d.InEvening, 60f); yield break; }
             Mark($"investigate {c.id}");
+            if (realInput != null && !keysChecked) yield return KeysCheck(d);
 
             // the decision this case gets (the solver's, unless told otherwise)
             var dec = Rules.Solve(d.Db, d.Day, c, d.State);
@@ -178,6 +181,7 @@ namespace LostAndFound
                     {
                         yield return Press(Key.T);
                         yield return Until(() => desk.OnTray == item && InspectController.I.Held == null, 5f);
+                        if (desk.OnTray != item) Fallback($"T didn't put the {item.def.id} on the tray");
                         Mark($"tray {item.def.id}");
                     }
                     else yield return PutDown();
@@ -222,7 +226,7 @@ namespace LostAndFound
             yield return Until(() => InspectController.I.Held == item && !InspectController.I.Busy, 4f);
             if (InspectController.I.Held != item)
             {
-                Debug.LogWarning($"[Demo] pick-up of {item.def.id} missed; picking up directly");
+                Fallback($"pick-up of {item.def.id} missed; picking up directly");
                 InspectController.I.Begin(item);
                 yield return Until(() => InspectController.I.Held == item && !InspectController.I.Busy, 4f);
             }
@@ -239,9 +243,10 @@ namespace LostAndFound
                 yield return Hold(0.4f);
                 yield return Click();
                 yield return Until(() => InspectController.I.Held == item && !InspectController.I.Busy, 4f);
-                if (InspectController.I.Held != item) { InspectController.I.Begin(item); yield return Until(() => InspectController.I.Held == item && !InspectController.I.Busy, 4f); }
+                if (InspectController.I.Held != item) { Fallback($"pick-up of {item.def.id} missed; picking up directly"); InspectController.I.Begin(item); yield return Until(() => InspectController.I.Held == item && !InspectController.I.Busy, 4f); }
                 Mark($"pickup {item.def.id}");
             }
+            if (realInput != null && !wheelChecked) yield return WheelAndRightClick(item);
 
             // a turn in the hands
             yield return Glide(() => new Vector2(Screen.width * 0.42f, Screen.height * 0.5f), 0.35f);
@@ -301,6 +306,7 @@ namespace LostAndFound
             var held = InspectController.I.Held;
             yield return Press(Key.Backspace);
             yield return Until(() => InspectController.I.Held == null, 4f);
+            if (InspectController.I.Held != null) Fallback("Backspace didn't put the object down");
             if (held != null) Mark($"putdown {held.def.id}");
             yield return Hold(0.3f);
         }
@@ -329,7 +335,7 @@ namespace LostAndFound
             {
                 if (StampTool.I.Carrying != null)
                 {
-                    Debug.LogWarning($"[Demo] picked up the {StampTool.I.Carrying.kind} stamp, not {dec.verdict}; putting it back");
+                    Fallback($"picked up the {StampTool.I.Carrying.kind} stamp, not {dec.verdict}; putting it back");
                     yield return Press(Key.Escape);
                     yield return Until(() => StampTool.I.Carrying == null, 2f);
                     yield return Hold(0.3f);
@@ -351,7 +357,7 @@ namespace LostAndFound
             yield return Until(() => !d.CanUseStamps || d.Current != c, 2.5f);
             if (d.CanUseStamps && d.Current == c)
             {
-                Debug.LogWarning($"[Demo] stamping {c.id} missed; committing directly");
+                Fallback($"stamping {c.id} missed; committing directly");
                 if (StampTool.I.Carrying != null) { yield return Press(Key.Escape); yield return Hold(0.6f); }
                 ClaimSlip.I.AddImprint(dec.verdict, slip.position + slip.rotation * new Vector3(x, 0.001f, 0.05f), Random.Range(-12f, 12f));
                 d.CommitStamp(dec.verdict, who);

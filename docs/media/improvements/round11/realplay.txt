@@ -1,0 +1,39 @@
+# Tools/unity.sh realplay 5: from the title to the ending with real input (KWin's own pointer and keyboard, through SDL),
+# 1600x900, built from the tree committed as R11-C. Load 2-6. Player log: Logs/r11/realplay_week_player.log
+[real] window at 480,284 1600x900
+[real] go
+[RealInput] ready 1600x900: input goes to /home/nearby/Sites/LostAndFound/Screenshots/realplay/input.txt
+[RealInput] the driver is ready: playing
+[RealInput] ok   H asks Agnes for a nudge
+[RealInput] ok   Tab reads the slip
+[RealInput] ok   Tab again puts it back
+[RealInput] ok   Esc pauses
+[RealInput] ok   Esc again carries on
+[RealInput] ok   the wheel: the wallet_brown brought closer and back, zoom 1.00 -> 1.36 -> 1.00
+[RealInput] ok   a right click puts the wallet_brown down (it's Mat)
+[RealInput] ok   a click picks the wallet_brown up again from the desk
+[RealInput] the search couldn't bring ring_box.date into view; finding it directly
+[RealInput] 18623 input lines sent; 24 claims decided, 24 as the play meant (best); details found by hand 48, by the fallback 1; 0 input fallback(s), 0 hover miss(es)
+[RealInput] details the search couldn't bring into view (found directly): ring_box.date
+[RealInput] PASS
+
+# Each drag's turn of the held object against what the drag asks (0.42 deg a pixel):
+# 94 drags, turned/asked: mean 1.021, min 0.913, max 1.136
+
+# The ring's date (Thursday 4.2, under the blue lamp; the audit has it clickable from about 14% of turns). The play's search,
+# real input, 1600x900 (Logs/r11/realplay_thu_1600_player.log): not clickable from any turn it tries:
+[Demo] looking for ring_box.date, try 0: not clickable, facing the eye at 38°, on screen at (772.80, 487.43)
+[Demo] looking for ring_box.date, try 1: not clickable, facing the eye at 1°, on screen at (774.25, 455.51)
+[Demo] looking for ring_box.date, try 2: not clickable, facing the eye at 21°, on screen at (774.69, 436.22)
+# A rerun with what lies between the eye and the date logged (Logs/r11/realplay_thu_blockers.txt): the box itself, or its lid:
+[Demo]   in the way: Lid; zoom 1.00, item at (-0.014, 1.161, 0.294), eye at (-0.002, 1.260, -0.080)
+[Demo] looking for ring_box.date, try 0: not clickable, facing the eye at 43°, on screen at (766.21, 485.58), lamp blue, parts hinge open
+[Demo]   in the way: ring_box; zoom 1.00, item at (-0.017, 1.137, 0.291), eye at (-0.002, 1.263, -0.080)
+[Demo] looking for ring_box.date, try 1: not clickable, facing the eye at 2°, on screen at (768.23, 450.45), lamp blue, parts hinge open
+[Demo]   in the way: ring_box; zoom 1.00, item at (-0.016, 1.131, 0.285), eye at (-0.001, 1.264, -0.080)
+[Demo] looking for ring_box.date, try 2: not clickable, facing the eye at 21°, on screen at (768.58, 434.66), lamp blue, parts hinge open
+# ... and the same day with virtual input (the film's), 1920x1080: clear on the first try:
+[Demo] looking for ring_box.date, try 0: clickable, facing the eye at 52°, on screen at (928.69, 588.86), lamp blue, parts hinge open
+# Real input at 1920x1080 missed it too (Logs/r11/realplay_thu_1920.txt), so the window size isn't why.
+
+# Before the Esc fix (c7d6b74), the first full run stopped at: [RealInput] FAIL Esc again carries on

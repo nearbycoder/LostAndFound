@@ -21,6 +21,8 @@ namespace LostAndFound
         Quaternion holdRot = Quaternion.identity;
         Vector3 angularVel;
         float targetScale = 1f, scale = 1f, zoom = 1f;
+        /// <summary>How close the held object has been brought (the scroll wheel; 1 as it comes to hand).</summary>
+        public float Zoom => zoom;
         Vector2 pressPos;
         bool pressing, dragging;
         DetailDef nearDetail;

@@ -18,7 +18,8 @@ namespace LostAndFound
     /// Game time is locked to 30 fps; each frame is piped to ffmpeg as raw RGBA and the mixed audio
     /// is captured with AudioRenderer, so the video is smooth however slowly the machine renders.
     /// Writes &lt;dir&gt;/video.mp4 and &lt;dir&gt;/audio.f32 (32-bit float, interleaved).
-    /// -lafPlay plays whole days the same way instead (see DemoRecorder.Play.cs).
+    /// -lafPlay plays whole days the same way instead (see DemoRecorder.Play.cs). -lafRealInput &lt;file&gt; sends that input to
+    /// the headless KWin's own pointer and keyboard instead, and records nothing (see DemoRecorder.Real.cs).
     /// </summary>
     [DefaultExecutionOrder(1000)]
     public partial class DemoRecorder : MonoBehaviour
@@ -54,13 +55,16 @@ namespace LostAndFound
         {
             dir = Game.Arg("-lafDemo");
             Directory.CreateDirectory(dir);
-            Time.captureFramerate = Fps;
+            realInput = Game.Arg("-lafRealInput");
+            if (realInput == null) Time.captureFramerate = Fps;
             Application.runInBackground = true;
             recordOnly = Game.Arg("-lafRecordOnly") != null;
             recordFrom = Game.Arg("-lafRecordFrom");
             if (recordOnly) { Director.Cinematic = true; return; }
             playDays = Game.Arg("-lafPlay") != null;
             if (playDays) Director.Cinematic = true;
+            pos = new Vector2(Screen.width * 0.5f, Screen.height * 0.42f);
+            if (realInput != null) { OpenRealInput(); return; }
             InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
             mouse = InputSystem.AddDevice<Mouse>("DemoMouse");
             keyboard = InputSystem.AddDevice<Keyboard>("DemoKeyboard");
@@ -70,6 +74,8 @@ namespace LostAndFound
 
         void Start()
         {
+            if (realInput != null) { rolling = true; StartCoroutine(WhenTheDriverIsReady()); return; }
+            if (Game.Arg("-lafNoRecord") != null && playDays) { rolling = true; StartPlay(); return; }   // the play alone, virtual input
             channels = AudioSettings.speakerMode == AudioSpeakerMode.Mono ? 1 : 2;
             audioOut = File.Create(Path.Combine(dir, "audio.f32"));
             AudioRenderer.Start();
@@ -155,6 +161,7 @@ namespace LostAndFound
 
         IEnumerator Finish()
         {
+            if (realInput != null || pipe == null) { FinishReal(); yield break; }
             recording = false;
             yield return null;
             AsyncGPUReadback.WaitAllRequests();
@@ -187,7 +194,7 @@ namespace LostAndFound
 
         void LateUpdate()
         {
-            if (recordOnly) return;
+            if (recordOnly || realInput != null) return;
             var k = CursorController.Shown;
             var (tex, hot) = CursorController.Image(k);
             if (k != cursorKind && tex != null)
@@ -206,6 +213,7 @@ namespace LostAndFound
         void Update()
         {
             if (recordOnly) return;
+            if (realInput != null) { SendReal(); return; }
             mouse.MakeCurrent();
             keyboard.MakeCurrent();
             var st = new MouseState { position = pos, delta = pos - lastSent }.WithButton(MouseButton.Left, leftHeld);
@@ -240,7 +248,7 @@ namespace LostAndFound
             yield return Glide(() => AimPoint(target), duration);
             for (int i = 0; i < 20 && InteractionSystem.I.Hovered != target; i++) { pos = AimPoint(target); yield return Frame(); }
             if (InteractionSystem.I.Hovered != target)
-                Debug.LogWarning($"[Demo] not hovering {target.name}, hovering {InteractionSystem.I.Hovered?.name}; {InteractionSystem.I.debugState}; modal={UIRoot.ModalOpen} over={UiUnderPointer()}");
+                { hoverMisses++; Debug.LogWarning($"[Demo] not hovering {target.name}, hovering {InteractionSystem.I.Hovered?.name}; {InteractionSystem.I.debugState}; modal={UIRoot.ModalOpen} over={UiUnderPointer()}"); }
         }
 
         /// <summary>The visible point on an interactable nearest its bounds centre that a ray from the camera lands on.</summary>
@@ -312,16 +320,20 @@ namespace LostAndFound
         {
             while (keyHeld != Key.None) yield return null;
             keyHeld = k;
-            InputSystem.QueueStateEvent(keyboard, new KeyboardState(k));
+            if (realInput != null) RealKey(k, true);
+            else InputSystem.QueueStateEvent(keyboard, new KeyboardState(k));
             yield return Hold(0.1f);
             keyHeld = Key.None;
-            InputSystem.QueueStateEvent(keyboard, new KeyboardState());
+            if (realInput != null) RealKey(k, false);
+            else InputSystem.QueueStateEvent(keyboard, new KeyboardState());
             yield return Hold(0.1f);
         }
 
         /// <summary>Drag by an offset (turning a held object).</summary>
         IEnumerator Drag(Vector2 by, float duration)
         {
+            var held = InspectController.I != null ? InspectController.I.Held : null;
+            Quaternion before = held != null ? held.transform.rotation : Quaternion.identity;
             leftHeld = true;
             yield return Hold(0.06f);
             Vector2 from = pos;
@@ -334,6 +346,8 @@ namespace LostAndFound
             yield return Frame();
             leftHeld = false;
             yield return Hold(0.7f);
+            if (held != null && InspectController.I.Held == held)
+                Debug.Log($"[Demo] drag by {by}: the {held.def.id} turned {Quaternion.Angle(before, held.transform.rotation):0}° (the drag's own {by.magnitude * 0.42f * Settings.MouseSensitivity:0}°)");
         }
 
         IEnumerator Until(System.Func<bool> cond, float timeout = 30f)
@@ -402,7 +416,7 @@ namespace LostAndFound
             yield return Hold(0.35f);
             yield return Click();
             yield return Hold(0.3f);
-            if (director.CanRing) { Debug.LogWarning("[Demo] bell click missed; ringing directly"); desk.props.bell.Ring(); }
+            if (director.CanRing) { Fallback("bell click missed; ringing directly"); desk.props.bell.Ring(); }
             yield return Until(() => director.CanUseStamps, 60f);
             if (director.Current == null) { Debug.LogError("[Demo] no case started"); yield return Finish(); yield break; }
             yield return Hold(0.6f);
@@ -534,7 +548,10 @@ namespace LostAndFound
                 // a stray click may have shut the lid: open it again before looking inside
                 foreach (var p in item.parts.Where(p => p.def.kind is "hinge" or "slide" && !p.open).ToList())
                     yield return FindPart(item, p);
-                if (Clickable(item, d, hs))
+                bool clickable = Clickable(item, d, hs);
+                Vector3 toEye = (Camera.main.transform.position - hs.position).normalized;
+                Debug.Log($"[Demo] looking for {item.def.id}.{d.id}, try {tries}: {(clickable ? "clickable" : "not clickable")}, facing the eye at {Vector3.Angle(hs.up, toEye):0}°, on screen at {ToScreen(hs.position)}, lamp {(Lamp.I != null && Lamp.I.UV ? "blue" : "plain")}, parts {string.Join(" ", item.parts.Select(p => p.def.kind + (p.open ? " open" : " shut")))}");
+                if (clickable)
                 {
                     // sweep in so the glint shows, then click on it
                     yield return Glide(() => ToScreen(hs.position) + new Vector2(70f, -40f), 0.6f);
@@ -548,7 +565,8 @@ namespace LostAndFound
                 yield return TurnToward(hs, lean[tries]);
             }
             detailsFallback++;
-            Debug.LogWarning($"[Demo] couldn't find {d.id}");
+            if (realInput != null) { searchMisses.Add($"{item.def.id}.{d.id}"); Debug.LogWarning($"[RealInput] the search couldn't bring {item.def.id}.{d.id} into view; finding it directly"); }
+            else Fallback($"couldn't find {d.id}");
         }
 
         bool Clickable(ItemView item, DetailDef d, Transform hs)
