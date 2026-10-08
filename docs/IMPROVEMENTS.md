@@ -1429,3 +1429,75 @@ the load at each start and end in `summary.txt`).
   2–11), hosting WebGL, curiosities across weeks, installing tools outside the repo, and the licence, releases and tags,
   signing, and Windows Build Support.
 - Whether to clear the 64 helper processes earlier rounds left running (above); they belong to no live session of this repo.
+
+## Round 12 scope (8 Oct 2026)
+
+Branch `improvements-12`, one commit per item. Screenshots and logs go in
+[`media/improvements/round12/`](media/improvements/round12/). This round's focus is polish: the look, the menus and how they
+feel, and a graphics fidelity setting. Before choosing, I played Monday's first two claims in the round 11 build (`05d4b6e`)
+at 1600×900 in the headless KWin and read the code behind what the frames show:
+- **Metal and glass reflect nothing.** The scene sets `DefaultReflectionMode.Custom` with no cubemap and has no reflection
+  probe, so the bell, the brass lamp, the stamps' handles, the inkwell, the teacup's glaze and the window's glass get only the
+  lights' highlights and are otherwise black. The materials are authored as polished metal (smoothness 0.72–0.82).
+- **Picture quality** (round 1) has three steps, Low, Medium and High, and is a button that cycles. High is the game as
+  designed, and nothing goes past it.
+- **The menus are mouse-only.** The keyboard can't move through the title, the pause menu or Settings (only `Esc` closes
+  them), and the gamepad reaches them only by steering its drawn cursor. No button shows a focus.
+- **Every card appears and vanishes in one frame** (Settings, Controls, the pause menu, the title's pages), with the dim
+  behind it.
+
+### R12-A. Graphics fidelity: Low, Medium, High, Ultra
+- *Picture quality* grows into a **Graphics fidelity** slider with four steps (Low, Medium, High, Ultra) in Settings, saved
+  with the other settings under the same key, so a saved Low, Medium or High stays what it was. It changes the picture at once.
+  The default stays High, today's look.
+- Low and Medium stay as they were (render scale, shadow maps, softness, anti-aliasing, and no depth of field on Low), with
+  ambient occlusion off on Low and at half resolution on Medium, and textures at half size on Low.
+- Ultra goes past today's look with what URP offers here: 4096 shadow maps with four cascades and the softest filtering,
+  4× MSAA under SMAA, full-resolution ambient occlusion with more samples, high-quality bloom and depth of field sampling,
+  16× anisotropic filtering, and a 64-point colour-grading table.
+- `-lafFidelityBench` with the AutoPilot: at chosen moments (the counter with a claimant waiting, the wallet in your hands)
+  the game holds still and, for each step in turn, applies it, lets it settle, measures the frame time over a few hundred
+  uncapped frames (median and 95th percentile), and takes a screenshot, so every step is pictured at the same moment.
+  `Tools/unity.sh fidelity` runs it.
+
+**Acceptance:** four steps in Settings; the setting survives a restart, and a saved Low/Medium/High from round 11 reads the
+same. Same-moment screenshots at every step for at least two scenes; a frame-time table (with the load average noted) in which
+Low is the fastest and High is within noise of the round 11 build's High. Unit tests for the step table and the saved value.
+**Verify:** the bench log and screenshots, a restart with the scratch settings file, unit tests.
+
+### R12-B. Menus with the keyboard and the pad
+- In every menu card (the title and its pages, the pause menu, Settings, Controls, the confirmations, the ledger and week
+  pages' buttons), the arrow keys and the pad's d-pad move a visible focus between the buttons and sliders, `Enter`/`Space`
+  and the pad's A press, and left/right move a slider or step the fidelity. The pad's drawn cursor follows the focus, so A
+  works as it does today. The pointer takes over again when the mouse moves. Focus has the hover's look and sound.
+
+**Acceptance:** a new `menutest` drives a virtual keyboard and then a virtual pad in the player: from the title to Settings,
+the fidelity to Ultra and back to High, the settings saved, back out, into the week, the pause menu and its Controls card,
+and out again, each step checked and pictured. Text audit clean on those frames; the tap test, pad test and edge test still
+pass.
+**Verify:** `Logs/menutest.log`, screenshots, the other tests' logs.
+
+### R12-C. Light on brass and glass
+- A reflection probe for the booth, rendered by the game once the desk is built (and again on a fidelity change), so the
+  metal, glaze, glass and varnish reflect the room. Its resolution follows the fidelity step (none on Low).
+- Dust drifting in the lamp's light, denser at higher steps (none on Low).
+
+**Acceptance:** before and after crops of the bell, lamp, stamps, inkwell and teacup at the same moment; High's frame time
+within noise of before; the text audit and face watch unchanged in a `best` week.
+**Verify:** bench screenshots and log, AutoPilot logs.
+
+### R12-D. Cards that open and close
+- Every card fades and rises into place over about a fifth of a second as it opens (its dim fading with it), and fades as it
+  closes; instantly with *Reduce motion*. Buttons show a press as well as a hover.
+
+**Acceptance:** frames 0, 60, 120 and 240 ms after opening Settings and the pause menu show the card arriving; with *Reduce
+motion* the first frame is complete. The text audit (which checks every card's text) and all the menu tests pass.
+**Verify:** screenshots, logs.
+
+### R12-E. Stretch: screen-space reflections on Ultra
+URP 17.6 ships screen-space reflections behind a scripting define. Only if they build cleanly, cost a reasonable amount of
+build size, and look right on the desk: Ultra gets them. Otherwise written up.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
+audit and face watch, the nudge tour, the padtest, the taptest, the edge test, the pointer test, the new menutest, the
+fidelity bench, the soak, and the real config folder compared with its state at the start of the round.
