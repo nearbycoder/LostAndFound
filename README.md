@@ -50,6 +50,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Stuck? A nudge from Agnes | `H` during a claim (press again for a stronger one) |
 | Look back at earlier days' Day Ledger pages | Click the ledger book on the desk (bottom right), or *The week so far* in the pause menu; `←` `→` turn the pages |
 | Pause: Agnes's rules, the controls, settings, restart the day | `Esc` (`Esc` again to carry on) |
+| Menus (the title, the pause menu, Settings and every card) | The mouse, or `↑` `↓` to move between buttons and sliders, `Enter` or `Space` to press, `←` `→` to move a slider, `Esc` to close |
 
 **With a gamepad** (Xbox-style layout; tested only with a virtual Input System gamepad, as no physical controller was to hand):
 
@@ -67,6 +68,7 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | A nudge from Agnes | D-pad left |
 | Earlier days' ledger pages · turn them | A on the desk's ledger, or Menu › *The week so far* · LB / RB |
 | Read the slip and what they said · pause | View · Menu |
+| Menus: move between buttons and sliders · press · move a slider | D-pad up and down · A · d-pad left and right (the cursor follows) |
 
 Pick up the mouse and it takes over again at once. There's no touch support.
 

@@ -29,6 +29,9 @@
 #   Tools/unity.sh padtest         play Monday's first case with only a virtual gamepad; screenshots in Screenshots/padtest/
 #   Tools/unity.sh taptest [w] [h] [player args]  play Monday's first case with quick taps (press and release in one input update) from
 #                                  virtual keyboard, mouse and gamepad; screenshots in Screenshots/taptest/
+#   Tools/unity.sh menutest [w] [h] [player args]  the menus with only a virtual keyboard, then only a virtual gamepad: the title,
+#                                  Settings (the fidelity to Ultra and back), the pause menu and its Controls card; log in
+#                                  Logs/menutest.log ("[MenuTest] PASS"), screenshots in Screenshots/menutest/
 #   Tools/unity.sh edgetest [w] [h]  hold a virtual mouse at the screen's sides: the desk turns with Settings > Turn at the
 #                                  screen's edge on, not with it off, and not while another window (opened in the headless KWin
 #                                  once the test is ready) has the focus; log in Logs/edgetest.log
@@ -234,6 +237,12 @@ case "${1:-open}" in
                  -logFile "$PROJECT/Logs/taptest.log" "${@:4}"
                grep -a "\[TapTest\]" "$PROJECT/Logs/taptest.log"
                grep -a -q "\[TapTest\] PASS" "$PROJECT/Logs/taptest.log" ;;
+  menutest)    rm -rf "$PROJECT/Screenshots/menutest"; mkdir -p "$PROJECT/Screenshots/menutest"
+               player menutest timeout -s KILL 600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafMenuTest "$PROJECT/Screenshots/menutest" \
+                 -lafSave "$PROJECT/Screenshots/menutest/save.json" -lafNoMusic -screen-width "${2:-1600}" -screen-height "${3:-900}" -screen-fullscreen 0 \
+                 -logFile "$PROJECT/Logs/menutest.log" "${@:4}"
+               grep -a "\[MenuTest\]" "$PROJECT/Logs/menutest.log"
+               grep -a -q "\[MenuTest\] PASS" "$PROJECT/Logs/menutest.log" ;;
   edgetest)    mkdir -p "$PROJECT/Screenshots/edgetest"; rm -f "$PROJECT/Logs/edgetest.log"
                export LAF_STEAL_WHEN="[EdgeTest] waiting for another window" LAF_STEAL_LOG="$PROJECT/Logs/edgetest.log" LAF_STEAL_FOR=12
                st=0; player edgetest timeout -s KILL 400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafEdgeTest -lafDay 2 \

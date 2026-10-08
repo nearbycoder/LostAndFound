@@ -25,7 +25,10 @@ namespace LostAndFound
         {
             Key.Space, Key.Enter, Key.Escape, Key.Tab, Key.A, Key.D, Key.Q, Key.E, Key.W, Key.S, Key.T, Key.L,
             Key.LeftArrow, Key.RightArrow, Key.Backspace, Key.F1, Key.F12, Key.M, Key.R, Key.H,
+            Key.UpArrow, Key.DownArrow, Key.NumpadEnter,
         };
+        // the keyboard's own keys, without the gamepad's stand-ins (the menus read the pad's d-pad themselves)
+        readonly Dictionary<Key, (bool now, bool prev)> kbKeys = new();
 
         // buttons that went down in an input event since the last sample, and those the current frame is counting
         static readonly HashSet<ButtonControl> latched = new(), latchedNow = new();
@@ -85,9 +88,11 @@ namespace LostAndFound
             var kb = Keyboard.current;
             foreach (var k in Watched)
             {
-                bool now = (kb != null && kb[k].isPressed) || LatchedKey(k) || GamepadInput.KeyHeld(k);
+                bool own = (kb != null && kb[k].isPressed) || LatchedKey(k);
+                bool now = own || GamepadInput.KeyHeld(k);
                 bool prev = keys.TryGetValue(k, out var s) && s.now;
                 keys[k] = (now, prev);
+                kbKeys[k] = (own, kbKeys.TryGetValue(k, out var o) && o.now);
             }
         }
 
@@ -111,5 +116,8 @@ namespace LostAndFound
 
         public static bool KeyDown(Key k) => I.keys.TryGetValue(k, out var s) && s.now && !s.prev;
         public static bool KeyHeld(Key k) => I.keys.TryGetValue(k, out var s) && s.now;
+        /// <summary>Pressed on a keyboard this frame (a quick tap too), not by a gamepad button standing in for the key.</summary>
+        public static bool KeyboardDown(Key k) => I.kbKeys.TryGetValue(k, out var s) && s.now && !s.prev;
+        public static bool KeyboardHeld(Key k) => I.kbKeys.TryGetValue(k, out var s) && s.now;
     }
 }

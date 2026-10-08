@@ -283,6 +283,7 @@ namespace LostAndFound
                 var l = UiKit.Label(card.transform, label, label, Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
                 l.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(300f, 44f));
                 var s = PaperSlider.Create(card.transform, new Vector2(380f, y), 420f, Mathf.InverseLerp(min, max, get()), v => set(Mathf.Lerp(min, max, v)));
+                s.label = l;
                 y -= 46f;
             }
             void Toggle(string label, System.Func<bool> get, System.Action<bool> set)
@@ -320,20 +321,31 @@ namespace LostAndFound
                 Name();
                 int n = FidelityStep.Count;
                 PaperSlider.Create(card.transform, new Vector2(380f, y), 300f, Settings.PictureQuality / (n - 1f),
-                    v => { Settings.PictureQuality = Mathf.RoundToInt(v * (n - 1)); Name(); }, n);
+                    v => { Settings.PictureQuality = Mathf.RoundToInt(v * (n - 1)); Name(); }, n).label = l;
                 y -= 46f;
             }
             Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
             Toggle("Plain lettering (no handwriting on tags and notes)", () => Settings.PlainLettering, v => Settings.PlainLettering = v);
             Toggle("Offer Agnes's nudges when stuck (H)", () => Settings.OfferNudges, v => Settings.OfferNudges = v);
 
-            var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, () =>
+            bool closed = false;
+            void Close()
             {
+                if (closed) return;
+                closed = true;
                 Object.Destroy(panel.gameObject);
                 UIRoot.I.PopModal();
                 onClose?.Invoke();
-            });
+            }
+            var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, Close);
             back.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(0f, 34f), new Vector2(300f, 60f));
+            panel.gameObject.AddComponent<EscCloses>().close = Close;   // as every other card does
+        }
+
+        class EscCloses : MonoBehaviour
+        {
+            public System.Action close;
+            void LateUpdate() { if (InputX.KeyDown(UnityEngine.InputSystem.Key.Escape)) close?.Invoke(); }
         }
     }
 
@@ -346,6 +358,11 @@ namespace LostAndFound
         System.Action<float> onChange;
         public float Value => value;
         public int Steps => steps;
+        /// <summary>The row's name, inked like a hovered button while the slider has the keyboard's or the pad's focus.</summary>
+        public TextMeshProUGUI label;
+        public bool focused;
+        public RectTransform Knob => knob;
+        float k;
 
         public static PaperSlider Create(Transform parent, Vector2 pos, float width, float value, System.Action<float> onChange, int steps = 0)
         {
@@ -405,7 +422,14 @@ namespace LostAndFound
 
         public void OnPointerDown(PointerEventData e) { FromPointer(e); AudioDirector.Play("ui_click", 0.3f); }
         public void OnDrag(PointerEventData e) => FromPointer(e);
-        void Update() { if (track != null) CursorController.Want(CursorKind.Default); }
+
+        void Update()
+        {
+            if (track != null) CursorController.Want(CursorKind.Default);
+            k = Mathf.MoveTowards(k, focused ? 1f : 0f, Time.unscaledDeltaTime * 8f);
+            if (knob != null) knob.localScale = Vector3.one * (1f + 0.3f * k);
+            if (label != null) label.color = Color.Lerp(UiKit.Ink, UiKit.Oxblood, k);
+        }
     }
 
     /// <summary>Esc pauses the shift: resume, Agnes's rules, the controls, settings, start the day again, or go back to the title.</summary>

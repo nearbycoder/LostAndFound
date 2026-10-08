@@ -76,6 +76,10 @@ namespace LostAndFound
             note = NotePopup.Create(root);
             fader = Fader.Create(root);
             dayCard = DayCard.Create(root);
+            HudCount = root.childCount;
         }
+
+        /// <summary>How many of the root's children are the HUD built above; every card opened later comes after them.</summary>
+        public int HudCount { get; private set; }
     }
 }

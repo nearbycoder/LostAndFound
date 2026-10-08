@@ -28,6 +28,7 @@ namespace LostAndFound
             ("A nudge from Agnes", "H, during a claim"),
             ("Earlier days' ledger pages", "The ledger on the desk, or pause"),
             ("Pause", "Esc"),
+            ("Menus", "Arrows, then Enter"),
         };
 
         static readonly (string action, string keys)[] Pad =
@@ -47,6 +48,7 @@ namespace LostAndFound
             ("A nudge from Agnes", "D-pad left"),
             ("Earlier days' ledger pages", "A on the desk's ledger, or Menu"),
             ("Pause", "Menu"),
+            ("Menus", "D-pad, then A"),
         };
 
         /// <summary>The card's text, two columns: what you want to do, and how.</summary>

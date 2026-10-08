@@ -141,6 +141,7 @@ namespace LostAndFound
             ui.AddComponent<UIRoot>();
             ui.AddComponent<PauseMenu>();
             ui.AddComponent<RulesHotkey>();
+            ui.AddComponent<MenuNav>();
             ApplyDisplay();
             if (!rebuilt) LogKeyLabels();
 
@@ -165,6 +166,7 @@ namespace LostAndFound
             if (Arg("-lafAuditHotspots") != null) gameObject.AddComponent<HotspotAudit>();
             if (Arg("-lafGamepadTest") != null) gameObject.AddComponent<GamepadTest>();
             if (Arg("-lafTapTest") != null) gameObject.AddComponent<TapTest>();
+            if (Arg("-lafMenuTest") != null) gameObject.AddComponent<MenuTest>();
             if (Arg("-lafEdgeTest") != null) gameObject.AddComponent<EdgeTest>();
             if (Arg("-lafPointerTest") != null) gameObject.AddComponent<PointerTest>();
             if (Arg("-lafHitches") != null) HitchLog.Ensure();

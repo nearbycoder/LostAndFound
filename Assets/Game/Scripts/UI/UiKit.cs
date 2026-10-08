@@ -124,41 +124,85 @@ namespace LostAndFound
 
     /// <summary>Hover-warm, click-press text button (works with the EventSystem).</summary>
     public class PaperButton : MonoBehaviour, UnityEngine.EventSystems.IPointerEnterHandler, UnityEngine.EventSystems.IPointerExitHandler,
-        UnityEngine.EventSystems.IPointerClickHandler
+        UnityEngine.EventSystems.IPointerClickHandler, UnityEngine.EventSystems.IPointerDownHandler, UnityEngine.EventSystems.IPointerUpHandler
     {
         public TextMeshProUGUI label;
         public System.Action onClick;
         public Color normal = UiKit.Ink, hover = UiKit.Oxblood;
         public bool interactable = true;
-        bool over;
-        float k;
+        /// <summary>Holds the keyboard's or the pad's focus (MenuNav): looks hovered, with a line under its words.</summary>
+        public bool focused;
+        bool over, down;
+        float k, press, line;
+        Image underline;
 
         public void OnPointerEnter(UnityEngine.EventSystems.PointerEventData e)
         {
             if (!interactable) return;
             over = true;
-            AudioDirector.Play("ui_hover", 0.25f, Random.Range(0.95f, 1.1f));
+            if (!focused) AudioDirector.Play("ui_hover", 0.25f, Random.Range(0.95f, 1.1f));
         }
 
-        public void OnPointerExit(UnityEngine.EventSystems.PointerEventData e) => over = false;
+        public void OnPointerExit(UnityEngine.EventSystems.PointerEventData e) { over = false; down = false; }
+        public void OnPointerDown(UnityEngine.EventSystems.PointerEventData e) { if (interactable) down = true; }
+        public void OnPointerUp(UnityEngine.EventSystems.PointerEventData e) => down = false;
 
-        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e)
+        public void OnPointerClick(UnityEngine.EventSystems.PointerEventData e) => Press();
+
+        /// <summary>What a click does (Enter or Space on the focused button does it too).</summary>
+        public void Press()
         {
             if (!interactable) return;
             AudioDirector.Play("ui_click", 0.5f);
+            press = 1f;
             StartCoroutine(Tween.Punch(transform, 0.08f, 0.2f));
             onClick?.Invoke();
         }
 
         void Update()
         {
-            k = Mathf.MoveTowards(k, over && interactable ? 1f : 0f, Time.unscaledDeltaTime * 8f);
+            float dt = Time.unscaledDeltaTime;
+            bool lit = (over || focused) && interactable;
+            k = Mathf.MoveTowards(k, lit ? 1f : 0f, dt * 8f);
+            press = Mathf.MoveTowards(press, down && over ? 1f : 0f, dt * (down ? 14f : 5f));
             if (label != null)
             {
-                label.color = interactable ? Color.Lerp(normal, hover, k) : new Color(normal.r, normal.g, normal.b, 0.35f);
-                label.transform.localScale = Vector3.one * (1f + 0.04f * k);
+                // pressed: the ink darkens a touch and the words sink a little, as a key does
+                var c = interactable ? Color.Lerp(normal, hover, k) : new Color(normal.r, normal.g, normal.b, 0.35f);
+                var pressed = Color.Lerp(c, c * 0.72f, press * 0.6f);
+                pressed.a = c.a;
+                label.color = pressed;
+                label.transform.localScale = Vector3.one * (1f + 0.04f * k - 0.03f * press);
             }
+            line = Mathf.MoveTowards(line, focused && interactable ? 1f : 0f, dt * 7f);
+            if (line > 0f || underline != null) Underline();
             if (over) CursorController.Want(CursorKind.Hand);
+        }
+
+        /// <summary>The focus line: under the words, as wide as they are, in the hover's ink.</summary>
+        void Underline()
+        {
+            if (label == null) return;
+            if (underline == null)
+            {
+                underline = UiKit.Image(label.transform, "FocusLine", null, hover);
+                underline.raycastTarget = false;
+                underline.rectTransform.anchorMin = underline.rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+                underline.rectTransform.pivot = new Vector2(0.5f, 1f);
+            }
+            var b = label.textBounds;
+            underline.enabled = line > 0f && b.size.x > 0f;
+            if (!underline.enabled) return;
+            var rt = label.rectTransform;
+            Vector2 offset = new((0.5f - rt.pivot.x) * rt.rect.width, (0.5f - rt.pivot.y) * rt.rect.height);
+            // just under the last line's baseline (the text's bounds reach down to the font's descender line)
+            var ti = label.textInfo;
+            float y = ti != null && ti.lineCount > 0 ? ti.lineInfo[ti.lineCount - 1].baseline - label.fontSize * 0.12f : b.min.y;
+            underline.rectTransform.anchoredPosition = new Vector2(b.center.x, y) - offset;
+            underline.rectTransform.sizeDelta = new Vector2(b.size.x * Mathf.Lerp(0.6f, 1f, line), Mathf.Max(2f, label.fontSize * 0.06f));
+            var ink = hover;
+            ink.a = line;
+            underline.color = ink;
         }
     }
 }

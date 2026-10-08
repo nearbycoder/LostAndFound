@@ -150,6 +150,7 @@ namespace LostAndFound
         {
             var pad = Gamepad.current;
             if (pad == null || !Active) return false;
+            if (MenuNav.InMenu && k is Key.L or Key.Space or Key.H) return false;   // in a menu the d-pad moves the focus (MenuNav)
             return k switch
             {
                 Key.A => InputX.Pressed(pad.leftShoulder),
@@ -163,6 +164,13 @@ namespace LostAndFound
                 Key.H => InputX.Pressed(pad.dpad.left),
                 _ => false,
             };
+        }
+
+        /// <summary>Put the drawn cursor on a point (MenuNav does, on the control it focuses, so A presses that).</summary>
+        public static void WarpTo(Vector2 screen)
+        {
+            if (I == null || !Active) return;
+            I.pos = new Vector2(Mathf.Clamp(screen.x, 0f, Screen.width - 1f), Mathf.Clamp(screen.y, 0f, Screen.height - 1f));
         }
 
         /// <summary>A prompt in whichever words fit the hands on the controls.</summary>
