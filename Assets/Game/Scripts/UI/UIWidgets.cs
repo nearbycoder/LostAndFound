@@ -95,6 +95,8 @@ namespace LostAndFound
             speaker = player ? null : who;
             if (player || who == null || Camera.main == null)
             {
+                float pw = Mathf.Min(700f, w / s - 140f);
+                panel.sizeDelta = new Vector2(pw, Mathf.Min(230f, HeightFor(pw)));
                 target = new Vector2(70f, 470f);
                 tail.enabled = false;
                 return;
@@ -128,7 +130,8 @@ namespace LostAndFound
             float width = Mathf.Min(want, room);
             bool above = width < MinWidth;
             if (above) width = Mathf.Min(want, w / s - 2f * margin / s);
-            panel.sizeDelta = new Vector2(width, width >= 490f ? 230f : 230f + (490f - width) * 0.8f);
+            // as tall as the line needs, up to the height it always had (taller as it narrows)
+            panel.sizeDelta = new Vector2(width, Mathf.Min(width >= 490f ? 230f : 230f + (490f - width) * 0.8f, HeightFor(width)));
             size = panel.sizeDelta * s;
             float x, y;
             if (above)
@@ -156,6 +159,34 @@ namespace LostAndFound
         /// vanishes and reappears there.</summary>
         const float JumpDistance = 120f;
 
+        /// <summary>The bubble's height for the line it's saying at this width (in its own units): the text at full size with its
+        /// margins, and room below for the quill that bobs while it waits. Never less than MinHeight.</summary>
+        float HeightFor(float width)
+        {
+            string text = sizedFor ?? body.text;
+            width = Mathf.Floor(width / 8f) * 8f;   // a narrowed bubble's width follows the head: measure again only when it's moved on
+            if (text == fittedText && Mathf.Approximately(width, fittedWidth) && body.fontStyle == fittedStyle) return fittedHeight;
+            bool auto = body.enableAutoSizing;
+            float size = body.fontSize;
+            body.enableAutoSizing = false;
+            body.fontSize = body.fontSizeMax;
+            float h = body.GetPreferredValues(text, width - body.margin.x - body.margin.z, 0f).y;
+            body.enableAutoSizing = auto;
+            body.fontSize = size;
+            fittedText = text; fittedWidth = width; fittedStyle = body.fontStyle;
+            // (the preferred height has the margins in it already; measuring inside them errs towards a line more, never less)
+            fittedHeight = Mathf.Max(MinHeight, h + 32f);   // the quill bobs 18-52 up from the bottom
+            return fittedHeight;
+        }
+
+        /// <summary>The line the bubble is sized for (set as it begins, before the typewriter has shown any of it).</summary>
+        string sizedFor, fittedText;
+        float fittedWidth, fittedHeight;
+        FontStyles fittedStyle;
+
+        /// <summary>The shortest the bubble gets: a line and the quill beneath it.</summary>
+        const float MinHeight = 140f;
+
         /// <summary>The narrowest the bubble gets beside a head before it moves above it instead.</summary>
         const float MinWidth = 420f;
 
@@ -168,6 +199,8 @@ namespace LostAndFound
         public IEnumerator Say(string speaker, string richText, CommuterDef voice, Commuter who, bool wait = true, bool player = false)
         {
             SaidCount++;
+            sizedFor = richText;
+            body.fontStyle = player ? FontStyles.Italic : FontStyles.Normal;
             PlaceFor(who, player);
             if (!shown)
             {

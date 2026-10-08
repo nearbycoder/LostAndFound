@@ -1,0 +1,9 @@
+# R11-D: the speech bubble as tall as its line. AutoPilot best week, 1600x900, speed 4, load ~3 (Logs/r11/d_best_1600x900_autopilot.log)
+[Window] desktop 2560x1440, window 1600x900 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 210s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 24927 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 27 time(s) as the view swung and 12 for a jump in its place
+[Auto] PASS
+
+# Heights TextMeshPro gave for the bubble's text at full size, margins included (a probe run on Monday): two lines 133, three 168 (about 35 a line);
+# the bubble adds 32 for the quill and is never under 140 nor over the 230 it always was (taller when narrowed).
