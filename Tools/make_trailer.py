@@ -70,10 +70,13 @@ def ffmpeg(*args):
 
 # ----------------------------------------------------------------------------------------------- takes
 
+PREFIX = ""   # --takes <prefix>: cut from Recordings/<prefix>day1 and so on
+
+
 class Take:
     def __init__(self, name):
         self.name = name
-        self.dir = REC / name
+        self.dir = REC / (PREFIX + name)
         self.path = self.dir / "take.mkv"
         if not self.path.exists():
             sys.exit(f"missing take {self.path}: film it first (see the docstring)")
@@ -814,9 +817,9 @@ def trailer():
 
 
 
-def stills(prefix=""):
-    """The README screenshots: one frame each from the takes, chosen by marker (from Recordings/<prefix>day1 ...)."""
-    d = {n: take(prefix + n) for n in ("day1", "day2", "day3", "day4")}
+def stills():
+    """The README screenshots: one frame each from the takes, chosen by marker."""
+    d = {n: take(n) for n in ("day1", "day2", "day3", "day4")}
     shots = [
         ("screenshot_title", "day1", d["day1"].at("title") + 3.4),
         ("screenshot_drawers", "day1", d["day1"].at("tag wallet_brown") + 1.5),
@@ -832,7 +835,7 @@ def stills(prefix=""):
     ]
     WORK.mkdir(parents=True, exist_ok=True)
     OUT.mkdir(parents=True, exist_ok=True)
-    return [still(prefix + tk, t, name) for name, tk, t in shots]
+    return [still(tk, t, name) for name, tk, t in shots]
 
 
 def teaser_loop():
@@ -848,14 +851,13 @@ def teaser_loop():
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    prefix = ""
     if "--takes" in args:
         i = args.index("--takes")
-        prefix = args[i + 1]
+        PREFIX = args[i + 1]
         del args[i:i + 2]
     what = args or ["trailer", "stills", "teaser"]   # or "poster" alone
     if "stills" in what:
-        stills(prefix)
+        stills()
     if "teaser" in what:
         teaser_loop()
     if "trailer" in what:
