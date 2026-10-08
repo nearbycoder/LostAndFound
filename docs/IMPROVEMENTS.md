@@ -1359,3 +1359,73 @@ weeks at 1600×900, 1024×768 and 960×1080 and the `worst` week at 1600×900; s
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
 audit, the nudge tour, the padtest, the taptest, the edge test, the pointer test and the soak, with the load average noted, and
 the real config folder compared with its state at the start of the round.
+
+## Round 11 results (8 Oct 2026)
+
+All four planned items landed on `improvements-11`, one commit each, plus a fix the real-input play found (`Esc` didn't close
+the pause menu). Logs and pictures are in [`media/improvements/round11/`](media/improvements/round11/). Load average 2–36 from
+the other sessions on the machine (67 for a moment at 07:23; under 10 for the final checks), noted with each run.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R11-A. A pointer leaving the window doesn't turn the desk** (`6b2dec4`) | **A real problem, now measured.** The player isn't told when the pointer leaves its window and keeps the last position it had inside, which for a pointer leaving by a side is at that side. `CameraRig.PointerLeft` now judges from the last step whether the pointer has gone: one more such step would take it onto or past the window's first or last pixel (readings are whole pixels, so a step that seems to land on it was on its way out). A big step that stopped on that pixel is a pointer stopped by the screen's side (a maximised or snapped window) and still counts. Not in fullscreen or for the gamepad's cursor. A pointer that has gone doesn't turn the desk, light the turn arrows or steer the head-look. New `Tools/fakeptr.c` speaks KWin's fake-input protocol to the private test KWin only (it refuses any socket not named `laf-…`), and `Tools/unity.sh pointertest` drives it. The headless KWin's sessions now stop the helpers they start (ksecretd, xdg-desktop-portal). | `pointertest` on the round 10 behaviour: **leaving by either side at 6 px a step, and at 3.7 px a step, turned the desk every time**; only a brisk exit (62 px a step, last reading outside the 2.5% band) didn't. After: **PASS, 13 phases**: resting inside each side turns it (also slowing to 3 px from the side), leaving briskly, at 6.3 and at 3.7 px a step doesn't, coming back in and resting does, and with the window against the screen's left side a pointer flung there turns it. Two cases are logged, not judged, and don't turn it: stopping on the window's very last pixel, and pushing slowly against the screen's side (they read like leaving). 20 new unit tests (131 in all). The edge test (virtual mouse, now slowing to a stop at the side): PASS, 7 holds. `pointertest.txt`. |
+| **R11-B. The speech bubble never slides across a face** (`aa8e51a`) | The text audit looks at screenshots only. A new per-frame watch (`-lafFaceWatch`) found **209 frames in 30 spells over a best week at 1600×900, most covering the whole face for 6 to 15 frames as a claim began**: the bubble eased to its place across the claimant's face after the look down at the slip, after a turn back from the drawers, or when its place jumped to the other side of a head. The rig now reports how fast the view swings (shake left out); while it swings, or when the bubble's place jumps more than a head's width, the bubble vanishes at once, moves while hidden and fades in where it belongs. | After: **0 frames** with the bubble over a face in best weeks at 1600×900, 1024×768 and 960×1080, 24/24 and a clean text audit in each (and in all six final weeks below). Round 10's near-miss frame (`030_case2.3_inspect`) is clear. `facewatch.txt`. |
+| **Found by R11-C: `Esc` closes the pause menu** (`c7d6b74`) | `Esc` opened the pause menu and put away every other card, but only *Back to the desk* closed the pause menu. Now `Esc` (the pad's Menu too) closes it when it's the top card, and not in the frame a card opened from it was put away by the same press. | The real-input play's first full run stopped at "FAIL Esc again carries on"; after, ok. Tap test 14 of 14, including "Esc puts the controls card away, leaving the pause menu". `esc_pause.txt`. |
+| **R11-C. The week with real input** (`a60f5c3`) | `Tools/unity.sh realplay` runs the filmed play's whole days with the headless KWin's own pointer and keyboard: the play writes its moves, clicks, drags and keys to a file (`-lafRealInput`) and `fakeptr` does them, so the game reads them from the compositor through SDL. Nothing is recorded. On the first claim it also presses `H`, `Tab` and `Esc`, uses the wheel and puts the object down with a right click. Wider than the scope's single claim: the whole week. | **PASS, from the title to the ending**: 24 of 24 claims decided as the play meant, 18,623 input lines, **0 input fallbacks, 0 hover misses**, `H`, `Tab` (twice), `Esc` (twice), the wheel (zoom 1.00 → 1.36 → 1.00) and right click all did their job, and **94 drags turned the object by 1.02× what they asked** (0.91–1.14). 48 of 49 hidden details were found by hand; the ring's date (clickable from about one turn in seven) wasn't brought into view by the play's turning search, from turns where the box itself or its lid is in the way, while simulated input happens to reach a clear turn first try (also at 1920×1080, so not the window's size). It's listed apart rather than failed, and said so in the README. `realplay.txt`. |
+| **R11-D. The speech bubble fits its words** (`05d4b6e`) | 230 units tall whatever it said; now the line's own height at full size (TextMeshPro's, margins included) plus room for the quill, between 140 and the height it always had (taller as it narrows, as before), measured as the line begins. Your own lines too. A one-line answer's bubble is about 60% of its old height. | Best week at 1600×900: 24/24, 0 overflowing, overlapping, covered or small texts, 0 face frames; then all six final weeks below. `bubble_fits_its_line_before_after.jpg`, `bubble_fits.txt`. |
+
+### Final checks (final Linux build at `05d4b6e`, load average 1–7)
+Linux build from a clean tree (`building commit 05d4b6e`) and validator: 28 objects, 5 days, 25 cases, **0 issues**.
+**131/131 unit tests** (111 before). Audit: PASS, 84/84 details, 0 below 10%. AutoPilot with the text audit and the face watch:
+`best` 24/24 *The 9:40*, `worst` *Grey Ninefold*, `wait` *The Long Wait* (23/24) and `refuse` (6/24) at 1600×900, and `best`
+24/24 at 960×1080 and at 1024×768: **0 overflowing, 0 overlapping, 0 covered texts, 0 covered faces at screenshots and 0
+frames with the bubble over a face** in every one; every `[StampHint]` right (27, 22, 27, 27, 27, 27); the ledger book showed 11
+pages in each, all 11 identical to their evening's. Nudge tour: 210 nudges, 24/24, 21 details at the glint and 2 by the part that
+lit up. Padtest PASS, taptest 14 of 14, edge test PASS (7 holds), pointer test PASS (13 phases).
+Soak, 30 cycles: PASS, live objects flat over the last 10 (materials 681, textures 203, GameObjects 548). Real-input play of
+Monday, twice: the first run **FAIL with one input fallback**: on case 1.4 the play's click took up the REFUSE stamp instead of
+RETURN (it put it back and the retry took the right one; all 4 claims decided as meant); the second run PASS, 0 fallbacks. It
+hadn't happened in any earlier real-input run this round (two whole weeks, two Mondays and six Thursdays, each of which logged
+its fallbacks). Every player run in the
+headless KWin, and every one printed the guard's "untouched". The real `~/.config/unity3d/Nearby/Lost & Found/` was
+**identical (sizes, timestamps, hashes) at the end of the round and at its start**, and no `laf.` key appeared in
+`unknown/unknown/prefs`. No helper process from this round's runs is left. Logs: `Logs/r11/final/` locally (the summary with
+the load at each start and end in `summary.txt`).
+
+### Found along the way
+- **`Esc` didn't close the pause menu** (above): found by the real-input play's first full run, which expected it to.
+- **The play's waits stop with the game's clock.** The pause menu stops game time, which the recorder's holds count in, so the
+  first run with the `Esc` check hung paused; that check now waits in real time.
+- **My own loop passed one size as one argument** (`set -- $sz` in zsh doesn't split words), so two "narrow window" face-watch
+  runs ran at 1024×900 and 960×900. They ran inside the headless KWin, so nothing reached the desktop; the player's `[Window]`
+  line showed the sizes, and both were discarded and redone with separate arguments. The final checks ran from a bash script.
+- **TextMeshPro's preferred height already includes the margins**: the first try at R11-D added them twice (bubbles about 50
+  units too tall), caught by looking at the pictures and a probe run.
+- `Tools/fakeptr.c` refuses any socket not named `laf-…`, so it can't reach the desktop's compositor; its first version also
+  refused the session's own `WAYLAND_DISPLAY`, which inside the nested session is the private KWin, and was fixed.
+- **64 helper processes left by earlier rounds' test desktops** (ksecretd and xdg-desktop-portal with this repo's scratch
+  `XDG_CONFIG_HOME`, all started on 7 October) are still running; this round didn't start them and left them alone. From now
+  on `Tools/unity.sh` stops the ones each run starts.
+
+### Not done, and why
+- **The ring's date with real input**: the play's turning search is luck-sensitive for this one hotspot (about one turn in
+  seven). A search that poses the object offline to find a clear turn first (as the audit does) would fix it; it's test
+  tooling, not the game, and the drags were shown to turn as they should, so it was left.
+- **The one wrong stamp** in real-input play: seen once in twelve runs, with the suitcase on the tray beside the stamps; the
+  cause isn't established (a frame of input latency between the play's hover check and its click is the likeliest).
+- **Real hardware**: the real-input play uses the compositor's own pointer and keyboard, not a physical device, and KWin's
+  fake input has no pointer acceleration. A physical mouse, touchpad, keyboard or gamepad is still untried.
+- As before: the ledger book's place at 16:9, the desk's size in a narrow window, the brightness range on a dim panel, the
+  trailer, WebGL hosting, macOS on a Mac, Windows, keyboard layouts other than US.
+
+### Still open after round 11
+- No human has played any of it.
+- The two pointer cases that read like leaving (stopping on the window's last pixel, pushing slowly against the screen's side
+  in a maximised or snapped window) don't turn the desk; whether players notice is unknown.
+
+### Needs a decision from the owner
+- Unchanged from round 10: a last-stamp undo, the version number, the ledger book's place on the desk, fullscreen by default
+  on small screens, choosing a keyboard layout or rebinding keys, re-cutting the trailer and teaser (which show none of rounds
+  2–11), hosting WebGL, curiosities across weeks, installing tools outside the repo, and the licence, releases and tags,
+  signing, and Windows Build Support.
+- Whether to clear the 64 helper processes earlier rounds left running (above); they belong to no live session of this repo.

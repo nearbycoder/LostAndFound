@@ -1,0 +1,105 @@
+# Round 11 final checks on the build of 05d4b6e (clean tree: "building commit 05d4b6e"). Logs under Logs/r11/final/ locally.
+
+[Validate] 28 objects, 5 days, 25 cases, 0 issues
+total="131" passed="131" failed="0"
+
+== audit: start  10:55:03 up 5 days, 17:36,  1 user,  load average: 1.86, 2.50, 2.80
+== audit: exit 0, end  10:55:58 up 5 days, 17:37,  1 user,  load average: 1.38, 2.23, 2.69
+== autopilot_best_1600x900: start  10:55:58 up 5 days, 17:37,  1 user,  load average: 1.38, 2.23, 2.69
+== autopilot_best_1600x900: exit 0, end  10:59:30 up 5 days, 17:40,  1 user,  load average: 3.63, 2.91, 2.85
+== autopilot_worst_1600x900: start  10:59:30 up 5 days, 17:40,  1 user,  load average: 3.63, 2.91, 2.85
+== autopilot_worst_1600x900: exit 0, end  11:02:37 up 5 days, 17:44,  1 user,  load average: 6.64, 5.45, 3.89
+== autopilot_wait_1600x900: start  11:02:37 up 5 days, 17:44,  1 user,  load average: 6.64, 5.45, 3.89
+== autopilot_wait_1600x900: exit 0, end  11:06:02 up 5 days, 17:47,  1 user,  load average: 4.82, 4.98, 4.00
+== autopilot_refuse_1600x900: start  11:06:02 up 5 days, 17:47,  1 user,  load average: 4.82, 4.98, 4.00
+== autopilot_refuse_1600x900: exit 0, end  11:09:23 up 5 days, 17:50,  1 user,  load average: 7.67, 5.88, 4.47
+== autopilot_best_960x1080: start  11:09:23 up 5 days, 17:50,  1 user,  load average: 7.67, 5.88, 4.47
+== autopilot_best_960x1080: exit 0, end  11:12:55 up 5 days, 17:54,  1 user,  load average: 2.34, 4.13, 4.06
+== autopilot_best_1024x768: start  11:12:55 up 5 days, 17:54,  1 user,  load average: 2.34, 4.13, 4.06
+== autopilot_best_1024x768: exit 0, end  11:16:27 up 5 days, 17:57,  1 user,  load average: 3.15, 3.65, 3.87
+== nudgetour: start  11:16:27 up 5 days, 17:57,  1 user,  load average: 3.15, 3.65, 3.87
+== nudgetour: exit 0, end  11:21:48 up 5 days, 18:03,  1 user,  load average: 5.80, 5.48, 4.55
+== padtest: start  11:21:48 up 5 days, 18:03,  1 user,  load average: 5.80, 5.48, 4.55
+== padtest: exit 0, end  11:23:20 up 5 days, 18:04,  1 user,  load average: 3.77, 4.79, 4.39
+== taptest: start  11:23:20 up 5 days, 18:04,  1 user,  load average: 3.77, 4.79, 4.39
+== taptest: exit 0, end  11:24:18 up 5 days, 18:05,  1 user,  load average: 2.64, 4.29, 4.24
+== edgetest: start  11:24:18 up 5 days, 18:05,  1 user,  load average: 2.64, 4.29, 4.24
+== edgetest: exit 0, end  11:25:09 up 5 days, 18:06,  1 user,  load average: 3.53, 4.35, 4.27
+== pointertest: start  11:25:09 up 5 days, 18:06,  1 user,  load average: 3.53, 4.35, 4.27
+== pointertest: exit 0, end  11:26:55 up 5 days, 18:08,  1 user,  load average: 2.22, 3.59, 3.99
+== realplay_monday: start  11:26:55 up 5 days, 18:08,  1 user,  load average: 2.22, 3.59, 3.99
+== realplay_monday: exit 1, end  11:34:18 up 5 days, 18:15,  1 user,  load average: 3.01, 2.97, 3.54
+== soak: start  11:34:18 up 5 days, 18:15,  1 user,  load average: 3.01, 2.97, 3.54
+== soak: exit 0, end  11:40:11 up 5 days, 18:21,  1 user,  load average: 2.26, 2.74, 3.25
+== all done Thu Oct  8 11:40:11 AM CDT 2026
+
+[Audit] 84 details checked, 0 below 10%
+[Audit] PASS
+-- autopilot best_1600x900
+[Window] desktop 2560x1440, window 1600x900 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 210s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 24973 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 28 time(s) as the view swung and 10 for a jump in its place
+[Auto] PASS
+stamp hints right: 27 of 27
+-- autopilot worst_1600x900
+[Window] desktop 2560x1440, window 1600x900 (size given on the command line): fits
+[Auto] week done: 24 cases, 1 best, 5 skipped, ending grey, 0 problems, 185s
+[TextAudit] 96 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 22003 frames with the speech bubble over a face, in 0 spell(s); 126 lines said; the bubble vanished to move 18 time(s) as the view swung and 7 for a jump in its place
+[Auto] PASS
+stamp hints right: 22 of 22
+-- autopilot wait_1600x900
+[Window] desktop 2560x1440, window 1600x900 (size given on the command line): fits
+[Auto] week done: 24 cases, 23 best, 0 skipped, ending longwait, 0 problems, 203s
+[TextAudit] 108 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 24166 frames with the speech bubble over a face, in 0 spell(s); 144 lines said; the bubble vanished to move 27 time(s) as the view swung and 14 for a jump in its place
+[Auto] PASS
+stamp hints right: 27 of 27
+-- autopilot refuse_1600x900
+[Window] desktop 2560x1440, window 1600x900 (size given on the command line): fits
+[Auto] week done: 24 cases, 6 best, 0 skipped, ending longwait, 0 problems, 198s
+[TextAudit] 112 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 23565 frames with the speech bubble over a face, in 0 spell(s); 135 lines said; the bubble vanished to move 24 time(s) as the view swung and 14 for a jump in its place
+[Auto] PASS
+stamp hints right: 27 of 27
+-- autopilot best_960x1080
+[Window] desktop 2560x1440, window 960x1080 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 210s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 25018 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 27 time(s) as the view swung and 21 for a jump in its place
+[Auto] PASS
+stamp hints right: 27 of 27
+-- autopilot best_1024x768
+[Window] desktop 2560x1440, window 1024x768 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 210s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 25030 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 27 time(s) as the view swung and 14 for a jump in its place
+[Auto] PASS
+stamp hints right: 27 of 27
+-- nudge tour
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 318s
+[Tour] 210 nudges asked for; 21 details found by clicking the glint, 2 by working the part that lit up
+[Auto] PASS
+-- padtest / taptest / edgetest / pointertest
+[PadTest] PASS
+[TapTest] 14 of 14 taps worked
+[TapTest] PASS
+[EdgeTest] PASS (7 holds)
+[PointerTest] PASS (13 phases)
+-- real-input Monday, run 1 and run 2
+realplay_monday_2.log:[RealInput] 3495 input lines sent; 4 claims decided, 4 as the play meant (best); details found by hand 11, by the fallback 0; 0 input fallback(s), 0 hover miss(es)
+realplay_monday_2.log:[RealInput] PASS
+realplay_monday.log:[RealInput] fallback: picked up the Refuse stamp, not Return; putting it back
+realplay_monday.log:[RealInput] 3528 input lines sent; 4 claims decided, 4 as the play meant (best); details found by hand 11, by the fallback 0; 1 input fallback(s), 0 hover miss(es)
+realplay_monday.log:[RealInput] FAIL
+-- soak
+[Soak] meshes: 199 → 199 over the last 10 cycles (+0.0%), most 199
+[Soak] textures: 203 → 203 over the last 10 cycles (+0.0%), most 203
+[Soak] gameobjects: 548 → 548 over the last 10 cycles (+0.0%), most 548
+[Soak] unity MB: 389.5 → 388.3 over the last 10 cycles (-0.3%), most 389.6
+[Soak] managed MB: 7.3 → 7.4 over the last 10 cycles (+0.4%), most 7.5
+[Soak] 30 cycles in 351s; 21 menu choices asked for a second click; steady
+[Soak] PASS
+
+-- the real config folder, start and end of the round: identical
