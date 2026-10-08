@@ -1,0 +1,59 @@
+Text audit (reading panels over each other's letters; the speech bubble over a face), AutoPilot best policy, Monday (cases 1.1-1.4).
+Before: round 9 behaviour, build dd64f50 (the new audit, no fixes). After: final build 3ec12f1, whole weeks.
+
+== before, Monday, 1600x900 (Logs/r10/before_mon_1600x900/autopilot.log)
+[TextAudit] day1_note: Note covers Game/UI/Dialogue/Body "Last night's lot is in the drawers and o…" (6 of 90 letters under it)
+[TextAudit] day1_rules_card: RulesPeek covers UI/Arrows/Left/L "DRAWERS" (3 of 7 letters under it)
+
+== before, Monday, 1024x768 (Logs/r10/before_mon_1024x768/autopilot.log)
+[TextAudit] day1_rules_card: RulesPeek covers UI/Arrows/Left/L "DRAWERS" (3 of 7 letters under it)
+
+== before, Monday, 960x1080 (Logs/r10/before_mon_960x1080/autopilot.log)
+[TextAudit] day1_note: the speech bubble covers the face of Gus Penrose (76 % of it)
+[TextAudit] case1.1_window: the speech bubble covers the face of Walter Bix (78 % of it)
+[TextAudit] day1_rules_card: RulesPeek covers UI/Arrows/Left/L "DRAWERS" (3 of 7 letters under it)
+[TextAudit] day1_rules_card: Dialogue covers Game/UI/RulesPeek/Body "1.  Every stray has a tag. A real owner …" (21 of 95 letters under it)
+[TextAudit] day1_rules_card: the speech bubble covers the face of Walter Bix (78 % of it)
+[TextAudit] case1.1_tag: the speech bubble covers the face of Walter Bix (78 % of it)
+[TextAudit] case1.1_inspect: the speech bubble covers the face of Walter Bix (77 % of it)
+[TextAudit] case1.1_verdict: the speech bubble covers the face of Walter Bix (77 % of it)
+[TextAudit] case1.2_window: the speech bubble covers the face of Clementine Rook (77 % of it)
+[TextAudit] case1.2_inspect: the speech bubble covers the face of Clementine Rook (77 % of it)
+[TextAudit] case1.2_verdict: the speech bubble covers the face of Clementine Rook (76 % of it)
+[TextAudit] case1.3_window: the speech bubble covers the face of Reggie Stokes (77 % of it)
+[TextAudit] case1.3_inspect: the speech bubble covers the face of Reggie Stokes (77 % of it)
+[TextAudit] case1.4_window: the speech bubble covers the face of Mrs Odile Marsh (77 % of it)
+[TextAudit] case1.4_inspect: the speech bubble covers the face of Mrs Odile Marsh (77 % of it)
+
+(The RulesPeek-over-turn-arrow lines above were dropped from the check afterwards: only texts on reading panels count.)
+
+== after, whole week, week_best_1024x768 (Logs/r10/week_best_1024x768/ autopilot.log)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 219s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[Auto] PASS
+
+== after, whole week, week_best_1600x900 (Logs/r10/week_best_1600x900/ autopilot.log)
+[TextAudit] case2.3_inspect: the speech bubble covers the face of Hugo Haversham (17 % of it)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 218s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 1 faces covered by the speech bubble
+[Auto] PASS
+
+== after, whole week, week_best_960x1080 (Logs/r10/week_best_960x1080/ autopilot.log)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 220s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[Auto] PASS
+
+== after, whole week, week_refuse_1600x900 (Logs/r10/week_refuse_1600x900/ autopilot.log)
+[Auto] week done: 24 cases, 6 best, 0 skipped, ending longwait, 0 problems, 206s
+[TextAudit] 112 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[Auto] PASS
+
+== after, whole week, week_wait_1600x900 (Logs/r10/week_wait_1600x900/ autopilot.log)
+[Auto] week done: 24 cases, 23 best, 0 skipped, ending longwait, 0 problems, 215s
+[TextAudit] 108 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[Auto] PASS
+
+== after, whole week, week_worst_1600x900 (Logs/r10/week_worst_1600x900/ autopilot.log)
+[Auto] week done: 24 cases, 1 best, 5 skipped, ending grey, 0 problems, 197s
+[TextAudit] 96 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[Auto] PASS

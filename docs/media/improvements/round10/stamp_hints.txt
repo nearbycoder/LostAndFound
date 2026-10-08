@@ -1,0 +1,116 @@
+[StampHint] lines: the AutoPilot holds each decided stamp over the slip with a virtual mouse; final build 3ec12f1.
+
+== week_best_1600x900
+[StampHint] case 1.1, RETURN over the slip: "RETURN: give the brown leather wallet to Walter Bix   ·   Click to stamp" ok
+[StampHint] case 1.2, RETURN over the slip: "RETURN: give the red knitted scarf to Clementine Rook   ·   Click to stamp" ok
+[StampHint] case 1.3, REFUSE over the slip: "REFUSE: send Reggie Stokes away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.4, RETURN over the slip: "RETURN: give the battered brown suitcase to Mrs Odile Marsh   ·   Click to stamp" ok
+[StampHint] case 2.1, RETURN over the slip: "RETURN: give the green umbrella with a duck handle to Constable Bramble   ·   Click to stamp" ok
+[StampHint] case 2.2, RETURN over Rosalind Fairweather's half: "RETURN: give the silver locket to Rosalind Fairweather   ·   Click to stamp" ok
+[StampHint] case 2.2, RETURN over Cecily Fairweather's half: "RETURN: give the silver locket to Cecily Fairweather   ·   Click to stamp" ok
+[StampHint] case 2.3, REFUSE over the slip: "REFUSE: send Hugo Haversham away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.4, SEAL over the slip: "SEAL: lock the silver pocket watch in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 2.5, RETURN over the slip: "RETURN: give the toy rabbit to Pip Okafor   ·   Click to stamp" ok
+[StampHint] case 3.1, RETURN over the slip: "RETURN: give the leather briefcase to Dora Finch   ·   Click to stamp" ok
+[StampHint] case 3.2, SEAL over the slip: "SEAL: lock the photograph in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 3.3, REFUSE over the slip: "REFUSE: send Victor Crane away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.4, REFUSE over the slip: "REFUSE: send Thomas Hale away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.5, RETURN over the slip: "RETURN: give the frosted biscuit tin to Lt. Arthur Penhallow   ·   Click to stamp" ok
+[StampHint] case 4.1, RETURN over the slip: "RETURN: give the workman's lunch tin to Big Sid Mulroney   ·   Click to stamp" ok
+[StampHint] case 4.2, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.3, RETURN over Vernon Spratt's half: "RETURN: give the violin case to Vernon Spratt   ·   Click to stamp" ok
+[StampHint] case 4.3, RETURN over Lou Delacroix's half: "RETURN: give the violin case to Lou Delacroix   ·   Click to stamp" ok
+[StampHint] case 4.4, SEAL over the slip: "SEAL: lock the gramophone record in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 4.5, RETURN over the slip: "RETURN: give the ring in a velvet box to Thomas Hale   ·   Click to stamp" ok
+[StampHint] case 5.1, RETURN over the slip: "RETURN: give the spectacles in a case to Mr Ezra Plum   ·   Click to stamp" ok
+[StampHint] case 5.2, RETURN over Victor Crane's half: "RETURN: give the brass birdcage to Victor Crane   ·   Click to stamp" ok
+[StampHint] case 5.2, RETURN over Prof. Ambrose Lark's half: "RETURN: give the brass birdcage to Prof. Ambrose Lark   ·   Click to stamp" ok
+[StampHint] case 5.3, SEAL over the slip: "SEAL: lock the snow globe in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 5.4a, RETURN over the slip: "RETURN: give the black umbrella to Thomas   ·   Click to stamp" ok
+[StampHint] case 5.5, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+
+== week_refuse_1600x900
+[StampHint] case 1.1, REFUSE over the slip: "REFUSE: send Walter Bix away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.2, REFUSE over the slip: "REFUSE: send Clementine Rook away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.3, REFUSE over the slip: "REFUSE: send Reggie Stokes away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.4, REFUSE over the slip: "REFUSE: send Mrs Odile Marsh away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.1, REFUSE over the slip: "REFUSE: send Constable Bramble away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.2, REFUSE over Cecily Fairweather's half: "REFUSE: send Rosalind Fairweather and Cecily Fairweather away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.2, REFUSE over Rosalind Fairweather's half: "REFUSE: send Rosalind Fairweather and Cecily Fairweather away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.3, REFUSE over the slip: "REFUSE: send Hugo Haversham away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.4, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.5, REFUSE over the slip: "REFUSE: send Pip Okafor away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.1, REFUSE over the slip: "REFUSE: send Dora Finch away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.2, REFUSE over the slip: "REFUSE: send Harriet Lowe away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.3, REFUSE over the slip: "REFUSE: send Victor Crane away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.4, REFUSE over the slip: "REFUSE: send Thomas Hale away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.5, REFUSE over the slip: "REFUSE: send Lt. Arthur Penhallow away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.1, REFUSE over the slip: "REFUSE: send Big Sid Mulroney away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.2, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.3, REFUSE over Vernon Spratt's half: "REFUSE: send Lou Delacroix and Vernon Spratt away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.3, REFUSE over Lou Delacroix's half: "REFUSE: send Lou Delacroix and Vernon Spratt away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.4, REFUSE over the slip: "REFUSE: send Edie Larkspur away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.5, REFUSE over the slip: "REFUSE: send Thomas Hale away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.1, REFUSE over the slip: "REFUSE: send Mr Ezra Plum away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.2, REFUSE over Victor Crane's half: "REFUSE: send Prof. Ambrose Lark and Victor Crane away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.2, REFUSE over Prof. Ambrose Lark's half: "REFUSE: send Prof. Ambrose Lark and Victor Crane away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.3, REFUSE over the slip: "REFUSE: send Pip Okafor away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.4, REFUSE over the slip: "REFUSE: send Agnes away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.5, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+
+== week_wait_1600x900
+[StampHint] case 1.1, RETURN over the slip: "RETURN: give the brown leather wallet to Walter Bix   ·   Click to stamp" ok
+[StampHint] case 1.2, RETURN over the slip: "RETURN: give the red knitted scarf to Clementine Rook   ·   Click to stamp" ok
+[StampHint] case 1.3, REFUSE over the slip: "REFUSE: send Reggie Stokes away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.4, RETURN over the slip: "RETURN: give the battered brown suitcase to Mrs Odile Marsh   ·   Click to stamp" ok
+[StampHint] case 2.1, RETURN over the slip: "RETURN: give the green umbrella with a duck handle to Constable Bramble   ·   Click to stamp" ok
+[StampHint] case 2.2, RETURN over Rosalind Fairweather's half: "RETURN: give the silver locket to Rosalind Fairweather   ·   Click to stamp" ok
+[StampHint] case 2.2, RETURN over Cecily Fairweather's half: "RETURN: give the silver locket to Cecily Fairweather   ·   Click to stamp" ok
+[StampHint] case 2.3, REFUSE over the slip: "REFUSE: send Hugo Haversham away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.4, SEAL over the slip: "SEAL: lock the silver pocket watch in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 2.5, RETURN over the slip: "RETURN: give the toy rabbit to Pip Okafor   ·   Click to stamp" ok
+[StampHint] case 3.1, RETURN over the slip: "RETURN: give the leather briefcase to Dora Finch   ·   Click to stamp" ok
+[StampHint] case 3.2, SEAL over the slip: "SEAL: lock the photograph in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 3.3, REFUSE over the slip: "REFUSE: send Victor Crane away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.4, REFUSE over the slip: "REFUSE: send Thomas Hale away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.5, RETURN over the slip: "RETURN: give the frosted biscuit tin to Lt. Arthur Penhallow   ·   Click to stamp" ok
+[StampHint] case 4.1, RETURN over the slip: "RETURN: give the workman's lunch tin to Big Sid Mulroney   ·   Click to stamp" ok
+[StampHint] case 4.2, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.3, RETURN over Vernon Spratt's half: "RETURN: give the violin case to Vernon Spratt   ·   Click to stamp" ok
+[StampHint] case 4.3, RETURN over Lou Delacroix's half: "RETURN: give the violin case to Lou Delacroix   ·   Click to stamp" ok
+[StampHint] case 4.4, SEAL over the slip: "SEAL: lock the gramophone record in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 4.5, REFUSE over the slip: "REFUSE: send Thomas Hale away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.1, RETURN over the slip: "RETURN: give the spectacles in a case to Mr Ezra Plum   ·   Click to stamp" ok
+[StampHint] case 5.2, RETURN over Victor Crane's half: "RETURN: give the brass birdcage to Victor Crane   ·   Click to stamp" ok
+[StampHint] case 5.2, RETURN over Prof. Ambrose Lark's half: "RETURN: give the brass birdcage to Prof. Ambrose Lark   ·   Click to stamp" ok
+[StampHint] case 5.3, SEAL over the slip: "SEAL: lock the snow globe in the Iron Drawer   ·   Click to stamp" ok
+[StampHint] case 5.4, RETURN over the slip: "RETURN: give the ring in a velvet box to Agnes   ·   Click to stamp" ok
+[StampHint] case 5.5, REFUSE over the slip: "REFUSE: send Mr Vell away with nothing   ·   Click to stamp" ok
+
+== week_worst_1600x900
+[StampHint] case 1.1, REFUSE over the slip: "REFUSE: send Walter Bix away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.2, REFUSE over the slip: "REFUSE: send Clementine Rook away with nothing   ·   Click to stamp" ok
+[StampHint] case 1.3, RETURN over the slip: "RETURN: give the green umbrella with a duck handle to Reggie Stokes   ·   Click to stamp" ok
+[StampHint] case 1.4, REFUSE over the slip: "REFUSE: send Mrs Odile Marsh away with nothing   ·   Click to stamp" ok
+[StampHint] case 2.2, RETURN over Cecily Fairweather's half: "RETURN: give the silver locket to Cecily Fairweather   ·   Click to stamp" ok
+[StampHint] case 2.2, RETURN over Rosalind Fairweather's half: "RETURN: give the silver locket to Rosalind Fairweather   ·   Click to stamp" ok
+[StampHint] case 2.3, RETURN over the slip: "RETURN: give the leather briefcase to Hugo Haversham   ·   Click to stamp" ok
+[StampHint] case 2.4, RETURN over the slip: "RETURN: give the silver pocket watch to Mr Vell   ·   Click to stamp" ok
+[StampHint] case 2.5, REFUSE over the slip: "REFUSE: send Pip Okafor away with nothing   ·   Click to stamp" ok
+[StampHint] case 3.2, RETURN over the slip: "RETURN: give the photograph to Harriet Lowe   ·   Click to stamp" ok
+[StampHint] case 3.3, RETURN over the slip: "RETURN: give the frosted biscuit tin to Victor Crane   ·   Click to stamp" ok
+[StampHint] case 3.4, REFUSE over the slip: "REFUSE: send Thomas Hale away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.1, REFUSE over the slip: "REFUSE: send Big Sid Mulroney away with nothing   ·   Click to stamp" ok
+[StampHint] case 4.2, RETURN over the slip: "RETURN: give the ring in a velvet box to Mr Vell   ·   Click to stamp" ok
+[StampHint] case 4.3, RETURN over Lou Delacroix's half: "RETURN: give the violin case to Lou Delacroix   ·   Click to stamp" ok
+[StampHint] case 4.3, RETURN over Vernon Spratt's half: "RETURN: give the violin case to Vernon Spratt   ·   Click to stamp" ok
+[StampHint] case 4.4, RETURN over the slip: "RETURN: give the gramophone record to Edie Larkspur   ·   Click to stamp" ok
+[StampHint] case 5.1, REFUSE over the slip: "REFUSE: send Mr Ezra Plum away with nothing   ·   Click to stamp" ok
+[StampHint] case 5.2, RETURN over Prof. Ambrose Lark's half: "RETURN: give the brass birdcage to Prof. Ambrose Lark   ·   Click to stamp" ok
+[StampHint] case 5.2, RETURN over Victor Crane's half: "RETURN: give the brass birdcage to Victor Crane   ·   Click to stamp" ok
+[StampHint] case 5.3, RETURN over the slip: "RETURN: give the snow globe to Pip Okafor   ·   Click to stamp" ok
+[StampHint] case 5.5, RETURN over the slip: "RETURN: give the Iron Drawer key to Mr Vell   ·   Click to stamp" ok
+
+== real input path: padtest and taptest player logs
+Logs/padtest.log:[Stamp] RETURN: give the brown leather wallet to Walter Bix   ·   A to stamp
+Logs/taptest.log:[Stamp] RETURN: give the brown leather wallet to Walter Bix   ·   A to stamp
