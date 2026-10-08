@@ -311,13 +311,17 @@ namespace LostAndFound
             Toggle("Film effects (grain, blur, vignette)", () => Settings.PostEffects, v => Settings.PostEffects = v);
             Toggle("Fullscreen", () => Settings.Fullscreen, v => { Settings.Fullscreen = v; Game.ApplyDisplay(); });
             {
-                // High, Medium, Low, High...
-                PaperButton b = null;
-                string Text() => $"Picture quality:  <b>{GraphicsQuality.Names[Settings.PictureQuality]}</b>";
-                b = UiKit.Button(card.transform, "Quality", Text(), Fonts.Body, 30f, () => { Settings.PictureQuality = (Settings.PictureQuality + 2) % 3; b.label.text = Text(); });
-                b.label.alignment = TextAlignmentOptions.MidlineLeft;
-                b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
-                y -= 44f;
+                // Graphics fidelity: a slider of four steps, its step named beside it (round 1's Picture quality button)
+                var l = UiKit.Label(card.transform, "Graphics fidelity", "Graphics fidelity", Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
+                l.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(300f, 44f));
+                var name = UiKit.Label(card.transform, "FidelityStep", "", Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
+                name.rectTransform.Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(704f, y), new Vector2(120f, 44f));
+                void Name() => name.text = $"<b>{GraphicsQuality.Names[Settings.PictureQuality]}</b>";
+                Name();
+                int n = FidelityStep.Count;
+                PaperSlider.Create(card.transform, new Vector2(380f, y), 300f, Settings.PictureQuality / (n - 1f),
+                    v => { Settings.PictureQuality = Mathf.RoundToInt(v * (n - 1)); Name(); }, n);
+                y -= 46f;
             }
             Toggle("Large text (dialogue, hints, tags, notes)", () => Settings.TextSize == 1, v => Settings.TextSize = v ? 1 : 0);
             Toggle("Plain lettering (no handwriting on tags and notes)", () => Settings.PlainLettering, v => Settings.PlainLettering = v);
@@ -333,14 +337,17 @@ namespace LostAndFound
         }
     }
 
-    /// <summary>An ink-line slider with a brass knob.</summary>
+    /// <summary>An ink-line slider with a brass knob; with steps, it snaps to that many marks and reports only a change of mark.</summary>
     public class PaperSlider : MonoBehaviour, IPointerDownHandler, IDragHandler
     {
         RectTransform track, fill, knob;
         float value;
+        int steps;
         System.Action<float> onChange;
+        public float Value => value;
+        public int Steps => steps;
 
-        public static PaperSlider Create(Transform parent, Vector2 pos, float width, float value, System.Action<float> onChange)
+        public static PaperSlider Create(Transform parent, Vector2 pos, float width, float value, System.Action<float> onChange, int steps = 0)
         {
             var rt = UiKit.Rect("Slider", parent).Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(pos, new Vector2(width, 40f));
             var hit = rt.gameObject.AddComponent<Image>();
@@ -354,15 +361,35 @@ namespace LostAndFound
             k.rectTransform.Anchor(new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(30f, 30f));
             s.track = rt;
             s.fill = f.rectTransform;
+            s.steps = steps;
+            for (int i = 0; i < steps; i++)
+            {
+                // a mark at each step, under the knob
+                var m = UiKit.Image(rt, "Mark", null, new Color(0.3f, 0.27f, 0.25f, 0.55f));
+                m.rectTransform.Anchor(new Vector2(i / (steps - 1f), 0.5f), new Vector2(i / (steps - 1f), 0.5f), new Vector2(0.5f, 0.5f)).Place(Vector2.zero, new Vector2(4f, 16f));
+            }
+            k.transform.SetAsLastSibling();
             s.knob = k.rectTransform;
             s.onChange = onChange;
             s.Set(value, false);
             return s;
         }
 
+        /// <summary>Move by one step (or a twentieth of the way), as the keyboard and the pad do; true if it moved.</summary>
+        public bool Nudge(int dir)
+        {
+            float before = value;
+            Set(value + dir * (steps > 1 ? 1f / (steps - 1) : 0.05f), true);
+            return !Mathf.Approximately(before, value);
+        }
+
         void Set(float v, bool notify)
         {
-            value = Mathf.Clamp01(v);
+            v = Mathf.Clamp01(v);
+            if (steps > 1) v = Mathf.Round(v * (steps - 1)) / (steps - 1);
+            if (notify && steps > 1 && Mathf.Approximately(v, value)) return;   // the same mark: nothing to report
+            if (notify && steps > 1) AudioDirector.Play("ui_hover", 0.3f, 0.9f + 0.1f * v);
+            value = v;
             float w = track.rect.width > 0 ? track.rect.width : track.sizeDelta.x;
             fill.sizeDelta = new Vector2(w * value, 6f);
             knob.anchoredPosition = new Vector2(w * value, 0f);

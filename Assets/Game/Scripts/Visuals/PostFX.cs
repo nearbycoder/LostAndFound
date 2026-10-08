@@ -86,12 +86,16 @@ namespace LostAndFound
 
         void OnDestroy() => Settings.Changed -= ApplySettings;
 
-        void ApplySettings()
+        /// <summary>Film effects (Settings) and the graphics fidelity step's share of the post-processing.</summary>
+        public void ApplySettings()
         {
             bool on = Settings.PostEffects;
+            var step = GraphicsQuality.Current;
             grain.active = on;
             chroma.active = on;
-            dof.active = on && GraphicsQuality.Level > 0;   // Low picture quality drops the depth of field
+            dof.active = on && step.depthOfField;   // Low drops the depth of field
+            dof.highQualitySampling.Override(step.hqDepthOfField);
+            bloom.downscale.Override(step.renderScale is > 0f and < 0.8f ? BloomDownscaleMode.Quarter : BloomDownscaleMode.Half);
         }
 
         public void SetInspect(bool on) => inspectTarget = on ? 1f : 0f;

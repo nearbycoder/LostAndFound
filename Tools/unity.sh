@@ -13,12 +13,15 @@
 #   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
-#   Tools/unity.sh smoke [secs] [quality] [player args]  run the Linux build hands-free (quality 0|1|2 overrides the setting),
+#   Tools/unity.sh smoke [secs] [quality] [player args]  run the Linux build hands-free (quality 0..3, Low to Ultra, overrides the setting),
 #                                  screenshots in Screenshots/smoke/ (e.g. 6 2 -lafShowSettings -screen-width 1280 -screen-height 720)
 #   Tools/unity.sh autopilot [speed] [day] [best|worst|wait|refuse] [player args]
 #                                  play the week hands-free, screenshots in Screenshots/autopilot/
 #                                  (e.g. -screen-width 1440 -screen-height 900 -screen-fullscreen 0 for 16:10)
 #                                  LAF_AUTOPILOT_SAVE=<path> keeps the save elsewhere, so several runs can share one (endings reached)
+#   Tools/unity.sh fidelity [w] [h] [scenes] [player args]  play Monday's first claim and, at each named AutoPilot moment (default
+#                                  case1.1_window,case1.1_inspect), hold still and time and photograph every Graphics fidelity step,
+#                                  uncapped; log in Logs/fidelity.log ([Fidelity] lines), pictures in Screenshots/fidelity/
 #   Tools/unity.sh audit           hold every object in the hand and check each hidden detail can be clicked;
 #                                  coverage in Screenshots/hotspots/coverage.txt, pictures of any below the bar
 #   Tools/unity.sh nudgetour [speed] [w] [h] [player args]  play the week asking Agnes for every nudge and doing what they say (glints clicked,
@@ -196,12 +199,17 @@ case "${1:-open}" in
   test)        editor -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
                  -testResults "$PROJECT/Logs/test-results.xml" -logFile "$PROJECT/Logs/test.log" ;;
   smoke)       rm -rf "$PROJECT/Screenshots/smoke"
-               q=(); [ -n "${3:-}" ] && q=(-lafQuality "$3")   # optional picture quality 0|1|2 for this run
+               q=(); [ -n "${3:-}" ] && q=(-lafQuality "$3")   # optional graphics fidelity 0..3 for this run
                player smoke timeout -s KILL $(( ${2:-30} + 60 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
                  -lafSmoke "$PROJECT/Screenshots/smoke" -lafSave "$PROJECT/Screenshots/smoke/save.json" -lafSeconds "${2:-30}" -lafNoVsync -lafUncapped "${q[@]}" -logFile "$PROJECT/Logs/smoke.log" "${@:4}" ;;
   autopilot)   rm -rf "$PROJECT/Screenshots/autopilot"; mkdir -p "$PROJECT/Screenshots/autopilot"
                player autopilot timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/autopilot" \
                  -lafSave "${LAF_AUTOPILOT_SAVE:-$PROJECT/Screenshots/autopilot/save.json}" -lafSpeed "${2:-2}" -lafDay "${3:-1}" -lafPolicy "${4:-best}" -lafNoVsync -logFile "$PROJECT/Logs/autopilot.log" "${@:5}" ;;
+  fidelity)    out="$PROJECT/Screenshots/fidelity"; rm -rf "$out"; mkdir -p "$out"
+               player fidelity timeout -s KILL 1200 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$out" -lafFidelityBench "${4:-case1.1_window,case1.1_inspect}" \
+                 -lafQuitAfter 1.1 -lafSave "$out/save.json" -lafSpeed 2 -lafNoMusic -lafNoVsync -lafUncapped -screen-width "${2:-1600}" -screen-height "${3:-900}" \
+                 -screen-fullscreen 0 -logFile "$PROJECT/Logs/fidelity.log" "${@:5}"
+               grep -a "\[Fidelity\].*\(summary\|holding\)\|\[Quality\]\|\[Auto\] problem" "$PROJECT/Logs/fidelity.log" ;;
   nudgetour)   rm -rf "$PROJECT/Screenshots/nudgetour"; mkdir -p "$PROJECT/Screenshots/nudgetour"
                player nudgetour timeout -s KILL 2400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafAutopilot "$PROJECT/Screenshots/nudgetour" -lafNudgeTour \
                  -lafSave "$PROJECT/Screenshots/nudgetour/save.json" -lafSpeed "${2:-4}" -lafNoMusic -lafNoVsync -screen-width "${3:-1600}" -screen-height "${4:-900}" -screen-fullscreen 0 \

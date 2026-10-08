@@ -280,6 +280,7 @@ namespace LostAndFound
             yield return new WaitForSeconds(0.3f * slow);
             yield return new WaitForSecondsRealtime(0.4f);   // let hints and UI finish fading in at any -lafSpeed
             Shot($"case{c.id}_window");
+            if (FidelityBench.Wants($"case{c.id}_window")) yield return FidelityBench.Run($"case{c.id}_window", dir);   // every graphics fidelity step at this moment
             if (!Director.Cinematic && shotRulesDay != d.Day)
             {
                 // the rules known by the first case of each day: Agnes's card on the desk, held up on Friday
@@ -401,6 +402,7 @@ namespace LostAndFound
                     else d.Discover(def, det);
                 }
                 Shot($"case{c.id}_inspect");
+                if (FidelityBench.Wants($"case{c.id}_inspect")) yield return FidelityBench.Run($"case{c.id}_inspect", dir);   // every graphics fidelity step at this moment
                 bool tray = dec.verdict != Verdict.Refuse;
                 InspectController.I.Release(tray ? ItemPlace.Tray : ItemPlace.Storage);
                 while (InspectController.I.Held != null) yield return null;

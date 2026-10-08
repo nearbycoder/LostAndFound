@@ -162,7 +162,8 @@ namespace LostAndFound
             }
         }
         static float? brightnessArg;   // read once: PostFX asks every frame
-        /// <summary>0 Low, 1 Medium, 2 High (see GraphicsQuality).</summary>
-        public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 2); set => SetF("quality", Mathf.Clamp(value, 0, 2)); }
+        /// <summary>Graphics fidelity: 0 Low, 1 Medium, 2 High (the default), 3 Ultra (see FidelityStep). Round 1's "Picture quality"
+        /// kept 0..2 under the same key, and those mean the same steps.</summary>
+        public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 3); set => SetF("quality", Mathf.Clamp(value, 0, 3)); }
     }
 }
