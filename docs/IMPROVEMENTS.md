@@ -1301,3 +1301,61 @@ in the headless KWin, and every one printed the guard's "untouched". The real `~
   a keyboard layout or rebinding keys, re-cutting the trailer and teaser (which don't show these changes), hosting WebGL,
   curiosities across weeks, installing tools outside the repo, and the licence, releases and tags, signing, and Windows Build
   Support.
+
+## Round 11 scope (8 Oct 2026)
+
+Branch `improvements-11`, one commit per item. Screenshots and logs go in
+[`media/improvements/round11/`](media/improvements/round11/). Every input test so far has used virtual Input System devices,
+so the question every round has left open, whether **a real pointer leaving the window by its side turns the desk**, could
+never be checked. KWin has a fake-input protocol that moves its own pointer, and each test window already runs in a private
+headless KWin, so a real pointer can be driven there without touching the shared desktop. I built that first, to look before
+choosing (`Tools/fakeptr.c`, `Tools/unity.sh pointertest`): in a 1600×900 window, **leaving by either side at an ordinary pace
+turned the desk every time** (the player is told nothing when the pointer leaves and keeps its last position, which is at the
+side); only a brisk exit, whose last reading was already past the 2.5% edge band, didn't.
+
+### R11-A. A pointer leaving the window doesn't turn the desk
+- The camera rig judges from the pointer's last step whether it has left the window (one more such step would take it onto or
+  past the window's first or last pixel) and doesn't turn then. A person slowing to a stop near a side still turns it, and so
+  does a pointer flung against the screen's side in a maximised or snapped window (it's stopped there in one big step). Never
+  applied in fullscreen. The rule is one pure function, unit-tested. The turn arrows don't stay lit for a pointer that has
+  gone, and the head-look eases back to the middle.
+- `pointertest`: the headless KWin's own pointer rests inside each side, leaves by each side quickly, at an ordinary pace and
+  slowly, comes back in, and is flung against the screen's side with the window snapped there.
+- The headless KWin's helpers (ksecretd, xdg-desktop-portal) are stopped when its session ends: round 10's runs left about
+  80 of them.
+
+**Acceptance:** `pointertest` before the fix reports the turns on leaving (proving it can see them) and PASS after; the edge test
+(virtual mouse) still passes; unit tests for the rule. No helper from this round's runs left running.
+**Verify:** `Logs/pointertest.log` before and after, `edgetest`, test results, `pgrep` after the runs.
+
+### R11-B. The speech bubble never slides over a face
+Round 10's final runs left one screenshot where the bubble, easing back into place after a turn from the drawers, covered 17% of
+Hugo Haversham's head box. The bubble is hidden while you're turned away, so it can wait until the turn back has finished and
+appear in place instead of sliding across.
+
+**Acceptance:** a new per-frame watch (`-lafFaceWatch` with the AutoPilot) counts frames in which the visible bubble covers 10% or
+more of a face, over a whole `best` week at 1600×900: some before (to prove it sees them), 0 after; the text audit's covered
+faces 0 at 1600×900, 1024×768 and 960×1080.
+**Verify:** AutoPilot logs before and after.
+
+### R11-C. Monday's first claim with real input
+The drag to turn an object, the scroll wheel, right click, the keys and hovering have only ever been driven by virtual devices
+queued inside the game. A new mode has the game play Monday's first claim by asking the driver for real input (pointer moves,
+button presses, the wheel, key presses through KWin's fake keyboard) and checking each step did what it should.
+
+**Acceptance:** PASS, with every step's result logged (the bell, a drawer, the wallet picked up, turned by a drag, looked at
+closer with the wheel, a detail clicked, the tray, a stamp, Tab, `H`, `Esc`), in the headless KWin; anything that fails is
+reported and fixed or written up.
+**Verify:** the run's log and screenshots.
+
+### R11-D. Stretch: the speech bubble fits its words
+A two-line answer sits in a bubble sized for five (230 units high whatever it says), so much of the bubble is blank paper over
+the window and the people behind it. Size it to the line it's saying (between a minimum and today's size).
+
+**Acceptance:** the bubble's height follows its text; 0 overflowing, 0 overlapping, 0 covered texts and 0 covered faces in `best`
+weeks at 1600×900, 1024×768 and 960×1080 and the `worst` week at 1600×900; screenshots before and after.
+**Verify:** text audit, screenshots.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
+audit, the nudge tour, the padtest, the taptest, the edge test, the pointer test and the soak, with the load average noted, and
+the real config folder compared with its state at the start of the round.
