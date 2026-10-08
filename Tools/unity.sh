@@ -60,6 +60,8 @@
 #                                  film whole days played through simulated mouse and keyboard, without the score,
 #                                  to Recordings/<name>/take.mp4 plus markers.tsv (e.g. -lafDay 2 -lafUntil 3;
 #                                  no -lafDay starts at the title). Tools/make_trailer.py cuts the trailer from these.
+#                                  LAF_SETTINGS='<settings.json>' starts from those settings; -lafShowcase also shows the menus,
+#                                  nudges, rules and ledger book (see DemoRecorder.Showcase.cs)
 #
 # On a Wayland session the player's X11 backend hangs waiting for XWayland to map the window,
 # so built players are launched with SDL's Wayland backend whenever WAYLAND_DISPLAY is set.
@@ -322,6 +324,9 @@ case "${1:-open}" in
                  -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart "$out/demo.mp4" ;;
   film)        name="${2:?usage: $0 film <name> [player args]}"; shift 2
                out="$PROJECT/Recordings/$name"; rm -rf "$out"; mkdir -p "$out"
+               # LAF_SETTINGS='<settings.json>' films with those settings (the trailer's takes: Graphics fidelity Ultra), as a player's own
+               cfg="$PROJECT/Logs/config/film-$name/unity3d/Nearby/Lost & Found"; rm -f "$cfg/settings.json" "$cfg/settings.json.bak"
+               if [ -n "${LAF_SETTINGS:-}" ]; then mkdir -p "$cfg"; printf '%s' "$LAF_SETTINGS" > "$cfg/settings.json"; fi
                player "film-$name" timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafDemo "$out" -lafPlay -lafNoMusic \
                  -lafSave "$out/save.json" -lafNoVsync -screen-width 1920 -screen-height 1080 -screen-fullscreen 0 \
                  -logFile "$out/player.log" "$@"

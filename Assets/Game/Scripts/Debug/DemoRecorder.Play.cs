@@ -31,6 +31,7 @@ namespace LostAndFound
             foreach (var kv in (Game.Arg("-lafVerdicts") ?? "").Split(',').Where(x => x.Contains('=')))
                 overrides[kv.Split('=')[0].Trim()] = kv.Split('=')[1].Trim();
             Director.I.autoAdvance = true;   // dialogue, notes and the ledger move on at a reading pace
+            showcase = Game.Arg("-lafShowcase") != null && realInput == null;   // the trailer's takes (DemoRecorder.Showcase.cs)
             StartCoroutine(Watchers());
             StartCoroutine(PlayDays());
         }
@@ -83,7 +84,8 @@ namespace LostAndFound
                 pos = new Vector2(Screen.width * 0.62f, Screen.height * 0.3f);
                 yield return Hold(4.5f);
                 var begin = TitleScreen.FirstButton;
-                if (begin != null)
+                if (showcase) yield return TitleShowcase();
+                else if (begin != null)
                 {
                     yield return Glide(() => RectTransformUtility.WorldToScreenPoint(null, begin.TransformPoint(begin.rect.center + new Vector2(-begin.rect.width * 0.4f, 0f))), 1.2f);
                     yield return Hold(0.8f);
@@ -104,6 +106,7 @@ namespace LostAndFound
                     yield return Until(() => UiPanel("Ending"), 60f);
                     yield return Until(() => UiPanel("Ending/Done"), 40f);
                     yield return Hold(2.5f);
+                    if (showcase) yield return WeekShowcase();
                     Mark("end");
                     yield return UIRoot.I.fader.FadeTo(1f, 1.2f);
                     yield return Finish();
@@ -120,6 +123,7 @@ namespace LostAndFound
                         yield return Finish();
                         yield break;
                     }
+                    if (showcase) yield return MorningShowcase(d);
                     yield return PlayCase(d, d.Upcoming);
                     continue;
                 }
@@ -143,6 +147,8 @@ namespace LostAndFound
             if (d.Current != c) { Mark($"vignette {c.id}"); yield return Until(() => d.CanRing || d.InEvening, 60f); yield break; }
             Mark($"investigate {c.id}");
             if (realInput != null && !keysChecked) yield return KeysCheck(d);
+            if (showcase && c.id == "1.2") yield return NudgeUntil(d, "drawer");
+            if (showcase && c.id == "4.2") yield return RulesShowcase();
 
             // the decision this case gets (the solver's, unless told otherwise)
             var dec = Rules.Solve(d.Db, d.Day, c, d.State);
@@ -268,6 +274,7 @@ namespace LostAndFound
                 yield return Hold(1.3f);
             }
 
+            if (showcase && c.id == "1.2") yield return NudgeUntil(Director.I, "glint");
             var dets = item.def.CaseDetails.ToList();
             if (secret) dets.AddRange(item.def.details.Where(x => x.kind == "secret"));
             // plain details first, then the ones that need Agnes's lamp
@@ -352,7 +359,7 @@ namespace LostAndFound
             var slip = ClaimSlip.I.transform;
             float x = c.claimants.Length > 1 ? (who == 0 ? -0.045f : 0.045f) : 0.02f;
             yield return Glide(() => ToScreen(slip.position + slip.rotation * new Vector3(x, 0f, 0.05f)), 0.7f);
-            yield return Hold(0.4f);
+            yield return Hold(showcase ? 1.3f : 0.4f);   // the hint says what the stamp will do
             yield return Click();
             yield return Until(() => !d.CanUseStamps || d.Current != c, 2.5f);
             if (d.CanUseStamps && d.Current == c)
