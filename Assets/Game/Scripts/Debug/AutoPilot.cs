@@ -118,6 +118,53 @@ namespace LostAndFound
             if (hit == 0) problems.Add("the ledger on the desk can't be pointed at");
         }
 
+        /// <summary>Hold the decided stamp over the slip with a virtual mouse, as a player would, and check the hint says what
+        /// it's about to do: its verdict and, for RETURN, what's on the tray and the claimant whose half of the slip it's over.
+        /// With two claimants the other half is visited first (a screenshot of each). The stamp then goes back to the rack and
+        /// the verdict is recorded as before.</summary>
+        IEnumerator CheckStampHint(Director d, CaseDef c, Decision dec, int who)
+        {
+            var stamp = Desk.I.props.stamps.FirstOrDefault(s => s.kind == dec.verdict);
+            if (stamp == null || StampTool.I == null || StampTool.I.Carrying != null) yield break;
+            var mouse = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Mouse>("StampHintMouse");
+            try
+            {
+                StampTool.I.Pick(stamp);
+                yield return new WaitForSeconds(0.9f);   // the camera leans in to the slip
+                var names = ClaimSlip.I.Claimants ?? new string[0];
+                var halves = names.Length > 1 ? new[] { 1 - who, who } : new[] { who };
+                string verb = dec.verdict == Verdict.Return ? "RETURN" : dec.verdict == Verdict.Seal ? "SEAL" : "REFUSE";
+                foreach (int h in halves)
+                {
+                    Vector3 at = ClaimSlip.I.transform.position + new Vector3(h == 1 ? 0.04f : -0.04f, 0.001f, -0.08f);
+                    for (int i = 0; i < 12; i++)
+                    {
+                        // the camera breathes: keep the pointer on the spot
+                        Vector3 sp = Camera.main.WorldToScreenPoint(at);
+                        mouse.MakeCurrent();
+                        UnityEngine.InputSystem.InputSystem.QueueStateEvent(mouse, new UnityEngine.InputSystem.LowLevel.MouseState { position = new Vector2(sp.x, sp.y) });
+                        yield return null;
+                    }
+                    string hint = StampTool.I.Hint ?? "";
+                    string expect = h < names.Length ? names[h] : "";
+                    bool ok = hint.StartsWith(verb + ":");
+                    if (dec.verdict == Verdict.Return)
+                        ok &= Desk.I.OnTray != null && hint.Contains(Nudges.The(Desk.I.OnTray.def)) && hint.Contains(" to " + expect)
+                              && (h != who || expect == (d.Db.Commuter(dec.to)?.name ?? dec.to));
+                    Debug.Log($"[StampHint] case {c.id}, {verb} over {(names.Length > 1 ? expect + "'s half" : "the slip")}: \"{hint}\" {(ok ? "ok" : "WRONG")}");
+                    if (!ok) problems.Add($"case {c.id}: the {verb} stamp's hint over {expect}'s half says \"{hint}\"");
+                    if (names.Length > 1) { yield return null; Shot($"case{c.id}_stamp_{verb.ToLowerInvariant()}_{h}"); }
+                }
+                StampTool.I.PutDown();
+                float until = Time.realtimeSinceStartup + 5f;
+                while (StampTool.I.Carrying != null && Time.realtimeSinceStartup < until) yield return null;
+            }
+            finally
+            {
+                if (mouse != null && mouse.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(mouse);
+            }
+        }
+
         void Shot(string name)
         {
             HitchLog.Note(name);
@@ -365,6 +412,7 @@ namespace LostAndFound
             var best = Rules.Best(c);
             string bestText = best == null ? "?" : best.verdict + (string.IsNullOrEmpty(best.to) ? "" : "->" + best.to);
             if (!d.CanStamp(dec.verdict, who, out string why)) { problems.Add($"case {c.id}: can't stamp {dec}: {why}"); dec.verdict = Verdict.Refuse; }
+            else yield return CheckStampHint(d, c, dec, who);
             ClaimSlip.I.AddImprint(dec.verdict, ClaimSlip.I.transform.position + new Vector3(who == 1 ? 0.04f : -0.02f, 0.001f, -0.08f), Random.Range(-12f, 12f));
             Debug.Log($"[Auto] day {d.Day} case {c.id}: {dec} (authored best {bestText})");
             yield return new WaitForSeconds(0.4f * (slow - 1f));

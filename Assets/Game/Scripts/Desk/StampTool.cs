@@ -26,6 +26,9 @@ namespace LostAndFound
     {
         public static StampTool I { get; private set; }
         public Stamp Carrying { get; private set; }
+        /// <summary>What the hint says while a stamp is held: over the slip, what it will do there (StampPreview). The
+        /// AutoPilot checks it names what the stamp then does.</summary>
+        public string Hint { get; private set; }
         public Camera cam;
         bool busy;
         int pickFrame = -1;
@@ -55,7 +58,8 @@ namespace LostAndFound
                 shadow.gameObject.AddComponent<MeshRenderer>().sharedMaterial = mat;
             }
             shadow.gameObject.SetActive(true);
-            UIRoot.I?.hint.Set("Click on the slip to stamp it   ·   Right click to put the stamp back");
+            Hint = StampPreview.Hint(null, false, GamepadInput.Active);
+            UIRoot.I?.hint.Set(Hint);
         }
 
         void Update()
@@ -78,6 +82,9 @@ namespace LostAndFound
             tr.position = lastPos;
             tr.rotation = Quaternion.Euler(Mathf.Clamp(tiltVel.z * 18f, -18f, 18f), 0f, Mathf.Clamp(-tiltVel.x * 18f, -18f, 18f));
             bool over = ClaimSlip.I.Contains(hit, 0.0f);
+            // say what it will do here before it comes down (it can't be taken back)
+            Hint = Describe(Carrying.kind, over, over ? ClaimSlip.I.ClaimantAt(hit) : 0);
+            UIRoot.I?.hint.Set(Hint);
             shadow.position = new Vector3(hit.x, 0.7645f, hit.z);
             shadow.gameObject.SetActive(over);
             CursorController.Want(CursorKind.Stamp);
@@ -96,6 +103,15 @@ namespace LostAndFound
             }
         }
 
+        static string Describe(Verdict kind, bool over, int who)
+        {
+            if (over && !Director.I.CanStamp(kind, who, out string why)) return why;
+            return StampPreview.Hint(over ? StampPreview.What(kind, Desk.I.OnTray?.def, ClaimSlip.I.Claimants, who) : null, over, GamepadInput.Active);
+        }
+
+        /// <summary>Put the stamp back in the rack without using it (the AutoPilot, having read its hint).</summary>
+        public void PutDown() { if (Carrying != null && !busy) StartCoroutine(PutBack()); }
+
         IEnumerator Refuse(string why)
         {
             busy = true;
@@ -111,6 +127,7 @@ namespace LostAndFound
         {
             busy = true;
             var s = Carrying;
+            Debug.Log($"[Stamp] {Hint}");
             var tr = s.transform;
             Vector3 up = new Vector3(hit.x, 0.83f, hit.z);
             Vector3 down = new Vector3(hit.x, 0.7652f + 0.002f, hit.z);
@@ -138,6 +155,7 @@ namespace LostAndFound
             yield return Tween.Arc(s.transform, s.rackPos, s.rackRot, 0.04f, 0.32f);
             AudioDirector.Play("stamp_rack", 0.5f, Random.Range(0.95f, 1.05f));
             Carrying = null;
+            Hint = null;
             busy = false;
             InteractionSystem.I.Blocked = false;
             CameraRig.I.allowTurn = true;

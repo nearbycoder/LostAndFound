@@ -260,6 +260,9 @@ namespace LostAndFound
         }
 
         /// <summary>Which claimant's half of the slip a point falls on (two-claimant cases split left/right).</summary>
+        /// <summary>The names on the slip, in its order (left half first).</summary>
+        public string[] Claimants => claimants;
+
         public int ClaimantAt(Vector3 world)
         {
             if (claimants.Length < 2) return 0;
