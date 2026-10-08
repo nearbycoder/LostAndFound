@@ -28,6 +28,8 @@ namespace LostAndFound
         Image tail;
         Vector2 target;
         bool tailLeft;
+        Commuter speaker;
+        float nextPlace;
 
         public static DialogueBox Create(RectTransform root)
         {
@@ -88,6 +90,7 @@ namespace LostAndFound
             float s = UiKit.TextScale;
             panel.localScale = Vector3.one * s;
             Vector2 size = panel.sizeDelta * s;
+            speaker = player ? null : who;
             if (player || who == null || Camera.main == null)
             {
                 target = new Vector2(70f, 470f);
@@ -95,6 +98,8 @@ namespace LostAndFound
                 return;
             }
             Vector3 sp = Camera.main.WorldToScreenPoint(who.HeadPosition);
+            // looking away (at the drawers, say): place it once the window is in view again (LateUpdate)
+            if (sp.z <= 0f || sp.x < 0f || sp.x > Screen.width) return;
             float k = w / Mathf.Max(1, Screen.width);
             Vector2 head = new Vector2(sp.x, sp.y) * k;
             tailLeft = head.x <= w * 0.55f;
@@ -259,6 +264,12 @@ namespace LostAndFound
 
         void LateUpdate()
         {
+            // follow the speaker: they may have started talking while you were turned away, or still be stepping up to the window
+            if (shown && speaker != null && Time.unscaledTime >= nextPlace && CameraRig.I != null && CameraRig.I.view == View.Counter)
+            {
+                nextPlace = Time.unscaledTime + 0.25f;
+                PlaceFor(speaker, false);
+            }
             if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
             // step aside while you read the slip or turn away to the drawers
             bool away = ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
