@@ -1177,3 +1177,67 @@ in the headless KWin, and every one printed the guard's "untouched". The real `~
 - Unchanged from round 8: fullscreen by default on small screens, choosing a keyboard layout or rebinding keys, re-cutting the
   trailer and teaser, hosting WebGL, curiosities across weeks, installing tools outside the repo, and the licence, releases and
   tags, signing, and Windows Build Support.
+
+## Round 10 scope (7 Oct 2026)
+
+Branch `improvements-10`, one commit per item. Screenshots and logs go in
+[`media/improvements/round10/`](media/improvements/round10/). Before choosing, I ran Monday's first claim in the round 9 build
+(`6aca5e3`) in the headless KWin at 1600×900, at 4:3 (1024×768) and at **960×1080, the shape a window takes when it's snapped to
+half of a 1080p screen**, and looked at each frame as a player would. The window is resizable, and round 8 made it fit small
+screens, but nothing yet looks after a window that's narrower than 16:9:
+- At 960×1080 the **speech bubble covers the claimant's face**, the wallet in your hands is cut off at the left, and the lamp
+  (Thursday's blue lamp), the ticket printer, the ledger book and the Iron Drawer's key are out of view. At 4:3 the lamp and the
+  book are half out. The camera keeps its height of view and loses the sides; only the slip's close-up already widens.
+- On Monday morning **Agnes's note opens on top of Gus's speech bubble**, at 16:9 too (at 1600×900 it covers the bubble's last
+  line). The text audit compares texts on the same card only, so it never saw it.
+- Separately, from the code: a stamp commits its verdict the moment it comes down, and the only way back is replaying the day.
+  Whether to add an undo is the owner's call, but **nothing says what a stamp will do before it lands**: the hint reads "Click on
+  the slip to stamp it" whatever you hold, and with two claimants it's the half of the slip you stamp that decides who gets it.
+
+### R10-A. A narrow window sees the whole desk
+- Below 16:9 the camera widens its view to keep the 16:9 view's width (as the slip's close-up already does), in every view: the
+  counter, the drawers, the shelf, leaning in, the photographs. At 16:9 and wider nothing changes. The rule is one pure function,
+  unit-tested.
+- The speech bubble never covers the speaker's face: where there isn't room for it beside the head, it narrows, and failing that
+  it sits above the head.
+
+**Acceptance:** at 1024×768 and 960×1080, counter-view frames show the lamp, printer, bell, stamps and slip whole, and the object
+in your hands whole; at 1600×900 and 2560×1080 the camera's field of view is the same as before. A new text-audit check (R10-B)
+reports 0 frames where the bubble covers the speaker's face. A full `best` week at 960×1080 and one at 1024×768 with the text
+audit: 24/24, 0 overflowing and 0 overlapping texts, and the ledger book reachable by the game's own picking.
+**Verify:** screenshots before and after at each shape, unit tests, AutoPilot logs.
+
+### R10-B. Agnes's notes never land on what's being said
+- When one of Agnes's notes opens, the speech bubble still showing the line before it goes away (her rules already do this).
+- The text audit gains two checks at every screenshot: a reading panel (speech bubble, Agnes's note, intake tag, nudge note, the
+  card beside the slip, the rules peek) drawn over the letters of another, and the speech bubble covering the face of the
+  person speaking.
+
+**Acceptance:** the audit reports Monday's note over Gus's bubble in the round 9 build (proving it can see it), and 0 such frames
+after, in the four AutoPilot policies at 1600×900 and at 1024×768 and 960×1080.
+**Verify:** AutoPilot logs (`[TextAudit]` lines) before and after, screenshots.
+
+### R10-C. Know what a stamp will do before it lands
+- While you hold a stamp over the slip, the hint says what it will do there, in plain words: "RETURN: give the brown leather
+  wallet to Walter Bix", "REFUSE: send Walter Bix away with nothing", "SEAL: lock the brown leather wallet in the Iron Drawer". With
+  two claimants it names the one whose half you're over, and changes as you cross. If the stamp can't be used yet (nothing on the
+  tray), it says why before you click, not after. Off the slip it reads as now.
+- The wording is a pure function, unit-tested; it names only what's on the desk (the claimants, what's on the tray), never
+  whether the verdict is right.
+
+**Acceptance:** unit tests for every stamp with one and two claimants and with an empty tray. In the player, the AutoPilot logs
+the hint at the moment each stamp comes down, and it names the verdict and the claimant the Director then records, for every
+claim of the `best` and `worst` weeks; screenshots of a two-claimant claim with the stamp over each half.
+**Verify:** test results, AutoPilot logs, screenshots.
+
+### R10-D. Stretch: the WebGL build brought up to date
+The local WebGL build predates rounds 7–9. Rebuild it with this round's changes and play it in headless Chrome on the real GPU
+(the round 4 tooling): the smoke test and Monday through the AutoPilot, with the save surviving a reload. Only if the machine's
+load allows a 12-minute build; nothing is published or hosted.
+
+**Acceptance:** the build's size, frame rate and errors from `webgl_check.py`, and `[Auto]` lines from Chrome's console.
+**Verify:** the check's logs and screenshots.
+
+Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
+audit, the nudge tour, the padtest, the taptest, the edge test and the soak, with the load average noted, and the real config
+folder compared with its state at the start of the round.
