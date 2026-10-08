@@ -392,6 +392,8 @@ namespace LostAndFound
             if (!State.Check(line.condition)) yield break;
             if (line.who == "agnes")
             {
+                // the line before it has been read: don't leave its bubble under the note (her rules do the same)
+                UIRoot.I.dialogue.Hide();
                 yield return UIRoot.I.note.Show(null, line.text);
                 yield break;
             }

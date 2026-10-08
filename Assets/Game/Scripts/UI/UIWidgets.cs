@@ -666,6 +666,7 @@ namespace LostAndFound
         RectTransform panel;
         CanvasGroup group;
         TextMeshProUGUI head, body, sign;
+        Image more;
         bool open, dismissed;
 
         public bool Open => open;
@@ -696,6 +697,10 @@ namespace LostAndFound
             n.sign = UiKit.Label(rt, "Sign", "— A.", Fonts.Script, 30f, new Color(0.13f, 0.15f, 0.32f), TextAlignmentOptions.BottomRight);
             n.sign.rectTransform.Fill();
             n.sign.margin = new Vector4(40f, 0f, 48f, 30f);
+            // the speech bubble's quill: it waits for a click
+            n.more = UiKit.Image(rt, "More", "quill", UiKit.Oxblood);
+            n.more.rectTransform.Anchor(Vector2.zero, Vector2.zero, Vector2.zero).Place(new Vector2(40f, 26f), new Vector2(34f, 34f));
+            n.more.enabled = false;
             return n;
         }
 
@@ -715,14 +720,17 @@ namespace LostAndFound
                 panel.anchoredPosition = new Vector2(-40f + 420f * (1 - k), 40f);
             }, Ease.OutBack);
             float t = 0f;
+            more.enabled = true;
             while (!dismissed)
             {
                 t += Time.deltaTime;
+                more.rectTransform.anchoredPosition = new Vector2(40f, 26f + Mathf.Abs(Mathf.Sin(t * 4f)) * 6f);
                 bool click = InputX.LeftDown || InputX.KeyDown(Key.Space) || InputX.KeyDown(Key.Enter);
                 if (click && t > 0.35f && !UIRoot.ModalOpen) dismissed = true;
                 if (Director.AutoAdvance && t > (Director.Cinematic ? 4.5f : 0.9f)) dismissed = true;
                 yield return null;
             }
+            more.enabled = false;
             AudioDirector.Play("paper_fold", 0.5f);
             yield return Tween.Run(0.3f, k =>
             {
