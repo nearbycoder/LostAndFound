@@ -52,6 +52,7 @@ namespace LostAndFound.EditorTools
             trans.SetShaderPassEnabled("ShadowCaster", false);
             EditorUtility.SetDirty(trans);
 
+            EnsureParticleMaterial();
             ConfigureUrp();
             EnsureScene();
 
@@ -72,6 +73,28 @@ namespace LostAndFound.EditorTools
             PlayerSettings.SetGraphicsAPIs(BuildTarget.StandaloneLinux64, new[] { UnityEngine.Rendering.GraphicsDeviceType.Vulkan, UnityEngine.Rendering.GraphicsDeviceType.OpenGLCore });
             AssetDatabase.SaveAssets();
             Debug.Log("[ProjectSetup] applied");
+        }
+
+        /// <summary>M_Dust: URP's unlit particle shader, blended additively, for the dust in the lamp's light (BoothAmbience).
+        /// Kept in Resources so the shader and this variant ship. Also run alone with -executeMethod ...EnsureParticleMaterial.</summary>
+        public static void EnsureParticleMaterial()
+        {
+            Directory.CreateDirectory(MatDir);
+            var m = Ensure("M_Dust", Shader.Find("Universal Render Pipeline/Particles/Unlit"));
+            m.SetFloat("_Surface", 1f);
+            m.SetFloat("_Blend", 2f);   // additive
+            m.SetFloat("_SrcBlend", (float)BlendMode.SrcAlpha);
+            m.SetFloat("_DstBlend", (float)BlendMode.One);
+            m.SetFloat("_SrcBlendAlpha", (float)BlendMode.One);
+            m.SetFloat("_DstBlendAlpha", (float)BlendMode.One);
+            m.SetFloat("_ZWrite", 0f);
+            m.SetOverrideTag("RenderType", "Transparent");
+            m.renderQueue = (int)RenderQueue.Transparent;
+            m.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+            m.SetColor("_BaseColor", Color.white);
+            EditorUtility.SetDirty(m);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[ProjectSetup] particle material ready");
         }
 
         static Material Ensure(string name, Shader shader)

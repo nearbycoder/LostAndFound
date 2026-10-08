@@ -157,6 +157,7 @@ namespace LostAndFound
             stamps.cam = Cam;
             var wfx = gameObject.AddComponent<WindowFX>();
             wfx.Init(desk.booth);
+            gameObject.AddComponent<BoothAmbience>().Init(desk);
             gameObject.AddComponent<Director>();
             if (Arg("-lafAutopilot") != null) gameObject.AddComponent<AutoPilot>();
             if (Arg("-lafSmoke") != null) gameObject.AddComponent<SmokeTest>();
