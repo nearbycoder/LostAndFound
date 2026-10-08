@@ -31,7 +31,8 @@ namespace LostAndFound
         /// <summary>-lafTranscript: ask about every finding, then read the slip and check "What they said" beside it holds
         /// every line of the claim, on screen and clear of the slip.</summary>
         bool transcript;
-        /// <summary>-lafTextAudit: check every text on screen against its box at each screenshot (TextAudit).</summary>
+        /// <summary>-lafTextAudit: check every text on screen against its box at each screenshot (TextAudit). -lafFaceWatch:
+        /// check the speech bubble against the faces at the window every frame (FaceWatch).</summary>
         bool textAudit;
         int tourNudges, tourGlints, tourParts;
         /// <summary>-lafWeeks N: play N weeks back to back in one process. After each week the ending hands back to the title,
@@ -52,6 +53,7 @@ namespace LostAndFound
             tour = Game.Arg("-lafNudgeTour") != null;
             transcript = Game.Arg("-lafTranscript") != null;
             textAudit = Game.Arg("-lafTextAudit") != null;
+            if (Game.Arg("-lafFaceWatch") != null) FaceWatch.Ensure();
             if (tour)
             {
                 var rng = new System.Random(9);
@@ -168,6 +170,7 @@ namespace LostAndFound
         void Shot(string name)
         {
             HitchLog.Note(name);
+            FaceWatch.Context = name;
             if (Game.Arg("-lafNoShots") != null) return;   // measuring frame times: a capture stalls a frame itself
             if (textAudit) TextAudit.Check(name);
             string path = Path.Combine(dir, $"{shots++:000}_{name}.png");
@@ -250,6 +253,7 @@ namespace LostAndFound
             Debug.Log($"[Auto] week done: {cases} cases, {best} best, {skipped} skipped, ending {d.Save.ending}, {problems.Count} problems, {Time.realtimeSinceStartup - t0:0}s");
             if (transcript) Debug.Log($"[Transcript] checked {transcriptChecks} claims");
             if (textAudit) TextAudit.Summary();
+            if (Game.Arg("-lafFaceWatch") != null) FaceWatch.Summary();
             if (tour) Debug.Log($"[Tour] {tourNudges} nudges asked for; {tourGlints} details found by clicking the glint, {tourParts} by working the part that lit up");
             var all = d.State.records.Where(r => r.grade != "skip").ToList();
             Debug.Log($"[Auto] the week's record (this run and any before it): {all.Count(r => r.grade == "best")} best of {all.Count} decided");

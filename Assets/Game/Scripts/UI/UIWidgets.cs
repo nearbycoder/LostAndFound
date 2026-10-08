@@ -152,8 +152,15 @@ namespace LostAndFound
             tail.rectTransform.localScale = new Vector3(tailLeft ? 1f : -1f, 1f, 1f);
         }
 
+        /// <summary>Further than this (canvas units, about a head's width at 1080p) the bubble doesn't slide to its new place but
+        /// vanishes and reappears there.</summary>
+        const float JumpDistance = 120f;
+
         /// <summary>The narrowest the bubble gets beside a head before it moves above it instead.</summary>
         const float MinWidth = 420f;
+
+        /// <summary>Times the bubble, showing, vanished to move: for a swing of the view, and for a jump in its place (FaceWatch).</summary>
+        public static int HiddenForSwing, HiddenForJump;
 
         /// <summary>Lines said since start-up (the AutoPilot checks each claim's are all in the transcript).</summary>
         public static int SaidCount { get; private set; }
@@ -264,14 +271,30 @@ namespace LostAndFound
         /// <summary>What the box is saying (the AutoPilot waits for particular lines).</summary>
 
         public string Text => body != null ? body.text : "";
+        /// <summary>Where the bubble is and where it's heading, its alpha and whose line it is (FaceWatch logs these).</summary>
+        public string State => $"at {panel.anchoredPosition} heading for {target}, alpha {group.alpha:0.00}, {(speaker != null && speaker.def != null ? speaker.def.name : "no speaker")}, typing {Typing}, waiting {Waiting}";
 
         void LateUpdate()
         {
             // follow the speaker: they may have started talking while you were turned away, or still be stepping up to the window
             if (shown && speaker != null && CameraRig.I != null && CameraRig.I.view == View.Counter) PlaceFor(speaker, false);
-            if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
+            // The bubble never slides across a face. While the view swings round (a turn to or from the drawers, the look
+            // down at the slip and up again), or when its place jumps (to the other side of a head as a claimant steps up),
+            // it vanishes at once and moves while hidden, then fades in where it belongs; small moves, following a head, it
+            // eases. (A per-frame watch, -lafFaceWatch, found it sliding over a face at the start of most claims.)
+            bool swinging = CameraRig.I != null && CameraRig.I.Swinging;
+            bool jump = (panel.anchoredPosition - target).sqrMagnitude > JumpDistance * JumpDistance;
+            if (shown && (swinging || jump))
+            {
+                if (group.alpha > 0.05f) { if (swinging) HiddenForSwing++; else HiddenForJump++; }
+                panel.anchoredPosition = target;
+                group.alpha = 0f;
+            }
+            else if (shown && group.alpha < 0.02f) panel.anchoredPosition = target;
+            else if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
             // step aside while you read the slip or turn away to the drawers
-            bool away = ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
+            bool away = swinging
+                        || ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
                         || (CameraRig.I != null && CameraRig.I.view != View.Counter && !Waiting)
                         || (UIRoot.I != null && UIRoot.I.rulesPeek.On && UiKit.WorldRect(panel).Overlaps(UiKit.WorldRect((RectTransform)UIRoot.I.rulesPeek.transform)));
             if (shown) group.alpha = Mathf.MoveTowards(group.alpha, away ? 0f : 1f, Time.unscaledDeltaTime * 5f);

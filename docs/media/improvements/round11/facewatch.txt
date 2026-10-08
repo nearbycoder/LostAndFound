@@ -1,0 +1,61 @@
+# -lafFaceWatch: the speech bubble checked against every face at the window at the end of every frame
+# (AutoPilot, best week, speed 4). A frame counts when the visible bubble covers 10% or more of the box round a head.
+
+## Before R11-B (build of 6b2dec4 plus the watch, 1600x900, load 25-36)
+[FaceWatch] after case1.2_window: the speech bubble over the face of Clementine Rook for 6 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case1.3_window: the speech bubble over the face of Reggie Stokes for 6 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case1.4_window: the speech bubble over the face of Mrs Odile Marsh for 5 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after day2_book_from_pause: the speech bubble over the face of Constable Bramble for 9 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case2.1_inspect: the speech bubble over the face of Constable Bramble for 1 frame(s), at most 95 % of it (view now Cabinet)
+[FaceWatch] after case2.2_window: the speech bubble over the face of Rosalind Fairweather for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case2.3_window: the speech bubble over the face of Hugo Haversham for 9 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case2.4_window: the speech bubble over the face of Mr Vell for 12 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case2.5_window: the speech bubble over the face of Pip Okafor for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after day3_book_day1: the speech bubble over the face of Dora Finch for 12 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case3.1_inspect: the speech bubble over the face of Dora Finch for 1 frame(s), at most 97 % of it (view now Cabinet)
+[FaceWatch] after case3.2_window: the speech bubble over the face of Harriet Lowe for 15 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case3.2_inspect: the speech bubble over the face of Harriet Lowe for 1 frame(s), at most 100 % of it (view now Cabinet)
+[FaceWatch] after case3.3_window: the speech bubble over the face of Victor Crane for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case3.5_window: the speech bubble over the face of Lt. Arthur Penhallow for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case3.5_inspect: the speech bubble over the face of Lt. Arthur Penhallow for 1 frame(s), at most 100 % of it (view now Cabinet)
+[FaceWatch] after day4_book_day1: the speech bubble over the face of Big Sid Mulroney for 10 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case4.2_window: the speech bubble over the face of Mr Vell for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case4.2_inspect: the speech bubble over the face of Mr Vell for 1 frame(s), at most 66 % of it (view now Cabinet)
+[FaceWatch] after case4.3_window: the speech bubble over the face of Lou Delacroix for 10 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case4.4_window: the speech bubble over the face of Edie Larkspur for 2 frame(s), at most 73 % of it (view now Counter)
+[FaceWatch] after case4.5_window: the speech bubble over the face of Thomas Hale for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after day5_rules_open: the speech bubble over the face of Mr Ezra Plum for 10 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case5.1_inspect: the speech bubble over the face of Mr Ezra Plum for 1 frame(s), at most 100 % of it (view now Cabinet)
+[FaceWatch] after case5.2_window: the speech bubble over the face of Prof. Ambrose Lark for 8 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case5.3_window: the speech bubble over the face of Pip Okafor for 11 frame(s), at most 100 % of it (view now Counter)
+[FaceWatch] after case5.3_inspect: the speech bubble over the face of Pip Okafor for 1 frame(s), at most 100 % of it (view now Cabinet)
+[FaceWatch] after case5.4a_window: the speech bubble over the face of Thomas for 1 frame(s), at most 25 % of it (view now Counter)
+[FaceWatch] after case5.4a_inspect: the speech bubble over the face of Thomas for 1 frame(s), at most 36 % of it (view now Cabinet)
+[FaceWatch] after case5.5_window: the speech bubble over the face of Mr Vell for 9 frame(s), at most 100 % of it (view now Counter)
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 223s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 209 of 14791 frames with the speech bubble over a face, in 30 spell(s)
+
+## After R11-B, 1600x900
+[Window] desktop 2560x1440, window 1600x900 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 221s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 15492 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 48 time(s) as the view swung and 1 for a jump in its place
+[Auto] PASS
+
+## After R11-B, 1024x768
+[Window] desktop 2560x1440, window 1024x768 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 217s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 18854 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 43 time(s) as the view swung and 4 for a jump in its place
+[Auto] PASS
+
+## After R11-B, 960x1080
+[Window] desktop 2560x1440, window 960x1080 (size given on the command line): fits
+[Auto] week done: 24 cases, 24 best, 0 skipped, ending nine40, 0 problems, 217s
+[TextAudit] 114 screenshots checked: 0 overflowing texts (0 distinct), 0 distinct texts autosized below 60%, 0 texts running into another (0 distinct pairs), 0 texts covered by another reading panel (0 distinct), 0 faces covered by the speech bubble
+[FaceWatch] 0 of 18424 frames with the speech bubble over a face, in 0 spell(s); 148 lines said; the bubble vanished to move 42 time(s) as the view swung and 11 for a jump in its place
+[Auto] PASS
+
+# Loads: 1600x900 21-14, 1024x768 19-22, 960x1080 20-19. Two earlier 'after' runs passed '-screen-width "1024 768"' as one
+# argument (my loop) and ran at 1024x900 and 960x900 instead; they were discarded and redone.

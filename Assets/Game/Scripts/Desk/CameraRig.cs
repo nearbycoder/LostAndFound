@@ -100,6 +100,13 @@ namespace LostAndFound
         }
         public bool HasFocus => hasFocus;
 
+        /// <summary>Degrees a second the view is turning (screen shake left out). The head-look follows the pointer at under
+        /// 30°/s; a turn to the drawers, or the look down at the slip and back, sweeps far faster.</summary>
+        public float AngularSpeed { get; private set; }
+        /// <summary>The view is swinging round: the speech bubble waits, hidden, until it settles (DialogueBox).</summary>
+        public bool Swinging => AngularSpeed > 40f;
+        Quaternion lastRot = Quaternion.identity;
+
         public void Shake(float amount) => shake = Mathf.Max(shake, amount);
 
         void Update()
@@ -145,6 +152,9 @@ namespace LostAndFound
                 targetFov = Mathf.Lerp(baseFov, focusFov, k);
             }
             fov = MathX.Damp(fov, targetFov, 6f, dt);
+            // how fast the view is swinging (a turn, leaning in or out, looking down at the slip), before any shake
+            AngularSpeed = dt > 0f ? Quaternion.Angle(lastRot, rot) / dt : 0f;
+            lastRot = rot;
 
             if (shake > 0.0001f)
             {

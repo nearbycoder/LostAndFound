@@ -99,6 +99,16 @@ namespace LostAndFound
         /// <summary>The speech bubble over the face of someone at the window: their head, as seen, overlapped by the bubble's paper.</summary>
         static void CheckFaces(string shot)
         {
+            CoveredFaces((who, share) =>
+            {
+                Faces++;
+                if (seenFace.Add(who + shot)) Debug.Log($"[TextAudit] {shot}: the speech bubble covers the face of {who} ({share:P0} of it)");
+            });
+        }
+
+        /// <summary>Each face at the window that the speech bubble, as drawn now, covers 10% or more of (the box round the head).</summary>
+        public static void CoveredFaces(System.Action<string, float> found)
+        {
             var cam = Camera.main;
             if (cam == null || !PanelRect("Dialogue", out _, out var bubble)) return;
             foreach (var c in Object.FindObjectsByType<Commuter>())
@@ -113,9 +123,7 @@ namespace LostAndFound
                 if (ix <= 0f || iy <= 0f) continue;
                 float share = ix * iy / (face.width * face.height);
                 if (share < 0.1f) continue;   // the bubble's rounded corner grazing a hat brim isn't a covered face
-                Faces++;
-                string who = c.def != null ? c.def.name : c.name;
-                if (seenFace.Add(who + shot)) Debug.Log($"[TextAudit] {shot}: the speech bubble covers the face of {who} ({share:P0} of it)");
+                found(c.def != null ? c.def.name : c.name, share);
             }
         }
 
