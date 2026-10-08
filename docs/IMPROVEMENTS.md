@@ -1241,3 +1241,63 @@ load allows a 12-minute build; nothing is published or hosted.
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
 audit, the nudge tour, the padtest, the taptest, the edge test and the soak, with the load average noted, and the real config
 folder compared with its state at the start of the round.
+
+## Round 10 results (7 Oct 2026)
+
+All three planned items and the WebGL stretch landed on `improvements-10`, with the text audit's new checks first (to measure the round 9 build) and
+two follow-ups to the bubble found by the final runs. Screenshots and logs are in
+[`media/improvements/round10/`](media/improvements/round10/). Load average 13–35 from the other sessions on the machine, noted
+with each run.
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **Text audit: panels over panels, the bubble over a face** (built first) | At every AutoPilot screenshot, a reading panel (speech bubble, Agnes's note, intake tag, nudge note, the card beside the slip, the rules peek) drawn over another's letters is logged as "covers", and the speech bubble over the face of anyone at the window (a 22 cm box round their head, 10% or more of it) as "covers the face of". | On the round 9 behaviour (build `dd64f50`, Monday, `best`): at 1600×900, **Agnes's note over 6 of Gus's 90 letters**; at 960×1080, **the bubble over a face (the claimant's, or Gus's) in 13 of 14 screenshots (76–78%)** and over 21 letters of the rules peek. 1024×768 showed neither, though the note covered the bubble's paper there. `textaudit_before_after.txt`. |
+| **R10-A. A narrow window sees the whole desk** | Below 16:9 the camera kept its height of view and lost the sides. Every view the game asks for (counter, drawers, shelf, leaning in, the slip, the photographs) is now framed at 16:9 and widened to keep that width (`CameraRig.FovFor`; the slip's close-up already did this and now uses it). At 16:9 and wider nothing changes. The bubble narrows (and grows taller) to fit beside the head, switches sides only if it can't, and sits above the head as a last resort; it steps aside where it would cover the open rules peek. **Follow-ups found by the final runs:** a line begun while the desk was turned to the drawers kept the bubble where that view had put it, over Mr Vell's face when you turned back; the bubble now follows its speaker every frame while the window is in view (a first try at four times a second still trailed after a turn at the AutoPilot's 4× speed, and the audit caught it in 50 screenshots across the six weeks). | 12 new unit tests (16:9 and wider unchanged; 4:3, 5:4, 16:10 and half-screen shapes keep the 16:9 width; the slip's framing as before). Screenshots before and after at 960×1080 and 1024×768 (`window_*_before_after.jpg`): the lamp, printer, bell, key, ledger book and the wallet in your hands are whole. The game's own picking reaches the ledger book from 50 of 91 points over it at 1024×768 and 56 of 147 at 960×1080 (28 of 49 at 1600×900, unchanged). Whole `best` weeks at 960×1080 and 1024×768 with the text audit: 24/24 *The 9:40*, **0 overflowing, 0 overlapping, 0 covered texts and 0 covered faces** in 114 screenshots each. |
+| **R10-B. Agnes's notes never land on what's being said** | Her notes (Monday morning's, and any written mid-claim) opened over the speech bubble still showing the line before; now the bubble goes first, as it already did for her rules. The note also carries the bubble's bobbing quill, so it shows it's waiting for a click. | Monday at 1600×900: the audit's "Note covers … Gus" line gone (`note_over_bubble_1600x900_before_after.jpg`). 0 covered texts in all six final weeks. |
+| **R10-C. Know what a stamp will do before it lands** | While a stamp is held over the slip, the hint says what it will do there: "RETURN: give the silver locket to Cecily Fairweather", "REFUSE: send Reggie Stokes away with nothing", "SEAL: lock the silver pocket watch in the Iron Drawer". With two claimants it follows the half of the slip under the stamp. With nothing on the tray it gives the reason before the click. Gamepad wording ("A to stamp") when the pad is in use. Each stamp is logged as `[Stamp]` in the player log, for bug reports. | 7 new unit tests (`StampPreview`: each stamp, one and two claimants, an empty tray, proper names, every case of the week reading cleanly). The AutoPilot now holds each decided stamp over the slip with a virtual mouse before every verdict and checks the hint (`[StampHint]`): **27 of 27 right** in the `best`, `wait` and `refuse` weeks and 22 of 22 in `worst` (each two-claimant case checks both halves), 0 wrong. Through the real input path, padtest and taptest each logged `[Stamp] RETURN: give the brown leather wallet to Walter Bix · A to stamp`. `stamp_hint_two_claimants_2.2.jpg`, `stamp_hints.txt`. |
+| **R10-D. Stretch: the WebGL build brought up to date** | Rebuilt at `133561c` with rounds 7–10 in it: **65 MB** (data 61.0 MB, wasm 7.3 MB, Brotli), 11 min 37 s to build, load average 17–22. As before, the build rewrote `Mobile_RPAsset.asset` and left `Data/` at the project root; both were reverted and removed. Not hosted. | Headless Chrome on the Radeon (ANGLE, confirmed by the renderer string), 1600×900: the title names the build (`[Build] … 133561c, WebGLPlayer`); smoke run **43–52 fps** at load 20–22 (round 6 measured 60 at load 8). AutoPilot quit after 1.2, Chrome closed and reopened on the same profile: *Continue* resumed ("resuming after 2 case(s)"), Monday finished and Tuesday's first claim was decided; every `[StampHint]` line in the browser was right. IndexedDB held the save and its backup. Console in all three runs: only round 4's known FSR shader warning. `webgl_logs/`. |
+
+### Final checks (final Linux build at `3ec12f1`, load average 14–31)
+Linux build and validator: 28 objects, 5 days, 25 cases, **0 issues**. **111/111 unit tests** (92 before). Audit: PASS, 84/84
+details, 0 below 10%. AutoPilot with the text audit at 1600×900: `best` 24/24 *The 9:40*; `worst` *Grey Ninefold*; `wait` *The
+Long Wait* (23/24); `refuse` (6/24); and `best` 24/24 at 960×1080 and at 1024×768. **0 overflowing, 0 overlapping and 0 covered
+texts** in every run, and **0 covered faces** in all but one screenshot: in `best` at 1600×900 the bubble's corner was over 17% of
+the box round Hugo Haversham's head as it eased into place after a turn back from the drawers (his face is in full view in that
+screenshot, `030_case2.3_inspect`). Every `[StampHint]` right (27, 22, 27, 27, 27, 27). Nudge tour: 210 nudges, 24/24, 21 details
+at the glint and 2 by the part that lit up. Soak, 30 cycles: PASS, live objects flat over the last 10 (materials 681, textures
+203, GameObjects 548). Edge test PASS (7 holds). Padtest PASS and taptest 14 of 14, started at load 17 and 18. Every player run
+in the headless KWin, and every one printed the guard's "untouched". The real `~/.config/unity3d/Nearby/Lost & Found/` was
+**identical (sizes, timestamps, hashes) at the end of the round and at its start**, and no `laf.` key appeared in
+`unknown/unknown/prefs`. Logs: `textaudit_before_after.txt`, `stamp_hints.txt`, and under `Logs/r10/` locally.
+
+### Found along the way
+- **Two follow-ups to R10-A, from the final runs themselves.** The first full-week pass at 960×1080 found the bubble over Mr Vell's
+  face three times and Big Sid's once (placed while the desk was turned to the drawers). Re-placing it four times a second fixed
+  those but made it trail after every turn at 4× speed: the second pass found 50 such screenshots across the six weeks, at every
+  window size. Placing it every frame brought that to the one near-miss above. Each pass is kept under `Logs/r10/first_pass` and
+  `second_pass`.
+- **At 4:3 a narrowed bubble first switched to the left side**, where the intake tag opens, and covered four of its letters. It now
+  switches sides only if it can't fit at all.
+- The new audit also saw **the bubble over the rules peek** at 960×1080 (21 letters); the bubble now steps aside while the peek
+  is open over it. A turn arrow's label under the rules peek was reported too, and is left out: only reading panels are compared.
+
+### Not done, and why
+- **The desk is smaller in a narrow window.** Keeping the 16:9 width at 960×1080 draws everything at about 60% of its size in a
+  1600×900 window, with more ceiling and floor. Nothing is cut off and the text audit is clean, but a 16:9 window or fullscreen
+  shows it best; the README says so.
+- **The bubble can graze a face for a moment** while it eases into place after a turn (above). Snapping it instead of easing would
+  remove that and add a jump; I left the easing.
+- As round 9 left them: a real pointer leaving the window by its side (no pointer tool), the ledger book's place on the desk at
+  16:9, the brightness range on a dim panel, and no human playtest (now including the stamp's hint wording).
+
+### Still open after round 10
+- No human has played any of it.
+- WebGL in other browsers and hosting, real input hardware, macOS on a Mac, Windows, keyboard layouts other than US: as before.
+
+### Needs a decision from the owner
+- Whether the stamp's hint is enough, or a last-stamp undo is still wanted (round 9's question; the hint now says what will
+  happen before it does).
+- Unchanged from round 9: the version number, the ledger book's place on the desk, fullscreen by default on small screens, choosing
+  a keyboard layout or rebinding keys, re-cutting the trailer and teaser (which don't show these changes), hosting WebGL,
+  curiosities across weeks, installing tools outside the repo, and the licence, releases and tags, signing, and Windows Build
+  Support.

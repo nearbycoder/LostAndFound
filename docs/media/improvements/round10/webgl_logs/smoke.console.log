@@ -1,0 +1,290 @@
+    2.9 log     [UnityMemory] Configuration Parameters - Can be set up in boot.config
+
+    3.0 log         "memorysetup-bucket-allocator-granularity=16"
+
+    3.0 log         "memorysetup-bucket-allocator-bucket-count=8"
+
+    3.0 log         "memorysetup-bucket-allocator-block-size=4194304"
+
+    3.0 log         "memorysetup-bucket-allocator-block-count=1"
+
+    3.0 log         "memorysetup-main-allocator-block-size=16777216"
+
+    3.0 log         "memorysetup-thread-allocator-block-size=16777216"
+
+    3.0 log         "memorysetup-main-allocator-mimalloc-enabled=1"
+
+    3.0 log         "memorysetup-gfx-main-allocator-block-size=16777216"
+
+    3.0 log         "memorysetup-gfx-thread-allocator-block-size=16777216"
+
+    3.0 log         "memorysetup-cache-allocator-block-size=4194304"
+
+    3.0 log         "memorysetup-typetree-allocator-block-size=2097152"
+
+    3.0 log         "memorysetup-profiler-bucket-allocator-granularity=16"
+
+    3.0 log         "memorysetup-profiler-bucket-allocator-bucket-count=8"
+
+    3.0 log         "memorysetup-profiler-bucket-allocator-block-size=4194304"
+
+    3.0 log         "memorysetup-profiler-bucket-allocator-block-count=1"
+
+    3.0 log         "memorysetup-profiler-allocator-block-size=16777216"
+
+    3.0 log         "memorysetup-profiler-editor-allocator-block-size=1048576"
+
+    3.0 log         "memorysetup-temp-allocator-size-main=4194304"
+
+    3.0 log         "memorysetup-job-temp-allocator-block-size=2097152"
+
+    3.0 log         "memorysetup-job-temp-allocator-block-size-background=1048576"
+
+    3.0 log         "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+
+    3.0 log         "memorysetup-temp-allocator-size-background-worker=32768"
+
+    3.0 log         "memorysetup-allocator-temp-initial-block-size-main=262144"
+
+    3.0 log         "memorysetup-allocator-temp-initial-block-size-worker=262144"
+
+    3.0 log         "memorysetup-temp-allocator-size-audio-worker=65536"
+
+    3.0 log         "memorysetup-remapper-allocator-initial-capacity=32768"
+
+    3.0 log     CodeReloadManager initialized
+
+    3.1 log     Input System module state changed to: Initialized.
+
+    3.1 log     [Physics::Module] Initialized fallback backend.
+
+    3.1 log     [Physics::Module] Id: 0xdecafbad
+
+    3.1 log     Loading player data from data.unity3d
+
+    3.1 log     Initialize engine version: 6000.6.2f1 (770e33f6875c)
+
+    3.1 log     [EntityIdStore] init: page-table path, blockCount=1048576, entitiesPerBlock=256, top-level=8388608 bytes, sizeof(Block)=4128 (lazily allocated per committed block)
+
+    3.1 log     Creating WebGL 2.0 context.
+    3.1 log     Renderer: WebKit WebGL
+
+    3.2 log     Vendor:   WebKit
+
+    3.2 log     Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+
+    3.2 log     GLES:     3
+
+    3.2 log      EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_norm16 KHR_parallel_shader_compile NV_shader_noperspective_interpolation OES_texture_float_linear WEBGL_blend_func_extended WEBGL_clip_cull_distance WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_compression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_norm16 GL_KHR_parallel_shader_compile G
+
+    3.2 log     L_NV_shader_noperspective_interpolation GL_OES_texture_float_linear GL_WEBGL_blend_func_extended GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_astc GL_WEBGL_compressed_texture_etc GL_WEBGL_compressed_texture_etc1 GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw
+
+    3.2 log     OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+
+    3.2 log     [Physics::Module] Selected backend.
+
+    3.3 log     [Physics::Module] Name: PhysX
+
+    3.3 log     [Physics::Module] Id: 0xf2b8ea05
+
+    3.3 log     [Physics::Module] SDK Version: 4.1.2
+
+    3.3 log     [Physics::Module] Integration Version: 1.0.0
+
+    3.3 log     [Physics::Module] Threading Mode: Single-Threaded
+
+    3.3 log     Input System initialize...
+
+    3.4 log     UnloadTime: 3.299999 ms
+
+    3.4 log     [Keys] printed on: A='A' D='D' Q='Q' E='E' W='W' S='S' Z='Z' H='H' R='R' L='L' T='T' M='M' (layout '')
+
+    3.6 log     [Fonts] plain lettering off
+
+    3.8 log     Audio context resumed after 0.622 seconds.
+[webgl] WebGL renderer: ANGLE (AMD, AMD Radeon 8060S Graphics (radeonsi strix_halo ACO), OpenGL ES 3.2)
+    3.9 log     [Build] Lost & Found v0.1.0  ·  133561c, Unity 6000.6.2f1, WebGLPlayer
+
+    4.0 log     [Save] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9/lostandfound_save.json
+
+    4.0 log     [Title] show (frame 1)
+
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     Trying to get length of sound which is not loaded yet.
+    4.0 log     Trying to get metadata of sound which is not loaded.
+    4.0 log     [Quality] High: render scale 1
+
+    4.1 log     Shader 'Hidden/Universal Render Pipeline/GaussianDepthOfField' is not supported or has been stripped from the build (in 'DepthOfFieldGaussianPostProcessPass'). PostProcessing render passes will not execute.
+
+    4.6 log     Shader 'Hidden/Universal Render Pipeline/GaussianDepthOfField' is not supported or has been stripped from the build (in 'DepthOfFieldGaussianPostProcessPass'). PostProcessing render passes will not execute.
+
+    4.6 log     Shader 'Hidden/Universal Render Pipeline/BokehDepthOfField' is not supported or has been stripped from the build (in 'DepthOfFieldBokehPostProcessPass'). PostProcessing render passes will not execute.
+
+    4.6 log     Shader 'Hidden/Universal Render Pipeline/PaniniProjection' is not supported or has been stripped from the build (in 'PaniniProjectionPostProcessPass'). PostProcessing render passes will not execute.
+
+    4.6 warning Shader 'Hidden/Universal Render Pipeline/Edge Adaptive Spatial Upsampling' is not supported or has been stripped from the build (in 'Blit FSR Upscaling'). PostProcessing render passes will not execute.
+
+    5.6 log     [UnityCache] 'http://127.0.0.1:8764/Build/WebGL.data.br' successfully downloaded and stored in the browser cache
+    5.9 log     [Smoke] text size at launch: 0 (reading UI x1)
+
+    6.0 log     [Smoke] fps 0.0 (OpenGLES3)
+
+    6.0 log     [Shot] smoke_00
+
+    6.0 log     [Smoke] shot 0 at 0.0s phase ok, frame 24
+
+    8.5 log     [Smoke] fps 43.2 (OpenGLES3)
+
+    9.0 log     [Shot] smoke_01
+
+    9.0 log     [Smoke] shot 1 at 3.0s phase ok, frame 154
+
+    9.0 log     Trying to get length of sound which is not loaded yet.
+    9.0 log     Trying to get metadata of sound which is not loaded.
+    9.0 log     Trying to get length of sound which is not loaded yet.
+    9.0 log     Trying to get metadata of sound which is not loaded.
+    9.0 log     Trying to get length of sound which is not loaded yet.
+    9.0 log     Trying to get metadata of sound which is not loaded.
+    9.4 log     [Title] dismissed (frame 192)
+
+    9.8 log     [Game] begin week at day 1 (frame 192)
+
+    9.8 log     Trying to get length of sound which is not loaded yet.
+    9.8 log     Trying to get metadata of sound which is not loaded.
+    9.8 log     Trying to get length of sound which is not loaded yet.
+    9.8 log     Trying to get metadata of sound which is not loaded.
+    9.8 log     Unloading 5 Unused Serialized files (Serialized files now loaded: 0)
+
+    9.8 log     Unloading 15 unused Assets to reduce memory usage. Loaded Objects now: 3744.
+
+    9.9 log     Total: 15.700000 ms (FindLiveObjects: 0.500000 ms CreateObjectMapping: 0.500000 ms MarkObjects: 13.800001 ms  DeleteObjects: 0.700000 ms)
+
+
+    9.9 log     Trying to get length of sound which is not loaded yet.
+   10.6 log     Trying to get metadata of sound which is not loaded.
+   11.6 log     [Smoke] fps 47.5 (OpenGLES3)
+
+   12.0 log     [Shot] smoke_02
+
+   12.0 log     [Smoke] shot 2 at 6.0s phase ok, frame 297
+
+   13.2 log     [Day] 1: morning
+
+   13.2 log     Trying to get length of sound which is not loaded yet.
+   13.2 log     Trying to get metadata of sound which is not loaded.
+   13.2 log     Trying to get length of sound which is not loaded yet.
+   13.2 log     Trying to get metadata of sound which is not loaded.
+   13.2 log     Trying to get length of sound which is not loaded yet.
+   13.2 log     Trying to get metadata of sound which is not loaded.
+   14.2 log     [Smoke] fps 47.8 (OpenGLES3)
+
+   15.0 log     [Shot] smoke_03
+
+   15.0 log     [Smoke] shot 3 at 9.0s phase ok, frame 441
+
+   15.4 log     Trying to get length of sound which is not loaded yet.
+   15.9 log     Trying to get metadata of sound which is not loaded.
+   15.9 log     Trying to get length of sound which is not loaded yet.
+   15.9 log     Trying to get metadata of sound which is not loaded.
+   15.9 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   16.2 log     Trying to get length of sound which is not loaded yet.
+   16.2 log     Trying to get metadata of sound which is not loaded.
+   17.2 log     [Smoke] fps 51.2 (OpenGLES3)
+
+   18.0 log     [Shot] smoke_04
+
+   18.0 log     [Smoke] shot 4 at 12.0s phase ok, frame 595
+
+   19.4 log     Trying to get length of sound which is not loaded yet.
+   19.6 log     Trying to get metadata of sound which is not loaded.
+   20.6 log     Trying to get length of sound which is not loaded yet.
+   20.9 log     Trying to get metadata of sound which is not loaded.
+   20.9 log     [Smoke] fps 47.3 (OpenGLES3)
+
+   21.0 log     [Shot] smoke_05
+
+   21.0 log     [Smoke] shot 5 at 15.0s phase ok, frame 737
+
+   23.4 log     [Smoke] fps 51.2 (OpenGLES3)
+
+   24.0 log     [Shot] smoke_06
+
+   24.0 log     [Smoke] shot 6 at 18.0s phase ok, frame 891
+
+   25.4 log     Trying to get length of sound which is not loaded yet.
+   25.8 log     Trying to get metadata of sound which is not loaded.
+   26.8 log     [Smoke] fps 51.5 (OpenGLES3)
+
+   27.0 log     [Shot] smoke_07
+
+   27.0 log     [Smoke] shot 7 at 21.0s phase ok, frame 1046
+
+   28.5 log     Trying to get length of sound which is not loaded yet.
+   28.8 log     Trying to get metadata of sound which is not loaded.
+   28.8 log     Trying to get length of sound which is not loaded yet.
+   28.8 log     Trying to get metadata of sound which is not loaded.
+   28.8 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   29.0 log     Trying to get length of sound which is not loaded yet.
+   29.0 log     Trying to get metadata of sound which is not loaded.
+   30.0 log     [Smoke] fps 47.2 (OpenGLES3)
+
+   30.0 log     [Shot] smoke_08
+
+   30.0 log     [Smoke] shot 8 at 24.0s phase ok, frame 1188
+
+   30.5 log     Trying to get length of sound which is not loaded yet.
+   31.0 log     Trying to get metadata of sound which is not loaded.
+   31.0 log     Trying to get length of sound which is not loaded yet.
+   31.0 log     Trying to get metadata of sound which is not loaded.
+   31.0 log     Trying to get length of sound which is not loaded yet.
+   31.0 log     Trying to get metadata of sound which is not loaded.
+   33.0 log     [Smoke] done
+
+   33.0 log     Quitting...
+   33.1 log     [Physics::Module] Cleanup current backend.
+
+   33.1 log     [Physics::Module] Id: 0xf2b8ea05
+
+   33.1 log     Input System module state changed to: ShutdownInProgress.
+
+   33.1 log     Input System module state changed to: Shutdown.
+
+   33.1 log     CodeReloadManager destroyed
+
+   33.1 log     done!
+
+[idbfs] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9 (folder)
+[idbfs] /idbfs/85a6f47a273ab1477d2f4ba1e25e8ab9/lostandfound_save.json 495 bytes
