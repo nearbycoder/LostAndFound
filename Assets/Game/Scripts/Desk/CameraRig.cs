@@ -86,6 +86,18 @@ namespace LostAndFound
         }
 
         public void ClearFocus() => hasFocus = false;
+
+        /// <summary>The camera's height of view for a view framed at 16:9 with <paramref name="fov16x9"/>: the same at 16:9 and
+        /// wider, and taller on a narrower window (4:3, or one snapped to half a screen) so the view keeps its 16:9 width
+        /// and nothing at the sides of the desk (the lamp, the printer, the ledger book, the object in your hands) is cut off.
+        /// Every field of view the game asks for (Focus's included) is framed at 16:9.</summary>
+        public static float FovFor(float fov16x9, float aspect)
+        {
+            const float wide = 16f / 9f;
+            if (!(aspect > 0f) || aspect >= wide) return fov16x9;
+            aspect = Mathf.Max(aspect, 0.5f);
+            return 2f * Mathf.Atan(Mathf.Tan(fov16x9 * 0.5f * Mathf.Deg2Rad) * wide / aspect) * Mathf.Rad2Deg;
+        }
         public bool HasFocus => hasFocus;
 
         public void Shake(float amount) => shake = Mathf.Max(shake, amount);
@@ -145,7 +157,7 @@ namespace LostAndFound
             }
 
             transform.SetPositionAndRotation(pos, rot);
-            if (cam != null) cam.fieldOfView = fov;
+            if (cam != null) cam.fieldOfView = FovFor(fov, cam.aspect);
             if (handLight != null)
             {
                 bool want = (InspectController.I != null && InspectController.I.Held != null) || (hasFocus && view == View.Cabinet);

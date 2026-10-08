@@ -202,11 +202,9 @@ namespace LostAndFound
             if (on)
             {
                 // frame the slip with the stamp rack to its left and room on its right for what they said (TranscriptCard);
-                // on a screen narrower than 16:9 the view widens to keep that framing side to side
+                // on a screen narrower than 16:9 the rig widens the view to keep that framing side to side (CameraRig.FovFor)
                 Vector3 c = transform.position + new Vector3(-0.02f, 0f, 0.01f);
-                float aspect = Mathf.Max(0.5f, (float)Screen.width / Mathf.Max(1, Screen.height));
-                float fov = aspect >= 16f / 9f ? 50f : 2f * Mathf.Atan(Mathf.Tan(25f * Mathf.Deg2Rad) * (16f / 9f) / aspect) * Mathf.Rad2Deg;
-                CameraRig.I.Focus(c, new Vector3(c.x * 0.6f, 1.14f, c.z - 0.24f), fov);
+                CameraRig.I.Focus(c, new Vector3(c.x * 0.6f, 1.14f, c.z - 0.24f), 50f);
                 AudioDirector.Play("paper_lift", 0.4f);
             }
             else CameraRig.I.ClearFocus();

@@ -65,6 +65,15 @@ namespace LostAndFound
             return rt;
         }
 
+        /// <summary>The axis-aligned box a (possibly turned or scaled) rect covers, in world units: compare two on one canvas.</summary>
+        public static UnityEngine.Rect WorldRect(RectTransform rt)
+        {
+            var c = new Vector3[4];
+            rt.GetWorldCorners(c);
+            Vector2 min = Vector2.Min(Vector2.Min(c[0], c[1]), Vector2.Min(c[2], c[3])), max = Vector2.Max(Vector2.Max(c[0], c[1]), Vector2.Max(c[2], c[3]));
+            return UnityEngine.Rect.MinMaxRect(min.x, min.y, max.x, max.y);
+        }
+
         public static Image Image(Transform parent, string name, string sprite, Color color, float border = 0f)
         {
             var rt = Rect(name, parent);

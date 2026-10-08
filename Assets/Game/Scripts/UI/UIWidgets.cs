@@ -109,12 +109,32 @@ namespace LostAndFound
                 crowded = true;
                 tailLeft = ox < head.x;
             }
-            panel.sizeDelta = new Vector2(crowded ? 490f : 700f, panel.sizeDelta.y);
-            size = panel.sizeDelta * s;
             float margin = crowded ? 14f : 30f;
-            float x = tailLeft ? head.x + 170f : head.x - 170f - size.x;
+            // beside the head if there's room; on a narrow window the bubble narrows (and grows taller) to keep clear of the
+            // face, then tries the other side, and failing both sits above the head
+            float want = crowded ? 490f : 700f;
+            float room = (tailLeft ? w - margin - (head.x + 170f) : head.x - 170f - margin) / s;
+            float otherRoom = (tailLeft ? head.x - 170f - margin : w - margin - (head.x + 170f)) / s;
+            // (only when it can't fit at all: the left of the screen is where the intake tag and the rules peek open)
+            if (room < MinWidth && !crowded && otherRoom > room) { tailLeft = !tailLeft; room = otherRoom; }
+            float width = Mathf.Min(want, room);
+            bool above = width < MinWidth;
+            if (above) width = Mathf.Min(want, w / s - 2f * margin / s);
+            panel.sizeDelta = new Vector2(width, width >= 490f ? 230f : 230f + (490f - width) * 0.8f);
+            size = panel.sizeDelta * s;
+            float x, y;
+            if (above)
+            {
+                float r = Vector2.Distance(sp, Camera.main.WorldToScreenPoint(who.HeadPosition + Camera.main.transform.right * 0.11f)) * k;
+                x = Mathf.Clamp(head.x - size.x * 0.5f, margin, w - size.x - margin);
+                y = Mathf.Clamp(head.y + r * 1.4f + 16f + size.y, size.y + 40f, h - 24f);
+                target = new Vector2(x, y);
+                tail.enabled = false;
+                return;
+            }
+            x = tailLeft ? head.x + 170f : head.x - 170f - size.x;
             x = Mathf.Clamp(x, margin, w - size.x - margin);
-            float y = Mathf.Clamp(head.y + size.y * 0.55f, size.y + 40f, h - 24f);
+            y = Mathf.Clamp(head.y + size.y * 0.55f, size.y + 40f, h - 24f);
             target = new Vector2(x, y);
             tail.enabled = true;
             float tailY = Mathf.Clamp((head.y - y) / s, -panel.sizeDelta.y + 36f, -36f);   // in the bubble's own (unscaled) units
@@ -123,6 +143,9 @@ namespace LostAndFound
             tail.rectTransform.anchoredPosition = new Vector2(tailLeft ? 6f : -6f, tailY);
             tail.rectTransform.localScale = new Vector3(tailLeft ? 1f : -1f, 1f, 1f);
         }
+
+        /// <summary>The narrowest the bubble gets beside a head before it moves above it instead.</summary>
+        const float MinWidth = 420f;
 
         /// <summary>Lines said since start-up (the AutoPilot checks each claim's are all in the transcript).</summary>
         public static int SaidCount { get; private set; }
@@ -239,7 +262,8 @@ namespace LostAndFound
             if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
             // step aside while you read the slip or turn away to the drawers
             bool away = ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
-                        || (CameraRig.I != null && CameraRig.I.view != View.Counter && !Waiting);
+                        || (CameraRig.I != null && CameraRig.I.view != View.Counter && !Waiting)
+                        || (UIRoot.I != null && UIRoot.I.rulesPeek.On && UiKit.WorldRect(panel).Overlaps(UiKit.WorldRect((RectTransform)UIRoot.I.rulesPeek.transform)));
             if (shown) group.alpha = Mathf.MoveTowards(group.alpha, away ? 0f : 1f, Time.unscaledDeltaTime * 5f);
         }
 
@@ -363,6 +387,8 @@ namespace LostAndFound
         }
 
         public void Hide() => on = false;
+        /// <summary>Open (the speech bubble steps aside where it would cover it, on a narrow window).</summary>
+        public bool On => on;
 
         void Update()
         {

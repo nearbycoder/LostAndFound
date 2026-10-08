@@ -81,6 +81,8 @@ namespace LostAndFound
             foreach (var name in Reading)
                 if (PanelRect(name, out var tr, out var r)) panels.Add((tr, r));
             foreach (var (t, group, glyphs, all) in drawn)
+            {
+                if (System.Array.IndexOf(Reading, group.name) < 0) continue;   // a turn arrow's label under the rules peek is layering
                 foreach (var (tr, rect) in panels)
                 {
                     if (tr == group || group.parent != tr.parent || tr.GetSiblingIndex() < group.GetSiblingIndex() || !rect.Overlaps(all)) continue;
@@ -91,6 +93,7 @@ namespace LostAndFound
                     string pair = $"{tr.name} covers {Describe(t)}";
                     if (seenCovered.Add(pair)) Debug.Log($"[TextAudit] {shot}: {pair} ({under} of {glyphs.Count} letters under it)");
                 }
+            }
         }
 
         /// <summary>The speech bubble over the face of someone at the window: their head, as seen, overlapped by the bubble's paper.</summary>
