@@ -29,6 +29,9 @@
 #   Tools/unity.sh edgetest [w] [h]  hold a virtual mouse at the screen's sides: the desk turns with Settings > Turn at the
 #                                  screen's edge on, not with it off, and not while another window (opened in the headless KWin
 #                                  once the test is ready) has the focus; log in Logs/edgetest.log
+#   Tools/unity.sh pointertest [w] [h]  the headless KWin's own pointer (Tools/fakeptr.c, fake input granted to that KWin only)
+#                                  rests inside each side of the window (the desk turns) and leaves it by each side, quickly and
+#                                  slowly (it mustn't); log in Logs/pointertest.log
 #   Tools/unity.sh soak [cycles] [player args]  play on without quitting: restart the day, back to the title, Continue and
 #                                  Choose a Day again and again in one process, logging memory and live objects after each
 #                                  rebuild; log in Logs/soak.log, screenshots in Screenshots/soak/
@@ -99,6 +102,19 @@ player() {
   guarded "$name" "$@"
 }
 
+# helpers_of <cfg>: this user's processes whose XDG_CONFIG_HOME is <cfg>, one of this script's scratch folders. A headless KWin's
+# session activates helpers on its private D-Bus (ksecretd and xdg-desktop-portal, for kdialog say) that outlive it; round
+# 10's runs left about 80. stop_new_helpers <cfg> <pids before> stops the ones that appeared during this run, and only those.
+helpers_of() { local p; for p in $(pgrep -u "$(id -u)" .); do { tr '\0' '\n' < "/proc/$p/environ"; } 2>/dev/null | grep -qxF "XDG_CONFIG_HOME=$1" && echo "$p"; done; true; }
+stop_new_helpers() {
+  local p names=""
+  for p in $(helpers_of "$1"); do
+    grep -qxF "$p" <<< "$2" && continue
+    names="$names $(cat "/proc/$p/comm" 2>/dev/null)"; kill "$p" 2>/dev/null
+  done
+  [ -z "$names" ] || echo "[nested] stopped what this run's session left running:$names"
+}
+
 # nested <command> <args...>: the player in `kwin_wayland --virtual` (as smallscreen does): its own D-Bus session, socket and
 # scratch XDG folders under Logs/config/, DISPLAY and WAYLAND_DISPLAY unset, so it never talks to the desktop's KWin and
 # nothing appears on screen. The screen is 2560x1440 (LAF_NESTED_SIZE="w h"), room for any window the tools ask for. KWin's
@@ -117,10 +133,12 @@ nested() {
     printf '\nst=$?\n[ -n "$steal" ] && { pkill -P $steal; kill $steal; } 2>/dev/null\necho $st > %q\n' "$xdg/status"; } > "$xdg/session.sh"
   chmod +x "$xdg/session.sh"
   read -r w h <<< "${LAF_NESTED_SIZE:-2560 1440}"
+  local before; before="$(helpers_of "$cfg")"
   guarded "$name" sh -c 'log=$1; shift; exec "$@" > "$log" 2>&1' _ "$xdg/kwin.log" env -u DISPLAY -u WAYLAND_DISPLAY \
     XDG_CONFIG_HOME="$cfg" XDG_DATA_HOME="$xdg/data" XDG_CACHE_HOME="$xdg/cache" XDG_STATE_HOME="$xdg/state" SDL_VIDEODRIVER=wayland \
     timeout -s KILL 7300 dbus-run-session -- kwin_wayland --virtual --width "$w" --height "$h" --socket "laf-$name-$$" --no-lockscreen \
-    --exit-with-session "$xdg/session.sh" || { st=$?; [ $st -eq 99 ] && return 99; }
+    --exit-with-session "$xdg/session.sh" || { st=$?; stop_new_helpers "$cfg" "$before"; [ $st -eq 99 ] && return 99; }
+  stop_new_helpers "$cfg" "$before"
   st="$(cat "$xdg/status" 2>/dev/null || echo 1)"
   return "$st"
 }
@@ -213,6 +231,18 @@ case "${1:-open}" in
                [ $st -eq 99 ] && exit 99   # the guard: the real save or settings changed
                grep -a "\[EdgeTest\]" "$PROJECT/Logs/edgetest.log"; grep -a "\[steal\]" "$PROJECT/Logs/config/edgetest-xdg/kwin.log"
                grep -a -q "\[EdgeTest\] PASS" "$PROJECT/Logs/edgetest.log" ;;
+  pointertest) out="$PROJECT/Screenshots/pointertest"; rm -rf "$out"; mkdir -p "$out" "$PROJECT/Builds/tools"; rm -f "$PROJECT/Logs/pointertest.log"
+               cc -O2 -o "$PROJECT/Builds/tools/fakeptr" "$PROJECT/Tools/fakeptr.c" -lwayland-client -lm
+               # fake input is a restricted interface: let this private KWin (only) grant it; its scripts' print() goes to its log
+               export KWIN_WAYLAND_NO_PERMISSION_CHECKS=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="js.debug=true" \
+                 LAF_FAKEPTR="$PROJECT/Builds/tools/fakeptr" LAF_PHASE="$out/phase.txt" LAF_PLAYER_LOG="$PROJECT/Logs/pointertest.log" \
+                 LAF_KWIN_LOG="$PROJECT/Logs/config/pointertest-xdg/kwin.log"
+               st=0; player pointertest "$PROJECT/Tools/pointertest_session.sh" timeout -s KILL 400 "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
+                 -lafPointerTest "$out/phase.txt" -lafDay 2 -lafSave "$out/save.json" -lafNoMusic -screen-width "${2:-1600}" -screen-height "${3:-900}" \
+                 -screen-fullscreen 0 -logFile "$PROJECT/Logs/pointertest.log" "${@:4}" || st=$?
+               [ $st -eq 99 ] && exit 99   # the guard: the real save or settings changed
+               grep -a "\[ptr\]\|fakeptr" "$PROJECT/Logs/config/pointertest-xdg/kwin.log"; grep -a "\[PointerTest\]" "$PROJECT/Logs/pointertest.log"
+               grep -a -q "\[PointerTest\] PASS" "$PROJECT/Logs/pointertest.log" ;;
   soak)        rm -rf "$PROJECT/Screenshots/soak"; mkdir -p "$PROJECT/Screenshots/soak"
                player soak timeout -s KILL 3600 "$PROJECT/Builds/Linux/LostAndFound.x86_64" -lafSoak "$PROJECT/Screenshots/soak" -lafCycles "${2:-30}" \
                  -lafSave "${LAF_SOAK_SAVE:-$PROJECT/Screenshots/soak/save.json}" -lafNoMusic -lafNoVsync -screen-width 1600 -screen-height 900 -screen-fullscreen 0 \
@@ -231,12 +261,13 @@ case "${1:-open}" in
                  "$PROJECT/Tools/smallscreen_session.sh" $(( ${LAF_SECONDS:-12} + 90 )) "$PROJECT/Builds/Linux/LostAndFound.x86_64" \
                  "$out/shots" "$out/shots/save.json" "${LAF_SECONDS:-12}" "$out/player.log" > "$out/session.sh"
                for a in "${@:5}"; do printf ' %q' "$a" >> "$out/session.sh"; done; chmod +x "$out/session.sh"
-               st=0
+               st=0; before="$(helpers_of "$cfg")"
                guarded smallscreen sh -c 'log=$1; shift; exec "$@" > "$log" 2>&1' _ "$out/kwin.log" env -u DISPLAY -u WAYLAND_DISPLAY XDG_CONFIG_HOME="$cfg" XDG_DATA_HOME="$xdg/data" XDG_CACHE_HOME="$xdg/cache" \
                  XDG_STATE_HOME="$xdg/state" SDL_VIDEODRIVER=wayland KWIN_SCREENSHOT_NO_PERMISSION_CHECKS=1 QT_FORCE_STDERR_LOGGING=1 \
                  QT_LOGGING_RULES="js.debug=true" LAF_SMALLSCREEN=1 LAF_OUT="$out" LAF_SCALE="$scale" LAF_SHOTS="${LAF_SHOTS:-14}" \
                  timeout -s KILL $(( ${LAF_SECONDS:-12} + 150 )) dbus-run-session -- kwin_wayland --virtual --width "$w" --height "$h" \
                  --socket "laf-smallscreen-$$" --no-lockscreen --exit-with-session "$out/session.sh" || st=$?
+               stop_new_helpers "$cfg" "$before"
                grep -a "\[steal\]" "$out/kwin.log"
                grep -a "Desktop is\|\[Window\]\|\[Keys\]\|\[Background\]" "$out/player.log" | awk '!seen[$0]++' | head -n 12
                grep -a "js: \[geom\]\|^\[geom\] at" "$out/kwin.log" | sed 's/^js: //'
@@ -267,5 +298,5 @@ case "${1:-open}" in
                ch=$(grep -a -o 'Hz x[0-9]' "$out/player.log" | head -1 | tail -c 2)
                exec ffmpeg -y -loglevel error -i "$out/video.mp4" -f f32le -ar "${rate:-48000}" -ac "${ch:-2}" -i "$out/audio.f32" \
                  -c:v copy -c:a pcm_s16le -shortest "$out/take.mkv" ;;
-  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|edgetest [w h]|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
+  *) echo "usage: $0 [open|headless|build-linux|build-mac|build-windows|run <Method>|test|smoke [secs]|autopilot|audit|nudgetour|padtest|taptest|edgetest [w h]|pointertest [w h]|soak|smallscreen [w h scale]|demo|trailer|film <name>]" >&2; exit 2 ;;
 esac

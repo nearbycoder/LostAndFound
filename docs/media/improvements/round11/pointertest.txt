@@ -1,0 +1,50 @@
+# Tools/unity.sh pointertest: KWin's own pointer (fake input, in a private headless KWin) at a 1600x900 window's sides.
+# Before: build of f59b107 + the test only (no fix), load ~16-18. Phases as the driver then had them (ease-to-last-pixel was judged).
+[PointerTest] ready 1600x900, edge turning on, mice: Mouse
+[PointerTest] ok   ease-in-left: turned Cabinet at 1.20s with the pointer at (12,449); 23 pointer positions read, the last (15,449) at 1.00s, (13,449) at 1.03s, (12,449) at 1.04s (1600x900, focused True)
+[PointerTest] ok   ease-in-right: turned Shelf at 1.15s with the pointer at (1587,449); 18 pointer positions read, the last (1581,449) at 0.95s, (1583,449) at 0.97s, (1587,449) at 0.99s (1600x900, focused True)
+[PointerTest] ok   ease-to-last-pixel-left: turned Cabinet at 1.18s with the pointer at (0,449); 16 pointer positions read, the last (5,449) at 1.00s, (1,449) at 1.02s, (0,449) at 1.06s (1600x900, focused True)
+[PointerTest] ok   leave-left-fast: no turn; 6 pointer positions read, the last (306,449) at 0.68s, (121,449) at 0.69s, (59,449) at 0.71s (1600x900, focused True)
+[PointerTest] ok   leave-right-fast: no turn; 6 pointer positions read, the last (1231,449) at 0.63s, (1355,449) at 0.64s, (1540,449) at 0.66s (1600x900, focused True)
+[PointerTest] FAIL leave-left-slow: turned Cabinet at 2.90s with the pointer at (6,449); 122 pointer positions read, the last (18,449) at 2.60s, (12,449) at 2.62s, (6,449) at 2.64s (1600x900, focused True): expected no turn
+[PointerTest] FAIL leave-right-slow: turned Shelf at 2.92s with the pointer at (1593,449); 122 pointer positions read, the last (1581,449) at 2.62s, (1587,449) at 2.63s, (1593,449) at 2.66s (1600x900, focused True): expected no turn
+[PointerTest] FAIL leave-left-slower: turned Cabinet at 2.21s with the pointer at (0,449); 84 pointer positions read, the last (11,449) at 1.95s, (4,449) at 1.96s, (0,449) at 1.97s (1600x900, focused True): expected no turn
+[PointerTest] FAIL leave-right-slower: turned Shelf at 2.18s with the pointer at (1599,449); 84 pointer positions read, the last (1588,449) at 1.93s, (1596,449) at 1.95s, (1599,449) at 1.96s (1600x900, focused True): expected no turn
+[PointerTest] FAIL out-left: turned Cabinet at 2.85s with the pointer at (6,449); 123 pointer positions read, the last (18,449) at 2.57s, (12,449) at 2.58s, (6,449) at 2.60s (1600x900, focused True): expected no turn
+[PointerTest] ok   back-in-left: turned Cabinet at 0.52s with the pointer at (6,449); 5 pointer positions read, the last (6,449) at 0.80s, (9,449) at 0.82s, (10,449) at 0.83s (1600x900, focused True)
+[PointerTest] ok   back-in-centre: no turn; 0 pointer positions read, the last  (1600x900, focused True)
+[PointerTest] FAIL: leave-left-slow, leave-right-slow, leave-left-slower, leave-right-slower, out-left
+
+# After: R11-A, load ~25 (Logs/pointertest.log)
+[PointerTest] ready 1600x900, edge turning on, mice: Mouse
+[PointerTest] ok   ease-in-left: turned Cabinet at 1.20s with the pointer at (12,449); 27 pointer positions read, the last (15,449) at 1.02s, (13,449) at 1.03s, (12,449) at 1.05s (1600x900, focused True, taken as gone False)
+[PointerTest] ok   ease-in-right: turned Shelf at 1.15s with the pointer at (1587,449); 27 pointer positions read, the last (1583,449) at 0.97s, (1586,449) at 0.99s, (1587,449) at 1.00s (1600x900, focused True, taken as gone False)
+[PointerTest] ok   ease-in-near-left: turned Cabinet at 1.12s with the pointer at (3,449); 28 pointer positions read, the last (6,449) at 0.93s, (4,449) at 0.95s, (3,449) at 0.97s (1600x900, focused True, taken as gone False)
+[PointerTest] note ease-to-last-pixel-left: no turn; 27 pointer positions read, the last (3,449) at 0.98s, (1,449) at 1.00s, (0,449) at 1.02s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   leave-left-fast: no turn; 6 pointer positions read, the last (306,449) at 0.60s, (183,449) at 0.62s, (59,449) at 0.64s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   leave-right-fast: no turn; 7 pointer positions read, the last (1355,449) at 0.67s, (1417,449) at 0.69s, (1540,449) at 0.70s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   leave-left-slow: no turn; 102 pointer positions read, the last (25,449) at 2.55s, (12,449) at 2.59s, (6,449) at 2.62s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   leave-right-slow: no turn; 106 pointer positions read, the last (1581,449) at 2.58s, (1587,449) at 2.59s, (1593,449) at 2.62s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   leave-left-slower: no turn; 56 pointer positions read, the last (11,449) at 1.88s, (4,449) at 1.91s, (0,449) at 1.94s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   leave-right-slower: no turn; 54 pointer positions read, the last (1588,449) at 1.89s, (1592,449) at 1.92s, (1599,449) at 1.93s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   out-left: no turn; 86 pointer positions read, the last (31,449) at 2.56s, (12,449) at 2.61s, (6,449) at 2.66s (1600x900, focused True, taken as gone True)
+[PointerTest] ok   back-in-left: turned Cabinet at 1.07s with the pointer at (10,449); 4 pointer positions read, the last (3,449) at 0.72s, (9,449) at 0.72s, (10,449) at 0.77s (1600x900, focused True, taken as gone False)
+[PointerTest] ok   back-in-centre: no turn; 0 pointer positions read, the last  (1600x900, focused True, taken as gone False)
+[PointerTest] ok   fling-to-screen-side: turned Cabinet at 1.09s with the pointer at (0,449); 8 pointer positions read, the last (167,449) at 0.69s, (100,449) at 0.71s, (0,449) at 0.73s (1600x900, focused True, taken as gone False)
+[PointerTest] note push-slowly-to-screen-side: no turn; 49 pointer positions read, the last (15,449) at 1.66s, (3,449) at 1.68s, (0,449) at 1.70s (1600x900, focused True, taken as gone True)
+[PointerTest] PASS (13 phases)
+
+# edgetest (virtual mouse), after
+[nested] stopped what this run's session left running: xdg-desktop-por ksecretd
+[EdgeTest] at the bell, 1600x900, view Counter
+[EdgeTest] ok  on: pointer at the left edge for 1.5 s, view Counter -> Cabinet (window focused True, edge turning on)
+[EdgeTest] ok  on: pointer at the right edge for 1.5 s, view Counter -> Shelf (window focused True, edge turning on)
+[EdgeTest] ok  off: pointer at the left edge for 1.5 s, view Counter -> Counter (window focused True, edge turning off)
+[EdgeTest] ok  off: pointer at the right edge for 1.5 s, view Counter -> Counter (window focused True, edge turning off)
+[EdgeTest] waiting for another window to take the focus
+[EdgeTest] ok  out of focus: pointer at the left edge for 1.5 s, view Counter -> Counter (window focused False, edge turning on)
+[EdgeTest] ok  out of focus: pointer at the right edge for 1.5 s, view Counter -> Counter (window focused False, edge turning on)
+[EdgeTest] ok  focus back: pointer at the left edge for 1.5 s, view Counter -> Cabinet (window focused True, edge turning on)
+[EdgeTest] PASS (7 holds)
+[steal] another window opens
+[steal] it closed

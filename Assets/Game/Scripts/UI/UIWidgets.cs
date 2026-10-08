@@ -865,6 +865,7 @@ namespace LostAndFound
             bool can = rig != null && rig.allowTurn && !UIRoot.ModalOpen && !(InspectController.I?.Held != null);
             float mx = InteractionSystem.MousePos.x / Mathf.Max(1, Screen.width);
             float nearL = Mathf.Clamp01(1f - mx / 0.12f), nearR = Mathf.Clamp01((mx - 0.88f) / 0.12f);
+            if (rig != null && rig.PointerOut) nearL = nearR = 0f;   // a pointer that left the window by a side isn't near it
             bool showL = can && rig.view != View.Cabinet, showR = can && rig.view != View.Shelf;
             SetA(left, showL ? 0.12f + nearL * 0.6f : 0f);
             SetA(right, showR ? 0.12f + nearR * 0.6f : 0f);

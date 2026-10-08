@@ -56,7 +56,14 @@ namespace LostAndFound
         {
             yield return Centre();
             var before = CameraRig.I.view;
-            Point(new Vector2(side < 0 ? 3f : Screen.width - 3f, Screen.height * 0.5f));
+            // slowing to a stop just inside the side, as a person does: a pointer whose last step would carry it out of the
+            // window is taken to have left it (CameraRig.PointerLeft)
+            foreach (float inset in new[] { 40f, 20f, 10f, 6f, 4f, 3f })
+            {
+                Point(new Vector2(side < 0 ? inset : Screen.width - inset, Screen.height * 0.5f));
+                yield return null;
+                yield return null;
+            }
             yield return new WaitForSecondsRealtime(1.5f);
             var after = CameraRig.I.view;
             bool turned = after != before;

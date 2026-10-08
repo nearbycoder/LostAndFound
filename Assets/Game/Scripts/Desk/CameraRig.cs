@@ -117,7 +117,7 @@ namespace LostAndFound
             // gentle head-look towards the mouse
             Vector2 m = Mouse.current != null ? Mouse.current.position.ReadValue() : new Vector2(Screen.width / 2f, Screen.height / 2f);
             Vector2 n = new(m.x / Mathf.Max(1, Screen.width) - 0.5f, m.y / Mathf.Max(1, Screen.height) - 0.5f);
-            if (UIRoot.ModalOpen || !MouseLive) n = Vector2.zero;
+            if (UIRoot.ModalOpen || !MouseLive || PointerOut) n = Vector2.zero;   // a pointer that has left the window: look ahead
             float look = Settings.ReduceMotion ? 0.4f : 1f;
             target += new Vector2(n.x * 4.0f, n.y * 2.6f) * look;
 
@@ -184,11 +184,41 @@ namespace LostAndFound
             }
         }
 
+        /// <summary>Whether a pointer last read at <paramref name="p"/> (whole pixels, 0 to size - 1, as the player reads them)
+        /// after a step of <paramref name="step"/> has most likely left a window of <paramref name="size"/>. The player is told
+        /// nothing when the pointer leaves its window and keeps the last position it had inside, which for a pointer leaving
+        /// by a side is at that side, where it turned the desk (Tools/unity.sh pointertest, round 11). A pointer that one more
+        /// such step would take onto or past the window's first or last pixel has gone (the readings are rounded, so a step
+        /// that seems to land on it was on its way out), unless it's on that pixel already after a big step (8 px or more):
+        /// that's a pointer stopped by the side of the screen (a maximised window, or one snapped to a side), which can't
+        /// leave. A person slowing to a stop near a side moves by a pixel or two at the end, and stays.</summary>
+        public static bool PointerLeft(Vector2 p, Vector2 step, Vector2 size)
+        {
+            float maxX = size.x - 1f, maxY = size.y - 1f;
+            if (step == Vector2.zero) return false;
+            Vector2 next = p + step;
+            if (next.x > 0f && next.x < maxX && next.y > 0f && next.y < maxY) return false;
+            bool onLastPixel = p.x <= 0f || p.x >= maxX || p.y <= 0f || p.y >= maxY;
+            return !(onLastPixel && step.magnitude >= 8f);
+        }
+
+        Vector2 lastPointer = new(float.NaN, float.NaN), pointerStep;
+
+        /// <summary>The mouse pointer has most likely left the window (see PointerLeft). Never in fullscreen, where it can't,
+        /// nor for the gamepad's cursor, which stays on the screen.</summary>
+        public bool PointerOut => !Screen.fullScreen && !GamepadInput.Active && !float.IsNaN(lastPointer.x)
+                                  && PointerLeft(lastPointer, pointerStep, new Vector2(Screen.width, Screen.height));
+
         void UpdateEdgeTurn(float dt)
         {
-            // not while another window has the focus: a pointer that left the window by its side still reads as at the edge.
+            if (Mouse.current != null)
+            {
+                var p = Mouse.current.position.ReadValue();
+                if (p != lastPointer) { if (!float.IsNaN(lastPointer.x)) pointerStep = p - lastPointer; lastPointer = p; }
+            }
+            // not while another window has the focus, nor once the pointer has left the window: it still reads as at the edge.
             // Not at all with Settings > Turn at the screen's edge off
-            if (!Settings.EdgeTurn || !allowTurn || Mouse.current == null || UIRoot.ModalOpen || hasFocus || !MouseLive || !Application.isFocused) { edgeTimer = 0f; edgeDir = 0; return; }
+            if (!Settings.EdgeTurn || !allowTurn || Mouse.current == null || UIRoot.ModalOpen || hasFocus || !MouseLive || !Application.isFocused || PointerOut) { edgeTimer = 0f; edgeDir = 0; return; }
             float x = Mouse.current.position.ReadValue().x / Mathf.Max(1, Screen.width);
             int dir = x < 0.025f ? -1 : x > 0.975f ? 1 : 0;
             if (dir != edgeDir) { edgeDir = dir; edgeTimer = 0f; }
