@@ -1,0 +1,96 @@
+Fidelity bench, build 0fbc9f4, 1600x900 unless noted, Radeon 8060S iGPU (Vulkan), shared with other sessions' Unity players (gpu_busy_percent read 99% with none of these runs going).
+
+## Logs/r12/final/fidelity.log
+  [Fidelity] case1.1_window: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 22.94
+  [Fidelity] case1.1_window summary Low: 3.69 ms (271 fps), p95 14.02 ms, passes 4.62 / 2.75 ms
+  [Fidelity] case1.1_window summary Medium: 5.67 ms (176 fps), p95 10.95 ms, passes 8.36 / 2.98 ms
+  [Fidelity] case1.1_window summary High: 7.85 ms (127 fps), p95 16.25 ms, passes 11.34 / 4.35 ms
+  [Fidelity] case1.1_window summary Ultra: 11.71 ms (85 fps), p95 22.31 ms, passes 12.53 / 10.90 ms
+  [Fidelity] case1.1_inspect: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 23.65
+  [Fidelity] case1.1_inspect summary Low: 6.12 ms (163 fps), p95 11.47 ms, passes 2.56 / 9.69 ms
+  [Fidelity] case1.1_inspect summary Medium: 5.70 ms (176 fps), p95 12.17 ms, passes 4.20 / 7.19 ms
+  [Fidelity] case1.1_inspect summary High: 7.36 ms (136 fps), p95 12.46 ms, passes 4.72 / 9.99 ms
+  [Fidelity] case1.1_inspect summary Ultra: 12.50 ms (80 fps), p95 18.16 ms, passes 11.78 / 13.22 ms
+## Logs/r12/final/bench/fidelity_1.log
+  [Fidelity] case1.1_window: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 43.02
+  [Fidelity] case1.1_window summary Low: 8.95 ms (112 fps), p95 16.40 ms, passes 9.27 / 8.62 ms
+  [Fidelity] case1.1_window summary Medium: 10.54 ms (95 fps), p95 19.62 ms, passes 11.35 / 9.74 ms
+  [Fidelity] case1.1_window summary High: 13.50 ms (74 fps), p95 23.06 ms, passes 12.19 / 14.82 ms
+  [Fidelity] case1.1_window summary Ultra: 15.01 ms (67 fps), p95 25.44 ms, passes 15.20 / 14.82 ms
+  [Fidelity] case1.1_inspect: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 37.60
+  [Fidelity] case1.1_inspect summary Low: 9.26 ms (108 fps), p95 16.93 ms, passes 8.79 / 9.72 ms
+  [Fidelity] case1.1_inspect summary Medium: 11.12 ms (90 fps), p95 19.01 ms, passes 12.84 / 9.41 ms
+  [Fidelity] case1.1_inspect summary High: 11.97 ms (84 fps), p95 19.53 ms, passes 12.41 / 11.52 ms
+  [Fidelity] case1.1_inspect summary Ultra: 14.18 ms (71 fps), p95 21.81 ms, passes 14.89 / 13.47 ms
+## Logs/r12/final/bench/fidelity_2.log
+  [Fidelity] case1.1_window: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 30.54
+  [Fidelity] case1.1_window summary Low: 7.45 ms (134 fps), p95 14.88 ms, passes 7.56 / 7.34 ms
+  [Fidelity] case1.1_window summary Medium: 10.17 ms (98 fps), p95 21.97 ms, passes 9.08 / 11.26 ms
+  [Fidelity] case1.1_window summary High: 11.28 ms (89 fps), p95 20.13 ms, passes 9.75 / 12.82 ms
+  [Fidelity] case1.1_window summary Ultra: 12.21 ms (82 fps), p95 17.55 ms, passes 10.35 / 14.08 ms
+  [Fidelity] case1.1_inspect: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 24.17
+  [Fidelity] case1.1_inspect summary Low: 7.17 ms (139 fps), p95 14.44 ms, passes 5.86 / 8.48 ms
+  [Fidelity] case1.1_inspect summary Medium: 8.48 ms (118 fps), p95 17.73 ms, passes 8.41 / 8.55 ms
+  [Fidelity] case1.1_inspect summary High: 9.99 ms (100 fps), p95 21.21 ms, passes 11.97 / 8.02 ms
+  [Fidelity] case1.1_inspect summary Ultra: 12.96 ms (77 fps), p95 21.10 ms, passes 13.02 / 12.90 ms
+## Logs/r12/final/bench/fidelity_3.log
+  [Fidelity] case1.1_window: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 21.63
+  [Fidelity] case1.1_window summary Low: 13.35 ms (75 fps), p95 26.05 ms, passes 14.17 / 12.54 ms
+  [Fidelity] case1.1_window summary Medium: 14.59 ms (69 fps), p95 28.14 ms, passes 15.96 / 13.21 ms
+  [Fidelity] case1.1_window summary High: 15.23 ms (66 fps), p95 29.43 ms, passes 16.25 / 14.21 ms
+  [Fidelity] case1.1_window summary Ultra: 19.98 ms (50 fps), p95 32.95 ms, passes 20.04 / 19.92 ms
+  [Fidelity] case1.1_inspect: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 19.48
+  [Fidelity] case1.1_inspect summary Low: 9.87 ms (101 fps), p95 19.53 ms, passes 11.42 / 8.32 ms
+  [Fidelity] case1.1_inspect summary Medium: 12.46 ms (80 fps), p95 27.17 ms, passes 12.68 / 12.25 ms
+  [Fidelity] case1.1_inspect summary High: 13.53 ms (74 fps), p95 27.85 ms, passes 14.66 / 12.40 ms
+  [Fidelity] case1.1_inspect summary Ultra: 17.39 ms (58 fps), p95 27.41 ms, passes 17.78 / 17.01 ms
+## Logs/r12/final/bench/fidelity_4.log
+  [Fidelity] case1.1_window: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 18.01
+  [Fidelity] case1.1_window summary Low: 6.42 ms (156 fps), p95 14.38 ms, passes 7.26 / 5.59 ms
+  [Fidelity] case1.1_window summary Medium: 13.07 ms (77 fps), p95 28.98 ms, passes 10.93 / 15.21 ms
+  [Fidelity] case1.1_window summary High: 15.36 ms (65 fps), p95 29.98 ms, passes 13.56 / 17.15 ms
+  [Fidelity] case1.1_window summary Ultra: 19.19 ms (52 fps), p95 36.72 ms, passes 18.31 / 20.07 ms
+  [Fidelity] case1.1_inspect: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 22.47
+  [Fidelity] case1.1_inspect summary Low: 10.97 ms (91 fps), p95 26.26 ms, passes 10.41 / 11.54 ms
+  [Fidelity] case1.1_inspect summary Medium: 11.78 ms (85 fps), p95 21.22 ms, passes 12.38 / 11.17 ms
+  [Fidelity] case1.1_inspect summary High: 12.41 ms (81 fps), p95 24.12 ms, passes 12.56 / 12.26 ms
+  [Fidelity] case1.1_inspect summary Ultra: 15.39 ms (65 fps), p95 26.51 ms, passes 15.10 / 15.69 ms
+## Logs/r12/final/bench/fidelity_5.log
+  [Fidelity] case1.1_window: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 18.88
+  [Fidelity] case1.1_window summary Low: 11.15 ms (90 fps), p95 22.68 ms, passes 10.31 / 11.99 ms
+  [Fidelity] case1.1_window summary Medium: 13.95 ms (72 fps), p95 30.35 ms, passes 11.27 / 16.64 ms
+  [Fidelity] case1.1_window summary High: 16.63 ms (60 fps), p95 32.35 ms, passes 14.06 / 19.21 ms
+  [Fidelity] case1.1_window summary Ultra: 18.88 ms (53 fps), p95 34.61 ms, passes 16.85 / 20.90 ms
+  [Fidelity] case1.1_inspect: holding still at 1600x900, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 17.95
+  [Fidelity] case1.1_inspect summary Low: 14.88 ms (67 fps), p95 32.26 ms, passes 13.03 / 16.72 ms
+  [Fidelity] case1.1_inspect summary Medium: 16.98 ms (59 fps), p95 35.76 ms, passes 18.20 / 15.75 ms
+  [Fidelity] case1.1_inspect summary High: 20.04 ms (50 fps), p95 42.10 ms, passes 16.98 / 23.09 ms
+  [Fidelity] case1.1_inspect summary Ultra: 21.50 ms (47 fps), p95 40.75 ms, passes 17.17 / 25.83 ms
+## Logs/r12/final/fidelity_1920.log (1920x1080)
+  [Fidelity] case1.1_window: holding still at 1920x1080, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 21.79
+  [Fidelity] case1.1_window summary Low: 10.54 ms (95 fps), p95 20.84 ms, passes 5.38 / 15.70 ms
+  [Fidelity] case1.1_window summary Medium: 11.37 ms (88 fps), p95 21.13 ms, passes 7.30 / 15.45 ms
+  [Fidelity] case1.1_window summary High: 14.22 ms (70 fps), p95 22.35 ms, passes 12.80 / 15.64 ms
+  [Fidelity] case1.1_window summary Ultra: 17.30 ms (58 fps), p95 28.79 ms, passes 17.00 / 17.61 ms
+  [Fidelity] case1.1_inspect: holding still at 1920x1080, vSync 0, target -1 fps, AMD Radeon 8060S Graphics (RADV STRIX_HALO) (Vulkan), load 18.80
+  [Fidelity] case1.1_inspect summary Low: 10.90 ms (92 fps), p95 19.95 ms, passes 11.62 / 10.18 ms
+  [Fidelity] case1.1_inspect summary Medium: 14.81 ms (68 fps), p95 28.82 ms, passes 15.33 / 14.30 ms
+  [Fidelity] case1.1_inspect summary High: 20.31 ms (49 fps), p95 31.64 ms, passes 17.74 / 22.88 ms
+  [Fidelity] case1.1_inspect summary Ultra: 21.58 ms (46 fps), p95 34.94 ms, passes 20.64 / 22.53 ms
+
+## aggregate
+passes per step: 12, load during passes 17.25-41.92
+case1.1_window Low: best 2.75 ms (364 fps), median of passes 8.09 ms, p95 at best pass 7.54 ms
+case1.1_window Medium: best 2.98 ms (336 fps), median of passes 11.27 ms, p95 at best pass 6.46 ms
+case1.1_window High: best 4.35 ms (230 fps), median of passes 13.81 ms, p95 at best pass 8.75 ms
+case1.1_window Ultra: best 10.35 ms (97 fps), median of passes 16.02 ms, p95 at best pass 17.58 ms
+case1.1_inspect Low: best 2.56 ms (391 fps), median of passes 9.71 ms, p95 at best pass 6.31 ms
+case1.1_inspect Medium: best 4.20 ms (238 fps), median of passes 11.71 ms, p95 at best pass 10.06 ms
+case1.1_inspect High: best 4.72 ms (212 fps), median of passes 12.33 ms, p95 at best pass 8.95 ms
+case1.1_inspect Ultra: best 11.78 ms (85 fps), median of passes 15.00 ms, p95 at best pass 17.33 ms
+case1.1_window Low / High: median 0.66 over 6 runs (range 0.42-0.88)
+case1.1_window Medium / High: median 0.84 over 6 runs (range 0.72-0.96)
+case1.1_window Ultra / High: median 1.19 over 6 runs (range 1.08-1.49)
+case1.1_inspect Low / High: median 0.76 over 6 runs (range 0.72-0.88)
+case1.1_inspect Medium / High: median 0.88 over 6 runs (range 0.77-0.95)
+case1.1_inspect Ultra / High: median 1.26 over 6 runs (range 1.07-1.70)

@@ -1501,3 +1501,83 @@ build size, and look right on the desk: Ultra gets them. Otherwise written up.
 Final checks after the last item: Linux build and validator, unit tests, the audit, the four AutoPilot policies with the text
 audit and face watch, the nudge tour, the padtest, the taptest, the edge test, the pointer test, the new menutest, the
 fidelity bench, the soak, and the real config folder compared with its state at the start of the round.
+
+## Round 12 results (8 Oct 2026)
+
+All four planned items landed on `improvements-12`, one commit each; the stretch (screen-space reflections) didn't, for the
+reasons below. Pictures and logs are in [`media/improvements/round12/`](media/improvements/round12/). Load average 17–72 from
+the other sessions on the machine, noted with each run. **The GPU was shared throughout:** this machine's Radeon 8060S read
+99% busy with none of this round's runs going (six other sessions' Unity players), so frame times here measure contention as
+much as the game (see the table's notes).
+
+| Item | Result | How it was verified |
+|---|---|---|
+| **R12-A. Graphics fidelity: Low, Medium, High, Ultra** (`b02f63a`) | *Picture quality*'s button grows into a **Graphics fidelity** slider of four steps, saved under the same key, so a saved Low, Medium or High reads the same; High stays the default and the game as designed. Ultra: 1.25× supersampling, 4× MSAA under SMAA High, 4096 shadow maps (sun and lamp) with four cascades, ambient occlusion at full resolution with 12 samples, high-quality depth-of-field sampling, 16× anisotropic filtering forced everywhere, and a 64-bit HDR colour buffer (smoother gradients in the dark). Low and Medium as round 1 had them, plus no ambient occlusion on Low and half-resolution occlusion on Medium. Changes apply at once. URP's high-quality bloom filtering was tried for Ultra and left out: it about doubled the bloom and washed out the desk (found by leaving each part of Ultra out in turn, `-lafUltraWithout`). The bench: `-lafFidelityBench` holds the AutoPilot still at chosen moments, applies each step, times it Low to Ultra and back, and photographs it. | 5 new unit tests (136 in all): four steps, High as designed, each step at least as costly as the one below, round 1's saved 0–2 reading the same, Ultra saved and out-of-range clamped. Same-moment screenshots of every step at two moments (`fidelity_window_*.jpg`, `fidelity_inspect_*.jpg`, details at full size in `*_details.jpg`). The menu test sets Ultra with the keyboard and the pad and checks it's applied and in `settings.json`. A whole `best` week on Ultra and one on Low: 24/24, clean text audit, 0 face frames. Frame times below. |
+| **R12-C. Light on brass and glass** (`7eedae3`) | The scene had no sky and no reflection probe, so polished metal, glaze and glass reflected black. A box-projected probe over the desk is rendered by the game once the desk is built and again on a fidelity change (64 on Medium, 128 on High, 256 on Ultra, none on Low): the lamp's brass arm and shade rim, the bell, the station clock and the printer's trim now pick up the room. Realtime probes were off in the project's quality levels; the game switches them on only to render this one, which refreshes by script alone. Dust drifts in the lamp's cone (24 motes on Medium, 48 on High, 120 on Ultra, none on Low), with an additive particle material kept in Resources so its shader ships. | Before (round 11 build) and every step at the same moment: `reflections_before_low_medium_high_ultra.jpg` (Low matches before). `[Reflections]` logs the probe's render in every run. Soak: live objects flat over the last 10 of 30 cycles (materials 686, textures 207, GameObjects 551; round 11 had 681, 203, 548). Whether High costs more than round 11's High couldn't be told on the shared GPU: an A/B with the probe left out (`-lafNoProbe`) gave 4–23 ms either way, run to run. |
+| **R12-B. Menus with the keyboard and the pad** (`ab142f2`) | On whichever card is on top (the title and its pages, the pause menu, Settings, Controls, the ledger and week pages), `↑` `↓` and the pad's d-pad move a focus between buttons and sliders (round from the last to the first), `Enter`/`Space` press, `←` `→` move a slider or step the fidelity. The focus looks like the hover with an underline and sounds like it; the pad's cursor follows it (just past the words), so A presses through the ordinary click. A card opened from the keys or the pad starts focused, and closing one puts the focus back where it was. Moving the mouse or the stick hands the menus back to the pointer. In a menu the d-pad no longer also works the lamp, the bell or a nudge. Also: `Esc` closes Settings, as it does Controls, the rules, the Curiosities and the pause menu (the day's ledger, the ending and the week's page still close only by their buttons); buttons show a press; and the Controls card and README list the menu keys. | New `Tools/unity.sh menutest`: a virtual keyboard, then a virtual pad, from the title to Settings, the fidelity to Ultra (applied, saved) and back, `Esc`, Begin, the pause menu, its Controls card, and out; then the same with Menu, the d-pad and A. **PASS, 24 checks**, text audit clean on its 7 screenshots. It covers the title, Settings, the pause menu and Controls; the ledger, ending and week pages get the same focus but no test drives them (`menutest.txt`, `menu_focus_keyboard_and_pad.jpg`). Tap test 14/14, pad test, edge test and pointer test pass. A first underline sat on the descender line and struck through the caption under Controls' *Back*; it now sits under the baseline. |
+| **R12-D. Cards that open and close** (`0fbc9f4`) | Settings, the pause menu, Controls, Agnes's rules, the week's ledger and the Curiosities appeared and vanished in one frame. They now fade in with their dim while the card rises a few pixels and settles from 97% (0.2 s), and fade out (0.14 s) once put away, already closed as far as the game, the menus and the pointer are concerned. Instant with *Reduce motion*. The title, the day's ledger, the ending and the week's page already faded and are left alone. | Smoke `-lafCardFrames`: Settings and the pause menu photographed as they open and close (`cards_open_close.jpg`, times in `cards_timing.txt`; each capture stalls a frame, so the shots land about 100 ms apart rather than at 0/60/120/240 ms): empty at +5 ms, arriving at +95 ms, whole at +236 ms; half gone at +77 ms on closing. With *Reduce motion* the first frame after opening is the whole card and the first after closing is clear. The menu test and every AutoPilot week below pass with it. |
+
+### Graphics fidelity: the steps
+
+| Step | What it sets | Frame time, claimant at the window | Frame time, wallet in hand | Against High in the same run (window / in hand, median of 6 runs) |
+|---|---|---|---|---|
+| **Low** | Render scale 0.7, 512 shadow maps with Low soft-shadow filtering, FXAA, no ambient occlusion, no depth of field, quarter-resolution bloom, each texture's own filtering, no reflection probe, no dust | 2.75 ms | 2.56 ms | 0.66× / 0.76× |
+| **Medium** | Render scale 0.85, 1024 shadow maps (Medium softness), SMAA Medium, ambient occlusion at half resolution with 4 samples, depth of field, 64 probe, 24 motes | 2.98 ms | 4.20 ms | 0.84× / 0.88× |
+| **High** (default) | The game as designed: render scale 1, 2048 shadow maps (High softness), SMAA High, full-resolution ambient occlusion with 8 samples, depth of field; plus this round's 128 probe and 48 motes | 4.35 ms | 4.72 ms | 1 |
+| **Ultra** | 1.25× supersampling, 4× MSAA under SMAA High, 4096 shadow maps with four cascades, ambient occlusion with 12 samples, high-quality depth-of-field sampling, 16× anisotropic filtering, a 64-bit HDR buffer, 256 probe, 120 motes | 10.35 ms | 11.78 ms | 1.19× / 1.26× |
+
+Frame times are the least-disturbed of 12 passes per step (six bench runs, each timing every step twice over 400 uncapped
+frames, vSync off) at 1600×900 on build `0fbc9f4`, load average 17–42 while they ran (`fidelity_bench.txt`). With the GPU shared,
+the median pass was 8–16 ms for every step, so absolute numbers on a free GPU will differ; the last column, each step against
+High in the same run, held its order in every run (Low 0.42–0.88×, Medium 0.72–0.96×, Ultra 1.07–1.70×). At 1920×1080 one
+run measured 10.5, 11.4, 14.2 and 17.3 ms at the window and 10.9, 14.8, 20.3 and 21.6 ms with the wallet in hand (load 19–22).
+Low stays well under a 60 Hz frame here; Ultra holds about 85–97 fps at 1600×900 on this iGPU in its best passes.
+
+### Final checks (final Linux build at `0fbc9f4`, load average 17–72)
+Linux build from a clean tree (`building commit 0fbc9f4`) and validator: 28 objects, 5 days, 25 cases, **0 issues**.
+**136/136 unit tests** (131 before). Audit: PASS, 84/84 details, 0 below 10%. AutoPilot with the text audit and the face watch:
+`best` 24/24 *The 9:40*, `worst` *Grey Ninefold*, `wait` *The Long Wait* (23/24) and `refuse` (6/24) at 1600×900; `best` 24/24
+at 960×1080, at 1024×768, and at 1600×900 on **Ultra** and on **Low**: **0 overflowing, 0 overlapping, 0 covered texts and 0
+covered faces at screenshots, and 0 frames with the bubble over a face** in all eight; every `[StampHint]` right (27 in each,
+22 in `worst`); 0 exceptions. Nudge tour: PASS, 210 nudges, 24/24, 21 details at the glint and 2 by the part that lit up. Soak,
+30 cycles: PASS, live objects flat over the last 10. Menu test PASS (24 checks), pad test PASS, tap test 14 of 14, edge test PASS
+(7 holds), pointer test PASS (13 phases), real-input play of Monday PASS (4 of 4 claims as meant, 11 details by hand, 0
+fallbacks, 0 hover misses); each input test started at load average under 24. Every player run in the headless KWin, and every
+one printed the guard's "untouched". The real `~/.config/unity3d/Nearby/Lost & Found/` was **identical (sizes, timestamps,
+hashes) at the end of the round and at its start**, and no `laf.` key appeared in `unknown/unknown/prefs`. Logs: the timeline
+with the load at each start and end in `final_checks_timeline.txt`; the rest under `Logs/r12/final/` locally.
+
+### Found along the way
+- **URP's high-quality bloom filtering about doubles the bloom** in this scene (above); Ultra keeps the default.
+- **TextMeshPro's text bounds reach down to the descender line**, so an underline placed under them hangs a few pixels low.
+- **The menu test's first run hung** on my own logging (describing a button destroyed with its card); the test now says
+  "nothing" there. The hung player was mine and was stopped.
+- **The iGPU is never idle while other sessions test**, which is why this round's frame times are given against High in the
+  same run as well as alone.
+
+### Not done, and why
+- **R12-E, screen-space reflections on Ultra.** URP 17.6 has them behind an experimental scripting define. Turning it on doubles
+  the Lit shader's fragment variants (longer builds, a bigger download), and the WebGL build uses the same PC renderer, where the
+  feature's class wouldn't exist without the define; doing it safely means a second renderer for Ultra on desktop only. Not
+  worth the risk for a stretch; the reflection probe covers the desk's metal.
+- **High against round 11's High** couldn't be measured within noise on the shared GPU. High's settings are round 11's apart
+  from the probe (rendered once, then sampled) and 48 motes.
+- **The probe is rendered once per desk**, before anyone is at the window, so the claimant and Thursday's blue lamp don't
+  appear in reflections. Re-rendering it as the scene changes would cost a hitch each time.
+- As round 11 left them: the ring's date in the real-input play's turning search, the one wrong stamp in twelve real-input runs,
+  real hardware, the ledger book's place at 16:9, the desk's size in a narrow window, the trailer, WebGL hosting, macOS on a Mac,
+  Windows, keyboard layouts other than US.
+
+### Still open after round 12
+- No human has played any of it, and nobody has looked at Ultra or Low on a monitor other than through screenshots.
+- Ultra on a 4K screen and on a discrete GPU is unmeasured; on this iGPU at 1920×1080 it ran at about 46–58 fps while shared.
+
+### Needs a decision from the owner
+- Unchanged from round 11: a last-stamp undo, the version number, the ledger book's place on the desk, fullscreen by default on
+  small screens, choosing a keyboard layout or rebinding keys, re-cutting the trailer and teaser (which show none of rounds
+  2–12), hosting WebGL, curiosities across weeks, installing tools outside the repo, and the licence, releases and tags,
+  signing, and Windows Build Support.
+- Whether High (the default) should stay as designed or move a step towards Ultra on machines that can afford it (an
+  automatic choice by GPU would need testing on hardware this machine doesn't have).
+- The WebGL build wasn't rebuilt this round; it would get the fidelity setting, the menus and the card motion as they are.
+- Whether to clear the 64 helper processes earlier rounds left running (round 11's question).

@@ -1,0 +1,44 @@
+commit 0fbc9f4, tree 0 changes
+== build: start 13:57:42 load 28.79
+   end 13:58:16 load 31.35, exit 0
+== test: start 13:58:16 load 31.35
+   end 13:58:42 load 40.03, exit 0
+== audit: start 13:58:42 load 40.03
+   end 13:59:42 load 72.33, exit 0
+== ap_best: start 13:59:42 load 72.33
+   end 14:03:28 load 23.25, exit 0
+== ap_worst: start 14:03:28 load 23.25
+   end 14:07:02 load 24.12, exit 0
+== ap_wait: start 14:07:02 load 24.12
+   end 14:11:29 load 20.26, exit 0
+== ap_refuse: start 14:11:29 load 20.26
+   end 14:15:13 load 24.35, exit 0
+== ap_best_960x1080: start 14:15:13 load 24.35
+   end 14:19:06 load 24.47, exit 0
+== ap_best_1024x768: start 14:19:06 load 24.47
+   end 14:23:03 load 24.49, exit 0
+== ap_best_ultra: start 14:23:03 load 24.29
+   end 14:26:50 load 31.31, exit 0
+== ap_best_low: start 14:26:50 load 31.31
+   end 14:30:32 load 20.26, exit 0
+== nudgetour: start 14:30:32 load 20.26
+   end 14:36:11 load 30.53, exit 0
+== soak: start 14:36:11 load 30.53
+   end 14:42:18 load 61.81, exit 0
+== menutest: start 14:44:03 load 23.27
+   end 14:44:35 load 21.52, exit 0
+== padtest: start 14:44:35 load 21.52
+   end 14:46:10 load 23.12, exit 0
+== taptest: start 14:46:10 load 23.12
+   end 14:47:11 load 21.90, exit 0
+== edgetest: start 14:47:11 load 21.90
+   end 14:48:06 load 28.24, exit 0
+== pointertest: start 14:48:51 load 22.51
+   end 14:50:40 load 25.80, exit 0
+== realplay: start 14:51:10 load 23.92
+   end 14:58:34 load 48.11, exit 0
+== fidelity: start 15:00:34 load 20.91
+   end 15:01:52 load 23.29, exit 0
+== fidelity_1920: start 15:01:52 load 23.29
+   end 15:04:07 load 39.39, exit 0
+done 15:04:07
