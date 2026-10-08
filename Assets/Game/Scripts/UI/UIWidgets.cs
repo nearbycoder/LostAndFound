@@ -29,7 +29,8 @@ namespace LostAndFound
         Vector2 target;
         bool tailLeft;
         Commuter speaker;
-        float nextPlace;
+        Commuter[] people = new Commuter[0];
+        float nextScan;
 
         public static DialogueBox Create(RectTransform root)
         {
@@ -85,6 +86,7 @@ namespace LostAndFound
         /// <summary>Place the bubble beside the speaker's head (or low on the left for your own lines).</summary>
         void PlaceFor(Commuter who, bool player)
         {
+            if (who != speaker) nextScan = 0f;   // a new speaker: look again at who's at the window
             var canvas = UIRoot.I.root;
             float w = canvas.rect.width, h = canvas.rect.height;
             float s = UiKit.TextScale;
@@ -106,7 +108,8 @@ namespace LostAndFound
             // with two people at the window, the bubble goes on the far side from the other one
             // (and a little narrower) so it never covers a face
             bool crowded = false;
-            foreach (var other in Object.FindObjectsByType<Commuter>())
+            if (Time.unscaledTime >= nextScan) { nextScan = Time.unscaledTime + 0.5f; people = Object.FindObjectsByType<Commuter>(); }
+            foreach (var other in people)
             {
                 if (other == who || other == null) continue;
                 float ox = Camera.main.WorldToScreenPoint(other.HeadPosition).x * k;
@@ -265,11 +268,7 @@ namespace LostAndFound
         void LateUpdate()
         {
             // follow the speaker: they may have started talking while you were turned away, or still be stepping up to the window
-            if (shown && speaker != null && Time.unscaledTime >= nextPlace && CameraRig.I != null && CameraRig.I.view == View.Counter)
-            {
-                nextPlace = Time.unscaledTime + 0.25f;
-                PlaceFor(speaker, false);
-            }
+            if (shown && speaker != null && CameraRig.I != null && CameraRig.I.view == View.Counter) PlaceFor(speaker, false);
             if (shown) panel.anchoredPosition = Vector2.Lerp(panel.anchoredPosition, target, 1f - Mathf.Exp(-14f * Time.unscaledDeltaTime));
             // step aside while you read the slip or turn away to the drawers
             bool away = ClaimSlip.I != null && ClaimSlip.I.Focused && !Typing && !Waiting
