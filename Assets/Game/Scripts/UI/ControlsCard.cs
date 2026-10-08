@@ -95,7 +95,7 @@ namespace LostAndFound
         public static void Hide()
         {
             if (!IsOpen) return;
-            Object.Destroy(panel.gameObject);
+            CardMotion.Close(panel);
             panel = null;
             UIRoot.I.PopModal();
             AudioDirector.PlayMaterial("paper", "put", 0.4f);

@@ -242,7 +242,7 @@ namespace LostAndFound
         public static void Hide()
         {
             if (panel == null) return;
-            Object.Destroy(panel.gameObject);
+            CardMotion.Close(panel);
             panel = null;
             UIRoot.I.PopModal();
             AudioDirector.PlayMaterial("paper", "put", 0.4f);
@@ -333,7 +333,7 @@ namespace LostAndFound
             {
                 if (closed) return;
                 closed = true;
-                Object.Destroy(panel.gameObject);
+                CardMotion.Close(panel);
                 UIRoot.I.PopModal();
                 onClose?.Invoke();
             }
@@ -527,7 +527,7 @@ namespace LostAndFound
             Open = false;
             Time.timeScale = prevScale <= 0f ? 1f : prevScale;
             AudioDirector.Muffle(false);
-            if (panel != null) Destroy(panel.gameObject);
+            if (panel != null) CardMotion.Close(panel);
             UIRoot.I.PopModal();
         }
     }
@@ -597,7 +597,7 @@ namespace LostAndFound
         public static void Hide()
         {
             if (!IsOpen) return;
-            Object.Destroy(panel.gameObject);
+            CardMotion.Close(panel);
             panel = null;
             UIRoot.I.PopModal();
             AudioDirector.PlayMaterial("paper", "put", 0.4f);

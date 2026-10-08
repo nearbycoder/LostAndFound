@@ -1,5 +1,6 @@
 using System.Collections;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 namespace LostAndFound
@@ -55,6 +56,7 @@ namespace LostAndFound
                 if (System.Environment.GetEnvironmentVariable("LAF_SMALLSCREEN") == "1") StartCoroutine(FullscreenTrip());
                 else Debug.LogWarning("[Window] -lafFullscreenTrip ignored: only inside Tools/unity.sh smallscreen");
             }
+            if (Game.Arg("-lafCardFrames") != null) { yield return CardFrames(); Application.Quit(); yield break; }
             int n = 0;
             float t = 0f;
             int lastFrame = Time.frameCount;
@@ -78,6 +80,52 @@ namespace LostAndFound
             if (Game.Arg("-lafTextAudit") != null) TextAudit.Summary();
             Debug.Log("[Smoke] done");
             Application.Quit();
+        }
+
+        /// <summary>-lafCardFrames: Settings over the title, then the pause menu in the week, photographed 0, 60, 120 and 240 ms after
+        /// each opens and 0, 70 and 140 ms after it closes (CardMotion), then the same with Reduce motion on, for one frame each.</summary>
+        IEnumerator CardFrames()
+        {
+            yield return new WaitForSecondsRealtime(2.5f);   // the title has faded in
+            IEnumerator Frames(string name, System.Action open, System.Action close)
+            {
+                float t0 = Time.realtimeSinceStartup;
+                open();
+                foreach (int ms in new[] { 0, 60, 120, 240 })
+                {
+                    while (Time.realtimeSinceStartup - t0 < ms / 1000f) yield return null;
+                    ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"card_{name}_open_{ms:000}ms.png"));
+                    Debug.Log($"[Cards] {name} open +{(Time.realtimeSinceStartup - t0) * 1000f:0} ms, frame {Time.frameCount}");
+                    yield return null;
+                }
+                yield return new WaitForSecondsRealtime(0.4f);
+                t0 = Time.realtimeSinceStartup;
+                close();
+                foreach (int ms in new[] { 0, 70, 140 })
+                {
+                    while (Time.realtimeSinceStartup - t0 < ms / 1000f) yield return null;
+                    ScreenCapture.CaptureScreenshot(Path.Combine(dir, $"card_{name}_close_{ms:000}ms.png"));
+                    Debug.Log($"[Cards] {name} close +{(Time.realtimeSinceStartup - t0) * 1000f:0} ms, frame {Time.frameCount}");
+                    yield return null;
+                }
+                yield return new WaitForSecondsRealtime(0.4f);
+            }
+            void PressDone() => Object.FindObjectsByType<PaperButton>().FirstOrDefault(b => b.label != null && b.label.text == "Done")?.Press();
+            var pause = Object.FindAnyObjectByType<PauseMenu>();
+            void PressBack() => Object.FindObjectsByType<PaperButton>().FirstOrDefault(b => b.label != null && b.label.text == "Back to the desk")?.Press();
+            yield return Frames("settings", () => SettingsPanel.Open(null), PressDone);
+            Settings.ReduceMotion = true;
+            yield return Frames("settings_reduced", () => SettingsPanel.Open(null), PressDone);
+            Settings.ReduceMotion = false;
+            TitleScreen.Begin(Game.I);
+            yield return new WaitForSecondsRealtime(1f);
+            while (Director.I == null || !Director.I.Running || UIRoot.ModalOpen) yield return null;
+            yield return new WaitForSecondsRealtime(7f);   // past the day's title card, at the desk
+            yield return Frames("pause", () => pause.Show(), PressBack);
+            Settings.ReduceMotion = true;
+            yield return Frames("pause_reduced", () => pause.Show(), PressBack);
+            Settings.ReduceMotion = false;
+            Debug.Log("[Cards] done");
         }
 
         IEnumerator FullscreenTrip()

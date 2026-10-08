@@ -142,6 +142,7 @@ namespace LostAndFound
             ui.AddComponent<PauseMenu>();
             ui.AddComponent<RulesHotkey>();
             ui.AddComponent<MenuNav>();
+            ui.AddComponent<CardMotion>();
             ApplyDisplay();
             if (!rebuilt) LogKeyLabels();
 

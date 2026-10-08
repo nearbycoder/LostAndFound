@@ -42,7 +42,7 @@ namespace LostAndFound
             for (int i = ui.root.childCount - 1; i >= ui.HudCount; i--)
             {
                 var c = (RectTransform)ui.root.GetChild(i);
-                if (!c.gameObject.activeInHierarchy) continue;
+                if (!c.gameObject.activeInHierarchy || c.GetComponent<CardMotion.Closing>() != null) continue;
                 if (c.TryGetComponent<CanvasGroup>(out var g) && (!g.interactable || g.alpha < 0.05f)) return null;   // on its way out
                 items = Items(c);
                 return items.Count > 0 ? c : null;
