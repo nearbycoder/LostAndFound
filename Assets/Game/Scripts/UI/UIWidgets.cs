@@ -505,7 +505,7 @@ namespace LostAndFound
             else { show = hover ?? persistent; c = new Color(1f, 0.95f, 0.86f); }
             if (UIRoot.ModalOpen) show = null;
             a = Mathf.MoveTowards(a, string.IsNullOrEmpty(show) ? 0f : 1f, Time.unscaledDeltaTime * 6f);
-            if (!string.IsNullOrEmpty(show)) text.text = show;
+            if (!string.IsNullOrEmpty(show)) text.text = TouchInput.Words(show);
             text.color = new Color(c.r, c.g, c.b, a);
             // while you're holding something, sit between the object's name and the control strip
             var rt = (RectTransform)transform;
@@ -570,12 +570,15 @@ namespace LostAndFound
             partHint.text = "";
         }
 
-        bool padShown;
+        bool padShown, touchShown;
 
         string ControlsText()
         {
             padShown = GamepadInput.Active;
+            touchShown = TouchInput.Active;
             bool lampOn = Lamp.I != null && Lamp.I.uvUnlocked;
+            if (touchShown && !padShown)
+                return $"DRAG  TURN   ·   PINCH  CLOSER   ·   TAP  OPEN / NOTE   ·   BACK  PUT DOWN   ·   TRAY  ON THE TRAY{(lampOn ? "   ·   LAMP  BLUE LAMP" : "")}   ·   NUDGE";
             return GamepadInput.Prompt(
                 $"DRAG  TURN   ·   SCROLL  CLOSER   ·   RIGHT CLICK  PUT DOWN   ·   T  ON THE TRAY{(lampOn ? "   ·   L  BLUE LAMP" : "")}   ·   H  NUDGE",
                 $"RIGHT STICK  TURN   ·   TRIGGERS  CLOSER   ·   A  OPEN / NOTE   ·   B  PUT DOWN   ·   X  ON THE TRAY{(lampOn ? "   ·   D-PAD UP  BLUE LAMP" : "")}   ·   D-PAD LEFT  NUDGE");
@@ -608,7 +611,7 @@ namespace LostAndFound
             a = Mathf.MoveTowards(a, on ? 1f : 0f, Time.unscaledDeltaTime * 5f);
             group.alpha = a;
             transform.localScale = Vector3.one * UiKit.TextScale;
-            if (on && padShown != GamepadInput.Active) controls.text = ControlsText();   // the hands changed controls
+            if (on && (padShown != GamepadInput.Active || touchShown != TouchInput.Active)) controls.text = ControlsText();   // the hands changed controls
             if (on && item != null && Findings(item.def).found != shownFound) title.text = Title();
         }
     }

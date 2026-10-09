@@ -29,6 +29,7 @@ namespace LostAndFound
         Camera cam;
         public bool Active { get; private set; }
         public bool Focused => focused;
+        bool touchDrawn;
         /// <summary>For the AutoPilot: a pointer it isn't using (left at the top of the window) doesn't lean back out.</summary>
         public static bool IgnorePointerExit;
 
@@ -156,6 +157,7 @@ namespace LostAndFound
         void Redraw()
         {
             if (header == null) return;
+            touchDrawn = TouchInput.Active;
             if (!Active)
             {
                 header.text = "NINEFOLD JUNCTION\n<size=70%>LOST PROPERTY OFFICE</size>";
@@ -170,7 +172,7 @@ namespace LostAndFound
             if (claimLines.Count == 0) sb.Append("<color=#00000050>...</color>\n");
             foreach (var l in claimLines) sb.Append("— ").Append(l).Append('\n');
             sb.Append("<font=\"SpecialElite\"><size=62%><color=#26222a>I FOUND:</color></size></font>");
-            if (clueLines.Count > 0) sb.Append(" <size=60%><color=#5a4a3a>(click to ask)</color></size>");
+            if (clueLines.Count > 0) sb.Append(TouchInput.Active ? " <size=60%><color=#5a4a3a>(tap to ask)</color></size>" : " <size=60%><color=#5a4a3a>(click to ask)</color></size>");
             sb.Append(Strut).Append('\n');
             if (clueLines.Count == 0) sb.Append("<color=#00000050>(look closely at the item)</color>\n");
             for (int i = 0; i < clueLines.Count; i++)
@@ -214,9 +216,9 @@ namespace LostAndFound
         void Update()
         {
             if (cam == null) cam = Camera.main;
-            var kb = Keyboard.current;
             bool busy = InspectController.I != null && InspectController.I.Held != null;
-            if (kb != null && InputX.KeyDown(Key.Tab) && !busy && !UIRoot.ModalOpen) SetFocus(!focused);
+            if (InputX.KeyDown(Key.Tab) && !busy && !UIRoot.ModalOpen) SetFocus(!focused);
+            if (touchDrawn != TouchInput.Active) Redraw();   // "(click to ask)" or "(tap to ask)"
 
             if (focused)
             {

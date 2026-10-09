@@ -1,4 +1,5 @@
-// The page's fullscreen, asked for from the game (WebPage.cs). The canvas goes fullscreen, as the page's own button does;
+// The page around the game, from the game (WebPage.cs): its fullscreen, and its touch controls.
+// The page's fullscreen: The canvas goes fullscreen, as the page's own button does;
 // the browser refuses (quietly) if no click or key press is recent enough.
 mergeInto(LibraryManager.library, {
   LafIsFullscreen: function () {
@@ -15,5 +16,13 @@ mergeInto(LibraryManager.library, {
         (document.exitFullscreen || document.webkitExitFullscreen).call(document);
       }
     } catch (e) { console.log('[Page] fullscreen failed: ' + e); }
+  },
+  // A phone or a tablet, as the page judged it before the game loaded (index.html's lafTouchFirst): lighter graphics by default.
+  LafTouchDevice: function () {
+    return window.lafTouchFirst ? 1 : 0;
+  },
+  // Which of the page's touch controls apply now (TouchInput.State's bits).
+  LafTouchState: function (flags) {
+    if (window.lafTouchState) window.lafTouchState(flags);
   },
 });

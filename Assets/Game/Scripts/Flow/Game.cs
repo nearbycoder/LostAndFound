@@ -103,6 +103,7 @@ namespace LostAndFound
             gameObject.AddComponent<AudioDirector>();
             gameObject.AddComponent<CursorController>();
             gameObject.AddComponent<GamepadInput>();
+            if (TouchInput.I == null) new GameObject("LafTouch").AddComponent<TouchInput>();   // outlives a rebuilt game, as the page's touch does
             gameObject.AddComponent<BackgroundMode>();
 
             // camera

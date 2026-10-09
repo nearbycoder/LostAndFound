@@ -27,7 +27,7 @@ namespace LostAndFound
             Key.LeftArrow, Key.RightArrow, Key.Backspace, Key.F1, Key.F12, Key.M, Key.R, Key.H,
             Key.UpArrow, Key.DownArrow, Key.NumpadEnter,
         };
-        // the keyboard's own keys, without the gamepad's stand-ins (the menus read the pad's d-pad themselves)
+        // the keyboard's own keys, without the gamepad's or the touch controls' stand-ins (the menus read the pad's d-pad themselves)
         readonly Dictionary<Key, (bool now, bool prev)> kbKeys = new();
 
         // buttons that went down in an input event since the last sample, and those the current frame is counting
@@ -89,7 +89,7 @@ namespace LostAndFound
             foreach (var k in Watched)
             {
                 bool own = (kb != null && kb[k].isPressed) || LatchedKey(k);
-                bool now = own || GamepadInput.KeyHeld(k);
+                bool now = own || GamepadInput.KeyHeld(k) || TouchInput.KeyHeld(k);
                 bool prev = keys.TryGetValue(k, out var s) && s.now;
                 keys[k] = (now, prev);
                 kbKeys[k] = (own, kbKeys.TryGetValue(k, out var o) && o.now);

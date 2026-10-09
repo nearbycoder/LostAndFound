@@ -9,7 +9,7 @@
 #   Tools/unity.sh headless        resident batch-mode editor (serves `unity command` via Pipeline)
 #   Tools/unity.sh build-linux     batch-build Builds/Linux/LostAndFound.x86_64
 #   Tools/unity.sh build-mac       batch-build Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
-#   Tools/unity.sh build-webgl     batch-build Builds/WebGL/ (Tools/build-pages.sh makes the GitHub Pages site from it)
+#   Tools/unity.sh build-webgl     batch-build Builds/WebGL/ and Builds/WebGL-astc/ (Tools/build-pages.sh makes the Pages site of them)
 #   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
 #   Tools/unity.sh run-webgl <Method>  the same with WebGL as the build target (its imports: texture formats and so on)

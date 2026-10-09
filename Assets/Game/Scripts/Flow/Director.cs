@@ -65,6 +65,8 @@ namespace LostAndFound
         /// <summary>A day is under way (the pause menu is available).</summary>
         public bool Running => phase != Phase.Idle && DayDef != null;
         public bool CanUseStamps => phase == Phase.Investigate && !asking;
+        /// <summary>A claim is at the window (Agnes's nudges are for now).</summary>
+        public bool AtTheWindow => phase == Phase.Investigate;
         /// <summary>A question is being put to the claimant and answered.</summary>
         public bool Asking => asking;
         /// <summary>Everything said in the current claim, shown beside the slip while you read it.</summary>

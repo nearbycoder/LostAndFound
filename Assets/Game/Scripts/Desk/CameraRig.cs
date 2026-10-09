@@ -112,8 +112,7 @@ namespace LostAndFound
         void Update()
         {
             float dt = Time.deltaTime;
-            var kb = Keyboard.current;
-            if (allowTurn && kb != null && !UIRoot.ModalOpen)
+            if (allowTurn && !UIRoot.ModalOpen)
             {
                 if (InputX.KeyDown(Key.A) || InputX.KeyDown(Key.LeftArrow)) Turn(-1);
                 if (InputX.KeyDown(Key.D) || InputX.KeyDown(Key.RightArrow)) Turn(1);
@@ -124,7 +123,7 @@ namespace LostAndFound
             // gentle head-look towards the mouse
             Vector2 m = Mouse.current != null ? Mouse.current.position.ReadValue() : new Vector2(Screen.width / 2f, Screen.height / 2f);
             Vector2 n = new(m.x / Mathf.Max(1, Screen.width) - 0.5f, m.y / Mathf.Max(1, Screen.height) - 0.5f);
-            if (UIRoot.ModalOpen || !MouseLive || PointerOut) n = Vector2.zero;   // a pointer that has left the window: look ahead
+            if (UIRoot.ModalOpen || !MouseLive || PointerOut || TouchInput.Active) n = Vector2.zero;   // a pointer that has left the window, or a finger: look ahead
             float look = Settings.ReduceMotion ? 0.4f : 1f;
             target += new Vector2(n.x * 4.0f, n.y * 2.6f) * look;
 
@@ -228,7 +227,8 @@ namespace LostAndFound
             }
             // not while another window has the focus, nor once the pointer has left the window: it still reads as at the edge.
             // Not at all with Settings > Turn at the screen's edge off
-            if (!Settings.EdgeTurn || !allowTurn || Mouse.current == null || UIRoot.ModalOpen || hasFocus || !MouseLive || !Application.isFocused || PointerOut) { edgeTimer = 0f; edgeDir = 0; return; }
+            // nor by touch, where the turn is the page's buttons and a finger near the edge is only reaching for something
+            if (!Settings.EdgeTurn || TouchInput.Active || !allowTurn || Mouse.current == null || UIRoot.ModalOpen || hasFocus || !MouseLive || !Application.isFocused || PointerOut) { edgeTimer = 0f; edgeDir = 0; return; }
             float x = Mouse.current.position.ReadValue().x / Mathf.Max(1, Screen.width);
             int dir = x < 0.025f ? -1 : x > 0.975f ? 1 : 0;
             if (dir != edgeDir) { edgeDir = dir; edgeTimer = 0f; }

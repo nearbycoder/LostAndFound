@@ -53,7 +53,10 @@ namespace LostAndFound.EditorTools
         /// so the files are Brotli with Unity's decompression fallback: the loader unpacks them itself when the server doesn't
         /// say they're compressed. Hashed file names, so a new build never meets an old file in a browser's cache. Building for
         /// WebGL rewrites URP's shader prefiltering in Mobile_RPAsset and leaves a Data/ folder of Burst output at the project
-        /// root: build-pages.sh puts back the one and removes the other.</summary>
+        /// root: build-pages.sh puts back the one and removes the other.
+        /// Two builds: Builds/WebGL with the desktop's texture formats (DXT and BC7), and Builds/WebGL-astc with ASTC, which
+        /// phones' and tablets' GPUs read (they have no DXT, and the player would unpack every texture to plain RGBA, four
+        /// times the memory). Only the data file differs; the page picks one by what the GPU offers. -lafNoAstc skips the second.</summary>
         [MenuItem("Lost & Found/Build WebGL Player")]
         public static void BuildWebGL()
         {
@@ -68,21 +71,52 @@ namespace LostAndFound.EditorTools
             PlayerSettings.WebGL.nameFilesAsHashes = true;
             PlayerSettings.WebGL.dataCaching = true;
             PlayerSettings.WebGL.threadsSupport = false;   // SharedArrayBuffer needs headers Pages can't send
-            // the smaller WebAssembly ("Disk Size"); a desk game isn't short of CPU
+            // the smaller WebAssembly ("Disk Size", and IL2CPP's code for size, which shares generic code): a desk game isn't short
+            // of CPU, and a phone's browser needs memory to compile every megabyte of it (about 11 MB a megabyte, in headless WebKit)
             EditorUserBuildSettings.SetPlatformSettings("WebGL", "CodeOptimization", "DiskSize");
+            PlayerSettings.SetIl2CppCodeGeneration(NamedBuildTarget.WebGL, Il2CppCodeGeneration.OptimizeSize);
             ValidateContent();
             ProjectSetup.Apply();
             StampCommit();
+            bool ok = BuildWebGLTo("Builds/WebGL", "desktop textures");
+            if (ok && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-lafNoAstc") < 0) ok = BuildWebGLAstcTo("Builds/WebGL-astc");
+            Quit(ok);
+        }
+
+        /// <summary>Only the phones' and tablets' build (Builds/WebGL-astc), to try a change to it without the desktop's.</summary>
+        public static void BuildWebGLPhones()
+        {
+            ProjectSetup.Apply();
+            StampCommit();
+            Quit(BuildWebGLAstcTo("Builds/WebGL-astc"));
+        }
+
+        /// <summary>The build with ASTC textures: the build's texture subtarget ASTC, for this one build (the editor's own setting is
+        /// put back as it was).</summary>
+        static bool BuildWebGLAstcTo(string path)
+        {
+            var subtarget = EditorUserBuildSettings.webGLBuildSubtarget;
+            try
+            {
+                EditorUserBuildSettings.webGLBuildSubtarget = WebGLTextureSubtarget.ASTC;
+                return BuildWebGLTo(path, "ASTC textures, for phones and tablets", (int)WebGLTextureSubtarget.ASTC);
+            }
+            finally { EditorUserBuildSettings.webGLBuildSubtarget = subtarget; }
+        }
+
+        static bool BuildWebGLTo(string path, string what, int subtarget = 0)
+        {
             var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
             {
                 scenes = Scenes,
-                locationPathName = "Builds/WebGL",
+                locationPathName = path,
                 target = BuildTarget.WebGL,
+                subtarget = subtarget,
                 options = BuildOptions.None,
             });
             var s = report.summary;
-            Debug.Log($"[LostAndFound] WebGL build {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
-            Quit(s.result == BuildResult.Succeeded);
+            Debug.Log($"[LostAndFound] WebGL build ({what}, {path}) {s.result}: {s.totalSize / (1024 * 1024)} MB, {s.totalErrors} errors, {s.totalTime}");
+            return s.result == BuildResult.Succeeded;
         }
 
         static void Build(BuildTarget target, string path, string productName = null)

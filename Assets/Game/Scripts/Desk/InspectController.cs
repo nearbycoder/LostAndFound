@@ -147,7 +147,6 @@ namespace LostAndFound
             heldTime += Time.deltaTime;
             var item = Held;
             var mouse = Mouse.current;
-            var kb = Keyboard.current;
             if (mouse == null) return;
             if (UIRoot.ModalOpen) return;
 
@@ -155,17 +154,14 @@ namespace LostAndFound
             float wheel = mouse.scroll.ReadValue().y;
             if (Mathf.Abs(wheel) > 0.01f) ZoomTo(Mathf.Clamp(zoom + Mathf.Sign(wheel) * 0.12f, 0.75f, 1.65f), mouse.position.ReadValue());
             if (zoom <= 1.001f) pan = Vector2.Lerp(pan, Vector2.zero, 1f - Mathf.Exp(-6f * Time.deltaTime));
-            if (kb != null)
-            {
-                if (InputX.KeyDown(Key.T)) { Release(ItemPlace.Tray); return; }
-                if (InputX.KeyDown(Key.Escape) || InputX.KeyDown(Key.Backspace)) { Release(ItemPlace.Mat); return; }
-                if (InputX.KeyDown(Key.L)) Lamp.I?.ToggleUV();
-                // keyboard turning for accessibility
-                if (InputX.KeyHeld(Key.Q)) angularVel.y += 260f * Time.deltaTime;
-                if (InputX.KeyHeld(Key.E)) angularVel.y -= 260f * Time.deltaTime;
-                if (InputX.KeyHeld(Key.W)) angularVel.x += 260f * Time.deltaTime;
-                if (InputX.KeyHeld(Key.S)) angularVel.x -= 260f * Time.deltaTime;
-            }
+            if (InputX.KeyDown(Key.T)) { Release(ItemPlace.Tray); return; }
+            if (InputX.KeyDown(Key.Escape) || InputX.KeyDown(Key.Backspace)) { Release(ItemPlace.Mat); return; }
+            if (InputX.KeyDown(Key.L)) Lamp.I?.ToggleUV();
+            // keyboard turning for accessibility
+            if (InputX.KeyHeld(Key.Q)) angularVel.y += 260f * Time.deltaTime;
+            if (InputX.KeyHeld(Key.E)) angularVel.y -= 260f * Time.deltaTime;
+            if (InputX.KeyHeld(Key.W)) angularVel.x += 260f * Time.deltaTime;
+            if (InputX.KeyHeld(Key.S)) angularVel.x -= 260f * Time.deltaTime;
             // the right stick turns it as a drag would (right = drag right, up = drag up)
             Vector2 rs = GamepadInput.RightStick;
             angularVel += new Vector3(rs.y, -rs.x, 0f) * 420f * Settings.MouseSensitivity * Time.deltaTime;

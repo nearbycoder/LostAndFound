@@ -35,8 +35,14 @@ namespace LostAndFound
         }
 
         /// <summary>The hint while a stamp is held: off the slip, how to use it; over it, what it will do there.</summary>
-        public static string Hint(string what, bool overSlip, bool pad)
+        public static string Hint(string what, bool overSlip, bool pad) => Hint(what, overSlip, pad, false);
+
+        /// <param name="touch">by touch, a tap brings the stamp to a spot and says what it would do there; a tap on that spot again
+        /// brings it down (a stamp can't be taken back, so it's never one tap)</param>
+        public static string Hint(string what, bool overSlip, bool pad, bool touch)
         {
+            if (touch && !pad)
+                return overSlip ? what + "   ·   Tap here again to stamp" : "Tap the slip to see what it would do there, then tap again to stamp   ·   Back puts it back";
             if (!overSlip)
                 return pad ? "Bring it over the slip, then A to stamp   ·   B puts the stamp back" : "Click on the slip to stamp it   ·   Right click to put the stamp back";
             return what + (pad ? "   ·   A to stamp" : "   ·   Click to stamp");

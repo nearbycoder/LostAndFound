@@ -55,7 +55,7 @@ namespace LostAndFound
         public void Show(string text, int index, int count)
         {
             head.text = count > 1 ? $"A nudge from Agnes   <size=80%>{index} of {count}</size>" : "A nudge from Agnes";
-            body.text = text;
+            body.text = TouchInput.Words(text);
             if (!on) panel.localRotation = Quaternion.Euler(0f, 0f, Random.Range(-1.8f, 1.2f));
             on = true;
             shownAt = Time.unscaledTime;

@@ -58,7 +58,7 @@ namespace LostAndFound
                 shadow.gameObject.AddComponent<MeshRenderer>().sharedMaterial = mat;
             }
             shadow.gameObject.SetActive(true);
-            Hint = StampPreview.Hint(null, false, GamepadInput.Active);
+            Hint = StampPreview.Hint(null, false, GamepadInput.Active, TouchInput.Active);
             UIRoot.I?.hint.Set(Hint);
         }
 
@@ -106,7 +106,7 @@ namespace LostAndFound
         static string Describe(Verdict kind, bool over, int who)
         {
             if (over && !Director.I.CanStamp(kind, who, out string why)) return why;
-            return StampPreview.Hint(over ? StampPreview.What(kind, Desk.I.OnTray?.def, ClaimSlip.I.Claimants, who) : null, over, GamepadInput.Active);
+            return StampPreview.Hint(over ? StampPreview.What(kind, Desk.I.OnTray?.def, ClaimSlip.I.Claimants, who) : null, over, GamepadInput.Active, TouchInput.Active);
         }
 
         /// <summary>Put the stamp back in the rack without using it (the AutoPilot, having read its hint).</summary>
