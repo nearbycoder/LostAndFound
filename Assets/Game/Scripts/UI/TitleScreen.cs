@@ -286,11 +286,12 @@ namespace LostAndFound
                 s.label = l;
                 y -= 46f;
             }
-            void Toggle(string label, System.Func<bool> get, System.Action<bool> set)
+            void Toggle(string label, System.Func<bool> get, System.Action<bool> set, bool live = false)
             {
                 PaperButton b = null;
                 string Text() => $"{label}:  <b>{(get() ? "On" : "Off")}</b>";
                 b = UiKit.Button(card.transform, label, Text(), Fonts.Body, 30f, () => { set(!get()); b.label.text = Text(); });
+                if (live) b.gameObject.AddComponent<LiveLabel>().text = Text;
                 b.label.alignment = TextAlignmentOptions.MidlineLeft;
                 b.GetComponent<RectTransform>().Anchor(new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 0.5f)).Place(new Vector2(80f, y), new Vector2(720f, 44f));
                 y -= 44f;
@@ -300,7 +301,8 @@ namespace LostAndFound
             Slider("Sound effects", 0f, 1f, () => Settings.SfxVolume, v => Settings.SfxVolume = v);
             Slider("Voices", 0f, 1f, () => Settings.VoiceVolume, v => Settings.VoiceVolume = v);
             Slider("Station sounds", 0f, 1f, () => Settings.AmbienceVolume, v => Settings.AmbienceVolume = v);
-            Toggle("Sound when in the background", () => Settings.SoundInBackground, v => Settings.SoundInBackground = v);
+            bool web = Application.platform == RuntimePlatform.WebGLPlayer;
+            if (!web) Toggle("Sound when in the background", () => Settings.SoundInBackground, v => Settings.SoundInBackground = v);
             y -= 4f;
             Slider("Text speed", 0.5f, 2.5f, () => Settings.TextSpeed, v => Settings.TextSpeed = v);
             Slider("Turning speed", 0.4f, 2f, () => Settings.MouseSensitivity, v => Settings.MouseSensitivity = v);
@@ -310,7 +312,13 @@ namespace LostAndFound
             Toggle("Screen shake", () => Settings.ScreenShake, v => Settings.ScreenShake = v);
             Toggle("Reduce motion", () => Settings.ReduceMotion, v => Settings.ReduceMotion = v);
             Toggle("Film effects (grain, blur, vignette)", () => Settings.PostEffects, v => Settings.PostEffects = v);
-            Toggle("Fullscreen", () => Settings.Fullscreen, v => { Settings.Fullscreen = v; Game.ApplyDisplay(); });
+            if (web)
+            {
+                // the browser's fullscreen, asked for straight away while the click still counts (WebPage.SetFullscreen).
+                // It isn't saved, since a page can't open in fullscreen, and the row follows the browser (Esc leaves it too).
+                Toggle("Fullscreen", () => WebPage.Fullscreen, WebPage.SetFullscreen, live: true);
+            }
+            else Toggle("Fullscreen", () => Settings.Fullscreen, v => { Settings.Fullscreen = v; Game.ApplyDisplay(); });
             {
                 // Graphics fidelity: a slider of four steps, its step named beside it (round 1's Picture quality button)
                 var l = UiKit.Label(card.transform, "Graphics fidelity", "Graphics fidelity", Fonts.Body, 30f, UiKit.Ink, TextAlignmentOptions.MidlineLeft);
@@ -340,6 +348,20 @@ namespace LostAndFound
             var back = UiKit.Button(card.transform, "Back", "Done", Fonts.Title, 44f, Close);
             back.GetComponent<RectTransform>().Anchor(new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0.5f, 0f)).Place(new Vector2(0f, 34f), new Vector2(300f, 60f));
             panel.gameObject.AddComponent<EscCloses>().close = Close;   // as every other card does
+        }
+
+        /// <summary>Keeps a row's words up to date with something that changes on its own (the browser's fullscreen).</summary>
+        class LiveLabel : MonoBehaviour
+        {
+            public System.Func<string> text;
+            TextMeshProUGUI label;
+            void Start() => label = GetComponent<PaperButton>().label;
+            void Update()
+            {
+                if (label == null || Time.frameCount % 10 != 0) return;
+                string t = text();
+                if (label.text != t) label.text = t;
+            }
         }
 
         class EscCloses : MonoBehaviour

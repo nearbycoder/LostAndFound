@@ -24,7 +24,7 @@
         <p id="status">Opening the office&hellip;</p>
         <div id="note" hidden>
           <p>Lost &amp; Found is made for a mouse and keyboard (or a gamepad). It may not play well on a phone or tablet,
-             and it's a download of about 66&nbsp;MB.</p>
+             and it's a download of about <span data-laf-size>65</span>&nbsp;MB.</p>
           <button id="anyway" type="button">Load it anyway</button>
         </div>
       </div>
@@ -32,7 +32,7 @@
 
     <button id="fullscreen" type="button" tabindex="-1" title="Fullscreen" aria-label="Fullscreen" hidden>&#x26F6;</button>
 
-    <script src="Build/{{{ LOADER_FILENAME }}}"></script>
+    <script src="Build/{{{ LOADER_FILENAME }}}" onerror="window.lafLoaderFailed = true"></script>
     <script>
       (function () {
         var canvas = document.getElementById("unity-canvas");
@@ -94,6 +94,10 @@
             companyName: {{{ JSON.stringify(COMPANY_NAME) }}},
             productName: {{{ JSON.stringify(PRODUCT_NAME) }}},
             productVersion: {{{ JSON.stringify(PRODUCT_VERSION) }}},
+            // the build's files have hashed names (a new build, new names), so a copy in the browser's cache is never stale
+            cacheControl: function (url) {
+              return /(^|\/)Build\/[0-9a-f]{32}\.(data|wasm|framework\.js)(\.unityweb)?$/.test(url) ? "immutable" : "no-store";
+            },
             // the save lives in the browser's IndexedDB: the game flushes it there after every write
             // (Plugins/WebGL/LafSyncFS.jslib), so Unity's own autoSyncPersistentDataPath stays off
             showBanner: function (msg, type) {
@@ -112,7 +116,15 @@
             loader.classList.add("done");
             setTimeout(function () { loader.hidden = true; }, 700);
             fullscreen.hidden = false;
-            fullscreen.onclick = function () { fullscreen.blur(); canvas.focus(); instance.SetFullscreen(1); };
+            // straight from the click, which the browser needs (Unity's SetFullscreen waits for the next click instead)
+            fullscreen.onclick = function () {
+              fullscreen.blur();
+              canvas.focus();
+              var go = canvas.requestFullscreen || canvas.webkitRequestFullscreen;
+              if (!go) { instance.SetFullscreen(1); return; }
+              var p = go.call(canvas);
+              if (p && p.catch) p.catch(function (e) { console.log("[Page] fullscreen refused: " + e); });
+            };
             canvas.focus();
             shot("ready");
           }).catch(function (message) {
@@ -121,8 +133,12 @@
         }
 
         canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+        // right click puts things down in the game: no browser menu over it
+        canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
-        if (!hasWebGL2()) {
+        if (window.lafLoaderFailed || typeof createUnityInstance !== "function") {
+          fail("The game's files didn't download. Check the connection and reload the page.");
+        } else if (!hasWebGL2()) {
           fail("This browser can't run Lost & Found: it needs WebGL 2. Try an up-to-date Chrome, Edge or Firefox, " +
                "with hardware acceleration switched on.");
         } else if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||

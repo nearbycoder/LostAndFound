@@ -49,11 +49,12 @@ namespace LostAndFound.EditorTools
         [MenuItem("Lost & Found/Build Windows Player")]
         public static void BuildWindows() => Build(BuildTarget.StandaloneWindows64, "Builds/Windows/LostAndFound.exe");
 
-        /// <summary>A WebGL player for measuring (the round 3 spike): download size, load time, frame rate. Not shipped.
-        /// Uses the project's WebGL settings as they are (Brotli, no decompression fallback), so a host has to send the .br
-        /// files with "Content-Encoding: br". Building for WebGL rewrites URP's shader prefiltering in Mobile_RPAsset and
-        /// leaves a Data/ folder of Burst output at the project root: revert the one and delete the other afterwards.</summary>
-        [MenuItem("Lost & Found/Build WebGL Player (spike)")]
+        /// <summary>The browser build, which Tools/build-pages.sh turns into the GitHub Pages site. GitHub Pages can't set headers,
+        /// so the files are Brotli with Unity's decompression fallback: the loader unpacks them itself when the server doesn't
+        /// say they're compressed. Hashed file names, so a new build never meets an old file in a browser's cache. Building for
+        /// WebGL rewrites URP's shader prefiltering in Mobile_RPAsset and leaves a Data/ folder of Burst output at the project
+        /// root: build-pages.sh puts back the one and removes the other.</summary>
+        [MenuItem("Lost & Found/Build WebGL Player")]
         public static void BuildWebGL()
         {
             if (!BuildPipeline.IsBuildTargetSupported(BuildTargetGroup.WebGL, BuildTarget.WebGL))
@@ -62,6 +63,13 @@ namespace LostAndFound.EditorTools
                 Quit(false);
                 return;
             }
+            PlayerSettings.WebGL.compressionFormat = WebGLCompressionFormat.Brotli;
+            PlayerSettings.WebGL.decompressionFallback = true;
+            PlayerSettings.WebGL.nameFilesAsHashes = true;
+            PlayerSettings.WebGL.dataCaching = true;
+            PlayerSettings.WebGL.threadsSupport = false;   // SharedArrayBuffer needs headers Pages can't send
+            // the smaller WebAssembly ("Disk Size"); a desk game isn't short of CPU
+            EditorUserBuildSettings.SetPlatformSettings("WebGL", "CodeOptimization", "DiskSize");
             ValidateContent();
             ProjectSetup.Apply();
             StampCommit();

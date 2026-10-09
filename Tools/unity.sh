@@ -9,9 +9,10 @@
 #   Tools/unity.sh headless        resident batch-mode editor (serves `unity command` via Pipeline)
 #   Tools/unity.sh build-linux     batch-build Builds/Linux/LostAndFound.x86_64
 #   Tools/unity.sh build-mac       batch-build Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
-#   Tools/unity.sh build-webgl     batch-build Builds/WebGL/ (a measuring spike: not shipped or packaged)
+#   Tools/unity.sh build-webgl     batch-build Builds/WebGL/ (Tools/build-pages.sh makes the GitHub Pages site from it)
 #   Tools/unity.sh build-windows   batch-build Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
 #   Tools/unity.sh run <Method>    batch-run a static editor method and quit
+#   Tools/unity.sh run-webgl <Method>  the same with WebGL as the build target (its imports: texture formats and so on)
 #   Tools/unity.sh test            run EditMode tests (results in Logs/test-results.xml)
 #   Tools/unity.sh smoke [secs] [quality] [player args]  run the Linux build hands-free (quality 0..3, Low to Ultra, overrides the setting),
 #                                  screenshots in Screenshots/smoke/ (e.g. 6 2 -lafShowSettings -screen-width 1280 -screen-height 720)
@@ -201,6 +202,8 @@ case "${1:-open}" in
                  -executeMethod LostAndFound.EditorTools.BuildScript.BuildWindows -logFile "$PROJECT/Logs/build-windows.log" ;;
   run)         editor -batchmode -nographics -quit -projectPath "$PROJECT" \
                  -executeMethod "$2" -logFile "$PROJECT/Logs/run.log" ;;
+  run-webgl)   editor -batchmode -nographics -quit -projectPath "$PROJECT" -buildTarget WebGL \
+                 -executeMethod "$2" -logFile "$PROJECT/Logs/run-webgl.log" ;;
   test)        editor -batchmode -nographics -projectPath "$PROJECT" -runTests -testPlatform EditMode \
                  -testResults "$PROJECT/Logs/test-results.xml" -logFile "$PROJECT/Logs/test.log" ;;
   smoke)       rm -rf "$PROJECT/Screenshots/smoke"

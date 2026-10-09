@@ -164,6 +164,8 @@ namespace LostAndFound
         static float? brightnessArg;   // read once: PostFX asks every frame
         /// <summary>Graphics fidelity: 0 Low, 1 Medium, 2 High (the default), 3 Ultra (see FidelityStep). Round 1's "Picture quality"
         /// kept 0..2 under the same key, and those mean the same steps.</summary>
-        public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", 2f)), 0, 3); set => SetF("quality", Mathf.Clamp(value, 0, 3)); }
+        public static int PictureQuality { get => Mathf.Clamp(Mathf.RoundToInt(F("quality", DefaultQuality)), 0, 3); set => SetF("quality", Mathf.Clamp(value, 0, 3)); }
+        /// <summary>High on the desktop; Medium in a browser, which draws more slowly and is often on a laptop's graphics.</summary>
+        public static int DefaultQuality => Application.platform == RuntimePlatform.WebGLPlayer ? FidelityStep.Medium : FidelityStep.High;
     }
 }
