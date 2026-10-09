@@ -663,9 +663,11 @@ async function play() {
     step("Menu again carries on", f !== null);
   }
   // back to the title (the game is rebuilt in place) and into the week again: touch carries on
+  await sleep(1500);
   if (await tapEl("#t-menu", "Menu")) {
-    await until((x) => x & F.paused, 4);
-    await sleep(800);
+    const paused = await until((x) => x & F.paused, 6);
+    await sleep(800); await shot("menu_for_title");
+    if (!paused) note(`the menu didn't open: flags ${named(await flags())}`);
     from = lines.length;
     p = await at(...AT.toTitle); await fingerTap(p[0], p[1]);
     const back = await waitFor(/\[Title\] show/, 30, from);
