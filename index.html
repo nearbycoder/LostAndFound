@@ -2,18 +2,56 @@
 <html lang="en-gb">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0e0b09">
     <title>Lost &amp; Found</title>
     <link rel="icon" type="image/png" href="TemplateData/favicon.png">
     <link rel="stylesheet" href="TemplateData/style.css">
   </head>
   <body>
     <!-- Lost & Found's own page: the canvas fills the window at 16:9, with a loading bar while the build downloads,
-         a fullscreen button, and plain words if the browser can't run it. The game reads its ?laf... test options
-         from this page's address itself. With ?lafShot, the page logs "[Shot] page_..." lines that
-         Tools/webgl_check.py turns into screenshots. -->
+         a fullscreen button, and plain words if the browser can't run it. On a phone or tablet it adds the touch
+         controls (shown only while touch is in use), asks for landscape on a phone held upright, and loads the build
+         whose textures the phone's GPU reads (ASTC). The game reads its ?laf... test options from this page's address
+         itself. With ?lafShot, the page logs "[Shot] page_..." lines that Tools/webgl_check.py turns into screenshots. -->
     <div id="stage">
       <canvas id="unity-canvas" tabindex="-1"></canvas>
+    </div>
+
+    <!-- touch controls: the game is played by tapping it (TouchInput.cs); these are the keys' work. Each shows only when the
+         game says it applies (lafTouchState). -->
+    <div id="touch" hidden>
+      <div class="col" id="touch-left">
+        <button type="button" class="tb" id="t-menu" data-key="Escape" aria-label="Menu">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span>Menu</span></button>
+        <button type="button" class="tb turn" id="t-left" data-key="A" aria-label="Turn left">
+          <svg viewBox="0 0 24 24"><path d="M15 4l-8 8 8 8"/></svg><span data-label>Drawers</span></button>
+        <button type="button" class="tb" id="t-lamp" data-key="L" aria-label="Blue lamp">
+          <svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/></svg><span>Lamp</span></button>
+        <button type="button" class="tb" id="t-back" data-cmd="back" aria-label="Back">
+          <svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Back</span></button>
+      </div>
+      <div class="col" id="touch-right">
+        <button type="button" class="tb" id="t-rules" data-key="R" aria-label="Agnes's rules">
+          <svg viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M9 10h6M9 14h6M9 18h4"/></svg><span>Rules</span></button>
+        <button type="button" class="tb turn" id="t-right" data-key="D" aria-label="Turn right">
+          <svg viewBox="0 0 24 24"><path d="M9 4l8 8-8 8"/></svg><span data-label>Shelf</span></button>
+        <button type="button" class="tb" id="t-tray" data-key="T" aria-label="On the counter tray">
+          <svg viewBox="0 0 24 24"><path d="M3 14h18l-2 5H5z"/><path d="M12 3v8M8.5 7.5L12 11l3.5-3.5"/></svg><span>Tray</span></button>
+        <button type="button" class="tb" id="t-slip" data-key="Tab" aria-label="The claim slip">
+          <svg viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg><span>Slip</span></button>
+        <button type="button" class="tb" id="t-nudge" data-key="H" aria-label="A nudge from Agnes">
+          <svg viewBox="0 0 24 24"><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7v.5"/><path d="M12 17.5v.5"/><circle cx="12" cy="12" r="9"/></svg><span>Nudge</span></button>
+      </div>
+    </div>
+
+    <div id="rotate" hidden>
+      <div class="card">
+        <svg viewBox="0 0 64 64"><rect x="20" y="8" width="24" height="44" rx="4"/><path d="M50 40a18 18 0 0 1-18 18M50 40l-5 1M50 40l1 5"/></svg>
+        <p>Turn your phone on its side: the desk is wide.</p>
+      </div>
     </div>
 
     <div id="loader">
@@ -23,16 +61,31 @@
         <div id="bar"><div id="fill"></div></div>
         <p id="status">Opening the office&hellip;</p>
         <div id="note" hidden>
-          <p>Lost &amp; Found is made for a mouse and keyboard (or a gamepad). It may not play well on a phone or tablet,
-             and it's a download of about <span data-laf-size>69</span>&nbsp;MB.</p>
-          <button id="anyway" type="button">Load it anyway</button>
+          <p id="note-text">Lost &amp; Found plays by touch on a phone or tablet: tap to pick things up and press, drag to turn
+             them over, pinch to look closer, and the buttons around it do the rest. It's a download of about
+             <span data-laf-size>86</span>&nbsp;MB.</p>
+          <button id="anyway" type="button">Open the office</button>
         </div>
       </div>
     </div>
 
     <button id="fullscreen" type="button" tabindex="-1" title="Fullscreen" aria-label="Fullscreen" hidden>&#x26F6;</button>
 
-    <script src="Build/ff81378076f4256b53bedf12218c4fd7.loader.js" onerror="window.lafLoaderFailed = true"></script>
+    <script>
+      // before the loader: every AudioContext the game makes, so the first touch can wake them (iOS wants that in a gesture)
+      (function () {
+        var made = window.lafAudio = [];
+        ["AudioContext", "webkitAudioContext"].forEach(function (name) {
+          var C = window[name];
+          if (!C || C.lafWrapped) return;
+          var W = function (a) { var c = a === undefined ? new C() : new C(a); made.push(c); return c; };
+          W.prototype = C.prototype;
+          W.lafWrapped = true;
+          window[name] = W;
+        });
+      })();
+    </script>
+    <script src="Build/232506fe78116491162efc84a7e06304.loader.js" onerror="window.lafLoaderFailed = true"></script>
     <script>
       (function () {
         var canvas = document.getElementById("unity-canvas");
@@ -42,25 +95,53 @@
         var status = document.getElementById("status");
         var note = document.getElementById("note");
         var fullscreen = document.getElementById("fullscreen");
+        var touchUI = document.getElementById("touch");
+        var rotate = document.getElementById("rotate");
+        var root = document.documentElement;
         var shots = /[?&]lafShot\b/.test(location.search);
         var shotAt = {};
+        var game = null;
 
         function shot(name) {
           if (shots && !shotAt[name]) { shotAt[name] = true; console.log("[Shot] page_" + name); }
         }
 
-        // the largest 16:9 box that fits the window, centred
+        // a phone or a tablet: a touch screen and no mouse (an iPad says it's a Mac, but has touch points)
+        var touchFirst = window.lafTouchFirst = !!(
+          (window.matchMedia && matchMedia("(pointer: coarse)").matches && !matchMedia("(any-pointer: fine)").matches) ||
+          /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+          (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1));
+        // a phone, rather than a tablet: too small to play held upright
+        var phone = Math.min(screen.width, screen.height) < 600;
+        if (touchFirst) root.classList.add("touch-device");
+
+        // the margins a notch or a home indicator keeps clear (env(safe-area-inset-*), read through a probe)
+        var probe = document.createElement("div");
+        probe.style.cssText = "position:fixed;visibility:hidden;pointer-events:none;top:env(safe-area-inset-top,0px);" +
+          "right:env(safe-area-inset-right,0px);bottom:env(safe-area-inset-bottom,0px);left:env(safe-area-inset-left,0px)";
+        document.body.appendChild(probe);
+
+        // the largest 16:9 box that fits the window inside its safe area, centred
         function fit() {
-          var w = window.innerWidth, h = window.innerHeight;
+          var cs = getComputedStyle(probe);
+          var l = parseFloat(cs.left) || 0, r = parseFloat(cs.right) || 0, t = parseFloat(cs.top) || 0, b = parseFloat(cs.bottom) || 0;
+          var w = window.innerWidth - l - r, h = window.innerHeight - t - b;
           if (w / h > 16 / 9) w = Math.round(h * 16 / 9); else h = Math.round(w * 9 / 16);
           stage.style.width = w + "px";
           stage.style.height = h + "px";
+          stage.style.marginLeft = (l - r) / 2 + "px";
+          stage.style.marginTop = (t - b) / 2 + "px";
+          var upright = window.innerHeight > window.innerWidth;
+          root.classList.toggle("portrait", upright);
+          rotate.hidden = !(phone && upright && root.classList.contains("touch"));
         }
         window.addEventListener("resize", fit);
+        window.addEventListener("orientationchange", function () { setTimeout(fit, 250); });
         fit();
 
         function fail(text) {
           loader.hidden = false;
+          loader.classList.remove("done");
           loader.classList.add("failed");
           document.getElementById("bar").hidden = true;
           note.hidden = true;
@@ -68,18 +149,85 @@
           shot("failed");
         }
 
-        function hasWebGL2() {
-          try { return !!document.createElement("canvas").getContext("webgl2"); } catch (e) { return false; }
+        // one WebGL 2 context to ask what the GPU offers, then given back (a phone allows only a few at a time)
+        var gpu = (function () {
+          try {
+            var gl = document.createElement("canvas").getContext("webgl2");
+            if (!gl) return null;
+            var g = { s3tc: !!gl.getExtension("WEBGL_compressed_texture_s3tc"), astc: !!gl.getExtension("WEBGL_compressed_texture_astc") };
+            var lose = gl.getExtension("WEBGL_lose_context");
+            if (lose) lose.loseContext();
+            return g;
+          } catch (e) { return null; }
+        })();
+
+        // the build with ASTC textures, for a GPU without the desktop's DXT (written by Tools/build-pages.sh; null without one)
+        var astc = { dataUrl: "Build/c2b2141ee9bb47761f01c465f070b3aa.data.unityweb", frameworkUrl: "Build/a81330340d3702968e28a15870656547.framework.js.unityweb", codeUrl: "Build/9298c0f3f3f1f451e165c5c19bff4375.wasm.unityweb" } /*laf-astc*/;
+        // the same files gzipped, which the browser itself unpacks as they arrive (DecompressionStream): the loader's own
+        // JavaScript Brotli decoder about doubles a phone tab's memory while it loads (to near 2 GB in headless WebKit, against
+        // 1 GB unpacked natively: Tools/mobile-check.mjs). Written by Tools/build-pages.sh, with their size; null without them.
+        var astcGz = {"codeUrl":"Build/9298c0f3f3f1f451e165c5c19bff4375.wasm.gz","frameworkUrl":"Build/a81330340d3702968e28a15870656547.framework.js.gz","dataUrl":"Build/c2b2141ee9bb47761f01c465f070b3aa.data.gz","bytes":86051416} /*laf-gz*/;
+
+        // fetch each of a set's gzip files, unpack it as it streams in, and give the loader the result as a blob: URL (a file
+        // it needn't unpack); onBytes counts the bytes downloaded
+        function unpackGz(set, onBytes) {
+          var types = { dataUrl: "application/octet-stream", frameworkUrl: "text/javascript", codeUrl: "application/wasm" };
+          return Promise.all(Object.keys(types).map(function (k) {
+            return fetch(set[k]).then(function (r) {
+              if (!r.ok) throw new Error("HTTP " + r.status + " for " + set[k]);
+              var body = r.body.pipeThrough(new TransformStream({ transform: function (chunk, c) { onBytes(chunk.byteLength); c.enqueue(chunk); } }));
+              // a server that sent it gzip-encoded has had the browser unpack it already
+              if (!/gzip/i.test(r.headers.get("Content-Encoding") || "")) body = body.pipeThrough(new DecompressionStream("gzip"));
+              return new Response(body, { headers: { "Content-Type": types[k] } }).blob();
+            }).then(function (b) { return [k, URL.createObjectURL(b)]; });
+          })).then(function (pairs) {
+            var urls = {};
+            pairs.forEach(function (p) { urls[p[0]] = p[1]; });
+            return urls;
+          });
         }
+
+        // ---- the tab was closed while the game was loading or playing (iOS closes a tab that wants too much memory and
+        // reloads it when you come back): say so, instead of starting straight into the same again
+        var SESSION = "laf.session";
+        function mark(state) { try { localStorage.setItem(SESSION, JSON.stringify({ state: state, t: Date.now() })); } catch (e) {} }
+        function lastSession() {
+          try {
+            var s = JSON.parse(localStorage.getItem(SESSION) || "null");
+            localStorage.removeItem(SESSION);
+            return s && Date.now() - s.t < 10 * 60 * 1000 ? s : null;
+          } catch (e) { return null; }
+        }
+        window.addEventListener("pagehide", function () { try { localStorage.removeItem(SESSION); } catch (e) {} });
+        window.addEventListener("pageshow", function (e) { if (e.persisted && game) mark("playing"); });
 
         function start() {
           note.hidden = true;
           document.getElementById("bar").hidden = false;
+          var phoneTextures = gpu && !gpu.s3tc && gpu.astc && astc;
+          if (phoneTextures && astcGz && window.DecompressionStream && window.TransformStream) {
+            var got = 0;
+            mark("loading");
+            unpackGz(astcGz, function (n) {
+              got += n;
+              var k = Math.min(1, got / astcGz.bytes);
+              fill.style.width = Math.round(k * 90) + "%";
+              status.textContent = "Opening the office… " + Math.round(k * 100) + "%";
+              if (k >= 0.3) shot("loading");
+            }).then(function (urls) { boot(urls, "ASTC textures, unpacked by the browser"); },
+                    function (e) { console.log("[Page] the gzip files didn't load (" + e + "): the usual ones instead"); boot(astc, "ASTC textures"); });
+            return;
+          }
+          boot(phoneTextures ? astc : null, phoneTextures ? "ASTC textures" : "desktop textures");
+        }
+
+        // set: the files to load instead of the desktop build's (the ASTC build's, or blob: URLs of them unpacked)
+        function boot(set, what) {
           var config = {
             arguments: [],
-            dataUrl: "Build/4a8bbd4f3c57e7e60151aaffa234d019.data.unityweb",
-            frameworkUrl: "Build/b60e90bc62e1d34e8d31adf07f05d46d.framework.js.unityweb",
-            codeUrl: "Build/e409bcd713436c75c3431d63490b83ca.wasm.unityweb",
+            dataUrl: set ? set.dataUrl : "Build/2ddf0cf91c7ffaae74d8361a4551dfa8.data.unityweb",
+            frameworkUrl: set ? set.frameworkUrl : "Build/a81330340d3702968e28a15870656547.framework.js.unityweb",
+            codeUrl: set ? set.codeUrl : "Build/9298c0f3f3f1f451e165c5c19bff4375.wasm.unityweb",
             streamingAssetsUrl: "StreamingAssets",
             companyName: "Nearby",
             productName: "Lost _ Found",
@@ -91,21 +239,33 @@
             // the save lives in the browser's IndexedDB: the game flushes it there after every write
             // (Plugins/WebGL/LafSyncFS.jslib), so Unity's own autoSyncPersistentDataPath stays off
             showBanner: function (msg, type) {
-              if (type === "error") fail("Something went wrong: " + msg);
+              if (type === "error") fail(problem(msg));
               else console.warn(msg);
             },
           };
+          // a phone draws at up to three device pixels to a point: two are plenty for a 16:9 box that size, and the render
+          // targets take half the memory
+          if (touchFirst) config.devicePixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+          console.log("[Page] " + (touchFirst ? "touch device, " : "") + what + ", " +
+                      (config.devicePixelRatio || window.devicePixelRatio || 1) + " pixels to a point");
+          mark("loading");
+          var unpacked = set && /^blob:/.test(set.dataUrl);
           createUnityInstance(canvas, config, function (progress) {
-            // about 90% of the bar is the download; the rest is the game starting up
-            fill.style.width = Math.round(progress * 100) + "%";
-            status.textContent = progress < 0.9
+            // about 90% of the bar is the download; the rest is the game starting up (already downloaded: from 90%)
+            fill.style.width = Math.round(unpacked ? Math.max(90, progress * 100) : progress * 100) + "%";
+            status.textContent = progress < 0.9 && !unpacked
               ? "Opening the office… " + Math.round(progress / 0.9 * 100) + "%"
               : "Unpacking the drawers…";
             if (progress >= 0.3) shot("loading");
           }).then(function (instance) {
+            game = instance;
+            if (unpacked) ["dataUrl", "frameworkUrl", "codeUrl"].forEach(function (k) { URL.revokeObjectURL(set[k]); });
+            mark("playing");
+            setInterval(function () { if (!document.hidden) mark("playing"); }, 5000);
             loader.classList.add("done");
             setTimeout(function () { loader.hidden = true; }, 700);
-            fullscreen.hidden = false;
+            var canFs = document.fullscreenEnabled || document.webkitFullscreenEnabled;
+            fullscreen.hidden = !canFs;   // an iPhone has no fullscreen for a page
             // straight from the click, which the browser needs (Unity's SetFullscreen waits for the next click instead)
             fullscreen.onclick = function () {
               fullscreen.blur();
@@ -113,28 +273,252 @@
               var go = canvas.requestFullscreen || canvas.webkitRequestFullscreen;
               if (!go) { instance.SetFullscreen(1); return; }
               var p = go.call(canvas);
-              if (p && p.catch) p.catch(function (e) { console.log("[Page] fullscreen refused: " + e); });
+              if (p && p.then) p.then(function () {
+                // a phone in fullscreen can hold the desk sideways whichever way it's turned
+                if (touchFirst && screen.orientation && screen.orientation.lock) screen.orientation.lock("landscape").catch(function () {});
+              }, function (e) { console.log("[Page] fullscreen refused: " + e); });
             };
+            if (root.classList.contains("touch")) send("mode 1");
             canvas.focus();
             shot("ready");
           }).catch(function (message) {
-            fail("The game couldn't start in this browser. " + message);
+            fail(problem(message));
           });
         }
+
+        // the words for what went wrong: running out of memory is the likely one on a phone
+        function problem(message) {
+          message = String(message);
+          if (/out of memory|OOM|memory access|allocat|Cannot enlarge memory/i.test(message))
+            return "This " + (touchFirst ? "device" : "browser") + " ran out of memory for the game. Close other tabs and apps, " +
+                   "then reload the page. (" + message + ")";
+          return "The game couldn't start in this browser. " + message;
+        }
+
+        // the GPU taken back (a phone short of memory does this to a background tab): the picture can't come back without a reload
+        canvas.addEventListener("webglcontextlost", function (e) {
+          e.preventDefault();
+          console.log("[Page] WebGL context lost");
+          fail("The browser took the game's graphics back, most likely to free memory. Reload the page to carry on: " +
+               "the week is saved after every claim.");
+          var again = document.getElementById("anyway");
+          again.textContent = "Reload";
+          again.onclick = function () { location.reload(); };
+          note.hidden = false;
+          document.getElementById("note-text").textContent = "";
+        });
 
         canvas.addEventListener("pointerdown", function () { canvas.focus(); });
         // right click puts things down in the game: no browser menu over it
         canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
 
+        // ---------------------------------------------------------------- touch
+
+        function send(cmd) {
+          if (game) try { game.SendMessage("LafTouch", "Page", cmd); } catch (e) { console.log("[Page] " + e); }
+        }
+
+        // touch is in use: on a touch-first device from the start, and after any real touch; a key, a mouse or a gamepad
+        // hands the game back to them (and the controls go)
+        function setTouch(on) {
+          if (root.classList.contains("touch") === on) return;
+          root.classList.toggle("touch", on);
+          touchUI.hidden = !on;
+          send("mode " + (on ? 1 : 0));
+          fit();
+        }
+        if (touchFirst) setTouch(true);
+        window.addEventListener("touchstart", function (e) { if (e.isTrusted) setTouch(true); }, { capture: true, passive: true });
+        window.addEventListener("keydown", function (e) { if (e.isTrusted) setTouch(false); }, true);
+        var mouseAt = null;
+        window.addEventListener("pointermove", function (e) {
+          if (!e.isTrusted || e.pointerType !== "mouse") return;
+          // a real mouse that has really moved (not the one event a page gets as it opens under the pointer)
+          if (mouseAt && Math.abs(e.screenX - mouseAt[0]) + Math.abs(e.screenY - mouseAt[1]) > 6) setTouch(false);
+          mouseAt = [e.screenX, e.screenY];
+        }, true);
+        window.addEventListener("pointerdown", function (e) { if (e.isTrusted && e.pointerType === "mouse") setTouch(false); }, true);
+
+        // the sound waits for a gesture: wake it at the end of the first touch, as iOS asks
+        function wake() {
+          (window.lafAudio || []).forEach(function (c) { if (c.state === "suspended" && c.resume) c.resume().catch(function () {}); });
+        }
+        ["touchend", "pointerup", "keydown", "click"].forEach(function (t) {
+          window.addEventListener(t, function (e) { if (e.isTrusted) wake(); }, true);
+        });
+
+        // no page zoom, scrolling or text selection under a finger (iOS's own pinch and double-tap zoom included)
+        ["gesturestart", "gesturechange", "gestureend"].forEach(function (t) { document.addEventListener(t, function (e) { e.preventDefault(); }); });
+        document.addEventListener("touchmove", function (e) { if (e.cancelable) e.preventDefault(); }, { passive: false });
+        document.addEventListener("dblclick", function (e) { e.preventDefault(); });
+
+        // the game's state, from TouchInput.State: which buttons apply
+        var flags = 0;
+        var S = { playing: 1, modal: 2, holding: 4, left: 8, right: 16, lamp: 32, claim: 64, back: 128, pad: 256, stamp: 512,
+                  paused: 1024, rules: 2048, slip: 4096, cabinet: 8192, shelf: 16384 };
+        function has(f) { return (flags & f) !== 0; }
+        window.lafTouchState = function (f) {
+          var wasStamp = has(S.stamp);
+          flags = window.lafTouchFlags = f;   // (Tools/mobile-check.mjs follows the game by it)
+          if (has(S.pad)) setTouch(false);
+          if (has(S.stamp) && !wasStamp) aim = lastTap;   // the stamp is where it was picked up
+          if (!has(S.stamp)) aim = null;
+          var free = !has(S.modal) && !has(S.holding) && !has(S.stamp);
+          show("t-menu", has(S.playing) && !has(S.holding) && !has(S.stamp) && (!has(S.modal) || has(S.paused)));
+          show("t-back", has(S.back) && !has(S.paused));
+          show("t-left", has(S.left));
+          show("t-right", has(S.right));
+          show("t-rules", has(S.playing) && !has(S.stamp) && (!has(S.modal) || has(S.rules)));
+          show("t-nudge", has(S.claim) && !has(S.modal));
+          show("t-slip", has(S.playing) && free);
+          show("t-tray", has(S.holding) && !has(S.modal));
+          show("t-lamp", has(S.lamp) && !has(S.modal));
+          label("t-left", has(S.shelf) ? "Desk" : "Drawers");
+          label("t-right", has(S.cabinet) ? "Desk" : "Shelf");
+          document.getElementById("t-slip").classList.toggle("on", has(S.slip));
+          document.getElementById("t-rules").classList.toggle("on", has(S.rules));
+        };
+        function show(id, on) { document.getElementById(id).classList.toggle("off", !on); }
+        function label(id, text) { var l = document.getElementById(id).querySelector("[data-label]"); if (l.textContent !== text) l.textContent = text; }
+        window.lafTouchState(0);
+
+        touchUI.addEventListener("touchstart", function (e) { e.preventDefault(); }, { passive: false });
+
+        // the buttons: a key held while the finger is on it (or the Back command); several at once, each finger its own
+        Array.prototype.forEach.call(touchUI.querySelectorAll(".tb"), function (b) {
+          var down = null;
+          function up(e) {
+            if (down === null || (e && e.pointerId !== down)) return;
+            down = null;
+            b.classList.remove("down");
+            if (b.dataset.key) send("key " + b.dataset.key + " 0");
+          }
+          b.addEventListener("pointerdown", function (e) {
+            e.preventDefault();   // no mouse events after it, no focus, no long-press menu
+            if (down !== null || b.classList.contains("off")) return;
+            down = e.pointerId;
+            try { b.setPointerCapture(e.pointerId); } catch (x) {}
+            b.classList.add("down");
+            if (b.dataset.key) send("key " + b.dataset.key + " 1");
+            else if (b.dataset.cmd) send(b.dataset.cmd);
+            if (navigator.vibrate) try { navigator.vibrate(8); } catch (x) {}
+          });
+          b.addEventListener("pointerup", up);
+          b.addEventListener("pointercancel", up);
+          b.addEventListener("lostpointercapture", up);
+          b.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+        });
+
+        // the game itself, by touch: one finger is the pointer (a tap clicks, a drag presses and moves, touching and holding
+        // shows what's there without clicking), two pinch for the scroll wheel. Carrying a stamp, a tap first brings it to the
+        // spot (the game says what it would do there) and a second tap there brings it down.
+        var SLOP = 10, HOLD = 500, NOTCH = 1.14;
+        var g = null, lastTap = null, aim = null;
+        function at(t) {
+          var r = canvas.getBoundingClientRect();
+          return { cx: t.clientX, cy: t.clientY,
+                   x: Math.round((t.clientX - r.left) * canvas.width / r.width), y: Math.round((r.bottom - t.clientY) * canvas.height / r.height) };
+        }
+        function px(p) { return p.x + " " + p.y; }
+        function dist(a, b) { return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY); }
+        function centre(a, b) { return at({ clientX: (a.clientX + b.clientX) / 2, clientY: (a.clientY + b.clientY) / 2 }); }
+
+        canvas.addEventListener("touchstart", function (e) {
+          e.preventDefault();   // no mouse events made from the touch, no scrolling, no callout
+          var ts = e.targetTouches;
+          if (ts.length === 1 && (!g || g.mode === "done")) {
+            var p = at(ts[0]);
+            g = { mode: "pending", id: ts[0].identifier, start: p, now: p, t0: e.timeStamp, timer: setTimeout(function () {
+              if (!g || g.mode !== "pending") return;
+              // touching and holding: look, don't click (carrying a stamp, bring it here to see what it would do)
+              g.mode = has(S.stamp) ? "aim" : "hold";
+              if (g.mode === "aim") send("move " + px(g.now));
+            }, HOLD) };
+            if (!has(S.stamp)) send("move " + px(p));
+          } else if (ts.length === 2 && g && g.mode !== "done") {
+            clearTimeout(g.timer);
+            if (g.mode === "drag") send("release");
+            g.mode = "pinch";
+            g.d = dist(ts[0], ts[1]);
+            send("move " + px(centre(ts[0], ts[1])));   // lean in towards the middle of the fingers
+          }
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", function (e) {
+          e.preventDefault();
+          if (!g) return;
+          var ts = e.targetTouches;
+          if (g.mode === "pinch") {
+            if (ts.length < 2) return;
+            var d = dist(ts[0], ts[1]);
+            var n = 0;
+            while (d > g.d * NOTCH) { n++; g.d *= NOTCH; }
+            while (d < g.d / NOTCH) { n--; g.d /= NOTCH; }
+            if (n) send("wheel " + n);
+            return;
+          }
+          var t = null;
+          for (var i = 0; i < ts.length; i++) if (ts[i].identifier === g.id) t = ts[i];
+          if (!t) return;
+          var p = at(t);
+          g.now = p;
+          if (g.mode === "pending" && Math.hypot(p.cx - g.start.cx, p.cy - g.start.cy) > SLOP) {
+            clearTimeout(g.timer);
+            if (has(S.stamp)) g.mode = "aim";
+            else { g.mode = "drag"; send("press"); }   // pressed where the finger came down, then it moves
+          }
+          if (g.mode === "drag" || g.mode === "hold" || g.mode === "aim") send("move " + px(p));
+        }, { passive: false });
+
+        function end(e) {
+          e.preventDefault();
+          if (!g) return;
+          if (e.targetTouches.length > 0) { if (g.mode === "pinch") g.mode = "done"; return; }   // wait for every finger
+          clearTimeout(g.timer);
+          var p = g.now;
+          if (e.type === "touchcancel") g.mode = g.mode === "drag" ? "drag" : "cancel";
+          // a tap is short by the events' own clocks (a busy page runs its timers late, and a quick tap isn't a hold)
+          if (g.mode === "hold" && e.timeStamp - g.t0 < HOLD) g.mode = "pending";
+          if (g.mode === "pending") {
+            lastTap = p;
+            if (has(S.stamp)) {
+              // a stamp: the first tap aims, a second on the same spot stamps
+              if (aim && Math.hypot(p.cx - aim.cx, p.cy - aim.cy) < 28) send("click " + px(p));
+              else send("move " + px(p));
+              aim = p;
+            } else {
+              send("click " + px(p));
+              send("park");
+            }
+          } else if (g.mode === "drag") { send("release"); send("park"); }
+          else if (g.mode === "aim") aim = p;
+          else if (!has(S.stamp)) send("park");
+          g = null;
+        }
+        canvas.addEventListener("touchend", end, { passive: false });
+        canvas.addEventListener("touchcancel", end, { passive: false });
+
+        // ---------------------------------------------------------------- start
+
+        var last = lastSession();
         if (window.lafLoaderFailed || typeof createUnityInstance !== "function") {
           fail("The game's files didn't download. Check the connection and reload the page.");
-        } else if (!hasWebGL2()) {
-          fail("This browser can't run Lost & Found: it needs WebGL 2. Try an up-to-date Chrome, Edge or Firefox, " +
+        } else if (!gpu) {
+          fail("This browser can't run Lost & Found: it needs WebGL 2. Try an up-to-date Chrome, Edge, Safari or Firefox, " +
                "with hardware acceleration switched on.");
-        } else if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
-                   (window.matchMedia && matchMedia("(pointer: coarse)").matches && !matchMedia("(any-pointer: fine)").matches)) {
+        } else if (last || touchFirst) {
+          // on a phone or tablet, a word first (and a tap, which the sound needs anyway); after a tab that was closed, why
           document.getElementById("bar").hidden = true;
           status.textContent = "";
+          if (last) {
+            document.getElementById("note-text").textContent = last.state === "loading"
+              ? "Last time the game closed while it was still loading: the browser most likely ran out of memory for it. " +
+                "Close other tabs (and apps, on a phone), then try again."
+              : "The game was closed a moment ago, most likely because the browser needed its memory back. " +
+                "Your week is saved after every claim, so you can carry on where you were.";
+            document.getElementById("anyway").textContent = last.state === "loading" ? "Try again" : "Carry on";
+            console.log("[Page] the last session ended while " + last.state);
+          }
           note.hidden = false;
           document.getElementById("anyway").onclick = start;
         } else {

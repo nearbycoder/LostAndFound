@@ -11,7 +11,17 @@ html, body {
   background: #0e0b09;
   color: #efe4cf;
   font-family: "IM Fell English", Georgia, serif;
+  /* a finger never scrolls, zooms, selects or brings up a menu: the game has it */
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-text-size-adjust: 100%;
 }
+
+body { position: fixed; inset: 0; }
 
 /* the 16:9 box the game draws in, centred in the window (sized by the page's script) */
 #stage {
@@ -133,3 +143,120 @@ button {
 
 #fullscreen:hover { opacity: 1; }
 #fullscreen[hidden] { display: none; }
+
+/* ---- touch: a phone or a tablet. The controls sit at the sides, clear of the notch and the home indicator, over the
+   game's edges where the desk has little; thumb-sized (56 px, 44 pt at the least), each finger its own. */
+
+#touch {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+#touch[hidden] { display: none; }
+
+#touch .col {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 60px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+#touch-left { left: calc(env(safe-area-inset-left, 0px) + 8px); }
+#touch-right { right: calc(env(safe-area-inset-right, 0px) + 8px); }
+
+.tb {
+  pointer-events: auto;
+  touch-action: none;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  color: #f3e7cf;
+  background: rgba(20, 15, 11, 0.62);
+  border: 1px solid rgba(201, 161, 90, 0.6);
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+  font: 11px/1 "IM Fell English", Georgia, serif;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 2px #000;
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  transition: transform 0.08s, background 0.08s, opacity 0.2s;
+}
+
+.tb svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.tb.turn { height: 72px; }
+.tb.turn svg { width: 30px; height: 30px; }
+.tb.down { transform: scale(0.93); background: rgba(156, 122, 60, 0.75); }
+.tb.on { border-color: #e2bd72; color: #e2bd72; }
+.tb.off { display: none; }
+
+/* the fullscreen button clear of the columns, and big enough for a thumb */
+html.touch #fullscreen {
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
+  right: calc(env(safe-area-inset-right, 0px) + 8px);
+  bottom: auto;
+  width: 48px;
+  height: 48px;
+  opacity: 0.8;
+}
+
+/* a tablet held upright: the controls go below the desk, where there's room */
+html.portrait #touch .col {
+  top: auto;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  flex-direction: row;
+  align-items: flex-end;
+}
+
+html.portrait #touch-left { left: calc(env(safe-area-inset-left, 0px) + 16px); }
+html.portrait #touch-right { right: calc(env(safe-area-inset-right, 0px) + 16px); }
+html.portrait .tb { width: 64px; height: 64px; }
+html.portrait .tb.turn { height: 64px; width: 80px; }
+
+/* a phone held upright: the desk wants it on its side */
+#rotate {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0e0b09;
+  text-align: center;
+}
+
+#rotate[hidden] { display: none; }
+#rotate .card { width: min(320px, 80vw); }
+#rotate svg { width: 96px; height: 96px; fill: none; stroke: #e2bd72; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+#rotate p { margin: 1em 0 0; font-size: 22px; line-height: 1.4; color: #efe4cf; }
+
+#anyway { min-height: 48px; }
+html.touch-device #note p { font-size: 17px; }
+html.touch-device #loader .sub { margin-bottom: 1.4em; }
+
+/* a phone on its side: the loading card in a short window */
+@media (max-height: 480px) {
+  #loader h1 { font-size: 40px; }
+  #loader .sub { margin: 0.2em 0 1em; font-size: 14px; }
+  #note p { margin-bottom: 0.8em; font-size: 15px; line-height: 1.35; }
+  #anyway { font-size: 18px; }
+}
