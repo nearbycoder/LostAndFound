@@ -7,8 +7,9 @@
 //   node Tools/check-pages.mjs --serve Builds/Pages [--port 8791] [--full]           serve a folder as Pages does, at
 //                                                                                   http://127.0.0.1:<port>/LostAndFound/
 //
-// By default it passes (exit 0) only when the page loads, the game reaches its title ("[Title] show" in the console)
-// and nothing logs an error, fails to download or throws, within --timeout seconds. --full goes on to play:
+// By default it passes (exit 0) only when the page loads, the game reaches its title ("[Title] show" in the console),
+// the touch controls stay hidden (they're for phones and tablets: Tools/mobile-check.mjs) and nothing logs an error, fails
+// to download or throws, within --timeout seconds. --full goes on to play (and checks the touch controls again after):
 //   keys:      arrows and Enter through the title to Settings: Fullscreen (the browser's), Graphics fidelity one step up;
 //   audio:     before any input the page's AudioContext waits; after the first key it runs and sounds start;
 //   fullscreen: the page's own button, by a real click;
@@ -430,7 +431,9 @@ async function main() {
     }
     ok = step("no errors on the way", errorsSeen === 0, errorsSeen ? report.errors.slice(0, 3).join(" | ") : `${report.warnings} warning(s)`) && ok;
     report.downloadMB = +(report.bytes / 1e6).toFixed(1);
+    if (title) ok = (await touchHidden("the touch controls stay hidden on a desktop")) && ok;
     if (title && opt.full) ok = (await full(url)) && ok;
+    if (title && opt.full) ok = (await touchHidden("after keys, clicks and play, still hidden")) && ok;
   } catch (e) {
     ok = step("the check ran", false, e.stack ?? e.message);
   } finally {
@@ -448,6 +451,14 @@ async function main() {
   say(report.ok ? "PASS" : "FAIL");
   fs.closeSync(logFile);
   process.exit(report.ok ? 0 : 1);
+}
+
+/** The page's touch controls (index.html's #touch) are for phones and tablets: never shown here, nor the page in touch mode. */
+async function touchHidden(name) {
+  const t = await browser.eval(`(() => { const e = document.getElementById('touch'); return { exists: !!e,
+    shown: !!e && !e.hidden && getComputedStyle(e).display !== 'none', touchMode: document.documentElement.classList.contains('touch'),
+    rotate: !!document.getElementById('rotate') && !document.getElementById('rotate').hidden }; })()`).catch((e) => ({ error: e.message }));
+  return step(name, t.exists && !t.shown && !t.touchMode && !t.rotate, JSON.stringify(t));
 }
 
 async function full(url) {
