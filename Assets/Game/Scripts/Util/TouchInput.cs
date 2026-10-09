@@ -255,7 +255,9 @@ namespace LostAndFound
             if (turn && rig.view != View.Shelf) f |= 16;
             if (holding && Lamp.I != null && Lamp.I.uvUnlocked) f |= 32;
             if (playing && d.AtTheWindow) f |= 64;
-            if (holding || carrying || slip || modal) f |= 128;
+            // something to go back from (the title itself is a card, but Esc doesn't put it away: only a card over it counts)
+            bool card = modal && !(TitleScreen.Showing && UIRoot.I.ModalDepth <= 1);
+            if (holding || carrying || slip || card) f |= 128;
             if (GamepadInput.Active) f |= 256;
             if (carrying) f |= 512;
             if (PauseMenu.Open) f |= 1024;
