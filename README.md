@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/media/teaser.webp" alt="Lost & Found: drawers, a wallet turned over in the hands, a stamp coming down, a photograph changing" width="100%">
+<img src="docs/media/teaser.webp" alt="Lost & Found: a drawer opening, a wallet turned over in the hands, a stamp coming down, a photograph changing" width="100%">
 
 # Lost & Found
 
@@ -10,7 +10,7 @@
 ![Platform: Linux x86_64](https://img.shields.io/badge/platform-Linux%20x86__64-2f6b3a?logo=linux&logoColor=white)
 ![Art: Blender 4.5, scripted](https://img.shields.io/badge/art-Blender%204.5%2C%20scripted-c9a15a?logo=blender&logoColor=white)
 ![Audio: synthesised in Python](https://img.shields.io/badge/audio-synthesised%20in%20Python-7a2222)
-![Status: v0.1.0](https://img.shields.io/badge/status-v0.1.0-1e2440)
+![Release: v0.1.0](https://img.shields.io/badge/release-v0.1.0-1e2440)
 
 </div>
 
@@ -18,7 +18,7 @@
 
 [![Watch the Lost & Found trailer](docs/media/trailer_poster.jpg)](docs/media/trailer.mp4)
 
-*Click the frame to watch the feature trailer: 1080p MP4 with sound, just under two minutes. It's also attached to the [v0.1.0 release](https://github.com/nearbycoder/LostAndFound/releases/tag/v0.1.0).*
+*Click the frame to watch the trailer: 1080p MP4 with the game's own music and sound, 2 minutes 10 seconds. Every shot is the real game, played through a simulated mouse and keyboard at* Graphics fidelity: Ultra *(the captions and title cards are laid over it), recorded on 8 October 2026 from today's `main` (with the recorder's capture-only showcase, build `97f9974`). The trailer attached to the [v0.1.0 release](https://github.com/nearbycoder/LostAndFound/releases/tag/v0.1.0) is the earlier cut from 4 October.*
 
 ## About
 
@@ -31,9 +31,111 @@ It's a small deduction game about **looking closely**. There are no timers and n
 - **One desk, 25 objects, a five-day story, three endings.** A full week takes about an hour.
 - **Tactile.** Drawers slide and rattle, objects turn in your hands, latches click, stamps thump, and the ticket printer chatters out a receipt.
 - **25 distinct characters**, each sculpted in Blender, with their own voice, silhouette and habits.
+- **Help when you want it, never when you don't**: Agnes's nudges, her rules on the desk, every word of the claim beside the slip, and the week's ledger at hand.
 - **Everything is generated from code in this repository**: every model is a Blender script, every texture and photograph is processed in Python, and every sound and piece of music is synthesised.
 
+> **Which version is this?** This README, the trailer and the screenshots show the current `main`. The only download, **v0.1.0 (4 October 2026)**, was built before the twelve rounds of improvements since ([docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)), so it has none of: Agnes's nudges, the rules card, the transcript beside the slip, the stamp hint, the ledger book, Curiosities, *Graphics fidelity*, menus by keyboard or pad, gamepad play, *Large text*, *Plain lettering*, *Brightness*, the fairness fixes to two cases, or the crash-safe save. To play today's game, [build it from source](#build-from-source).
+
+## Features
+
+### Search the desk
+
+<img src="docs/media/screenshot_drawers.jpg" alt="Drawer A open, with the wallet's intake tag swung up" width="49%"> <img src="docs/media/screenshot_inspect.jpg" alt="The brown wallet open in the hands, a discovery being written on the slip" width="49%">
+
+Six drawers, three shelves, an umbrella stand and the Iron Drawer. Every stray has a manila **intake tag** that says where it was found, when and on which train, and the porter's notes. Pick the object up and it comes to your hands under the lamp. Drag to turn it, scroll to lean in, and open its lid, latch or clasp. A magnifier glints when you're near a **hidden detail**, such as a name strip inside an umbrella, a photo of a dachshund called Biscuit, or a date stamped on the back of a photograph. Each discovery is written onto the claim slip, and the object's name in your hands shows how many of its findings you've noted.
+
+### Catch the liars
+
+<img src="docs/media/screenshot_liar.jpg" alt="Asking Reggie Stokes about the name strip inside the umbrella. He bluffs: A name? No, no. Plain as anything." width="49%"> <img src="docs/media/screenshot_hum.jpg" alt="The battered suitcase in your hands as Mrs Marsh asks: Is that humming?" width="49%">
+
+Click a finding on the slip to ask about it with a neutral question. Everything said in the claim (their story, your questions, their answers) is written on a card beside the slip whenever you read it, so you can compare an answer with a finding without asking again. Honest owners answer correctly; liars know only what they could see from across the counter, so they bluff. The game never says "contradiction": you compare, and the evening ledger tells you whether you were right. Some objects **hum** when their owner is at the window, which overrules even a muddled story, like 94-year-old Mrs Marsh's description of a suitcase she lost in 1934.
+
+### Stamp it, and know what the stamp will do
+
+<img src="docs/media/screenshot_stamp.jpg" alt="The RETURN stamp held over the twins' claim slip, everything they said on the card beside it; the hint reads: RETURN: give the silver locket to Cecily Fairweather" width="49%"> <img src="docs/media/screenshot_vell.jpg" alt="Mr Vell, the Grey Gentleman, at the window while you hold up a pocket watch whose hands run backwards" width="49%">
+
+A stamp can't be taken back, so while you hold one over the slip the hint says what it will do there (*RETURN: give the silver locket to Cecily Fairweather*). When two people claim one thing, the half of the slip you stamp decides who gets it.
+
+### The uncanny, gently
+
+<img src="docs/media/screenshot_frost.jpg" alt="Frost creeping over the window glass as a WWI lieutenant waits" width="49%"> <img src="docs/media/screenshot_lamp.jpg" alt="The desk lamp switched to its blue filter, revealing hidden ink on a chit" width="49%">
+
+Things come in from other times on Platform 9. A pocket watch found *tomorrow* runs backwards, and a photograph is developed on a date that hasn't happened yet: anything from tomorrow goes in the **Iron Drawer**, even if its owner is standing in front of you. When a cold visitor comes to the window, the glass frosts over. **Mr Vell**, the Grey Gentleman, knows every detail of every object, and nothing ever hums for him. From Thursday, **Agnes's blue lamp** shows what ink tries to hide: hidden dates, forged signatures, and a note she left about Mr Vell. And on Thursday there's a ring in a velvet box. Return it to the right person and **every photograph on your desk changes**.
+
+### Help at hand
+
+<img src="docs/media/screenshot_nudge.jpg" alt="The red scarf in the hands, a glint on its hidden detail, and Agnes's nudge pinned at the right: Turn it slowly and watch for the glint. Click there." width="49%"> <img src="docs/media/screenshot_rules.jpg" alt="Agnes's eight rules on her card, in her handwriting, raised with R" width="49%">
+
+- **Agnes's nudges.** Press `H` during a claim for a nudge, pinned at the right of the screen. It blocks nothing, and each press goes a step further for wherever you've got to (finding the object, examining it, asking, deciding). The last nudge of each step shows you: the drawer or the object lights up, or a glint marks the hidden detail once a click there would find it. Nudges only cite rules you've been given, never quote a finding you haven't found, and never say which stamp to use. After 90 seconds on a claim without progress the hint bar offers one (turn that off in Settings). Every nudge on the best path through the week is in [docs/nudges.md](docs/nudges.md) (spoilers).
+- **Agnes's rules** arrive through the week as notes in her hand. The ones you've been given are on her card beside the claim slip: hover it, or press `R` at any time, even with something in your hands.
+- **The week so far.** The ledger book on the desk keeps every evening's Day Ledger page as it was that evening, Gazette included (click it, or *The week so far* in the pause menu).
+
+### Choices that carry through the week
+
+<img src="docs/media/screenshot_ledger.jpg" alt="The Day Ledger marking each case, and the Ninefold Gazette's headline" width="49%"> <img src="docs/media/screenshot_ledgerbook.jpg" alt="The ledger book open on an earlier day's page" width="49%">
+
+Every evening the **Day Ledger** marks each case against the rules and explains why, and the **Ninefold Gazette** reports what your choices did. Items you refuse stay in storage for their real owner later in the week. Whatever you give the Grey Gentleman makes him stronger, and the station visibly loses its colour. After Friday's ending, a last page sums up the week: each day's tally, your findings and curiosities, and how many of the three endings you've reached. Days can be replayed from the title screen. There are 25 optional curios (one secret per object), and the title's **Curiosities** page shows which you've found and when the rest turn up. *Continue* picks up where you left off, mid-day included.
+
+### Settings, accessibility and the picture
+
+<img src="docs/media/screenshot_settings.jpg" alt="The Settings card over the title, Graphics fidelity focused from the keyboard at Ultra" width="49%"> <img src="docs/media/screenshot_photographs.jpg" alt="A framed photograph on the desk changing" width="49%">
+
+- **Graphics fidelity** in four steps, applied at once:
+
+  | Step | What it does |
+  |---|---|
+  | **Low** | Render scale 0.7, 512 shadow maps with low softness, FXAA; no ambient occlusion, depth of field, reflections or dust. The fastest. |
+  | **Medium** | Render scale 0.85, 1024 shadow maps, SMAA, ambient occlusion at half resolution, depth of field, a small reflection probe, a little dust in the lamp's light. |
+  | **High** (default) | The desk as designed: full resolution, 2048 shadow maps, SMAA High, full ambient occlusion, depth of field; brass and glass reflect the room and dust drifts in the lamp's light. |
+  | **Ultra** | 1.25× supersampling with 4× MSAA under SMAA High, 4096 shadow maps with four cascades, finer ambient occlusion (12 samples), high-quality depth of field, 16× anisotropic filtering everywhere, a 64-bit colour buffer for smoother gradients in the dark, a sharper reflection probe and more dust. For a strong graphics card. |
+
+  Each step at the same moment: [docs/media/improvements/round12/fidelity_window_low_medium_high_ultra.jpg](docs/media/improvements/round12/fidelity_window_low_medium_high_ultra.jpg).
+- **Reading:** *Large text* (dialogue, hints, tags and notes 25% bigger), *Plain lettering* (a clear book face instead of handwriting on the tags, the slip and Agnes's notes, rules and nudges), *Text speed*, and *Brightness* (lifts or lowers the scene without touching the paper and text).
+- **Motion and comfort:** *Reduce motion* (cards open at once, and the camera's sway and the held object's bob are stilled or lessened), *Screen shake*, *Film effects* (grain, blur, vignette), *Turning speed*, and *Turn at the screen's edge*.
+- **Sound:** volume, music, sound effects, voices and station sounds, and *Sound when in the background*. While another window has the focus the game draws only 10 frames a second.
+- **Window:** opens at 1600×900, or the largest 16:9 window that fits a smaller screen; any shape works (a narrower window sees the whole desk, with more above and below); *Fullscreen* fills the screen.
+- **Input:** mouse (or touchpad) and keyboard; or a gamepad. Every menu works from the arrow keys or the d-pad with a visible focus, and `Esc` closes cards. There's no touch support.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Title screen](docs/media/screenshot_title.jpg) | ![Drawer and intake tag](docs/media/screenshot_drawers.jpg) |
+| ![Inspecting the wallet](docs/media/screenshot_inspect.jpg) | ![Asking a liar about a hidden detail](docs/media/screenshot_liar.jpg) |
+| ![A nudge from Agnes and the glint](docs/media/screenshot_nudge.jpg) | ![The stamp hint over the twins' slip](docs/media/screenshot_stamp.jpg) |
+| ![The humming suitcase](docs/media/screenshot_hum.jpg) | ![Mr Vell at the window](docs/media/screenshot_vell.jpg) |
+| ![Frost on the window](docs/media/screenshot_frost.jpg) | ![The blue lamp](docs/media/screenshot_lamp.jpg) |
+| ![A photograph changing](docs/media/screenshot_photographs.jpg) | ![The Day Ledger and the Gazette](docs/media/screenshot_ledger.jpg) |
+| ![Agnes's rules card](docs/media/screenshot_rules.jpg) | ![The ledger book](docs/media/screenshot_ledgerbook.jpg) |
+| ![Settings: Graphics fidelity](docs/media/screenshot_settings.jpg) | |
+
+All are frames of the trailer's takes at *Graphics fidelity: Ultra*, 1920×1080.
+
+## Play it
+
+1. Download `LostAndFound-v0.1.0-linux-x86_64.zip` from the [latest release](https://github.com/nearbycoder/LostAndFound/releases/latest). **It's the 4 October build**, older than this README (see [Which version is this?](#about)); [build from source](#build-from-source) for today's game.
+2. Unzip it and run `LostAndFound.x86_64` (`chmod +x LostAndFound.x86_64` first if your unzip tool dropped the permission).
+3. On a Wayland desktop, if the window doesn't appear, run it with `SDL_VIDEODRIVER=wayland ./LostAndFound.x86_64`.
+
+### System requirements
+
+| | |
+|---|---|
+| **OS** | 64-bit Linux (x86_64). Made and tested on CachyOS (Arch) with KDE Plasma on Wayland. There's no macOS or Windows download (see below). |
+| **Graphics** | A Vulkan GPU. The only GPU it has run on is an AMD Radeon 8060S (integrated). There, at 1600×900, a frame took about 2.6–2.8 ms on Low, 3.0–4.2 on Medium, 4.4–4.7 on High and 10.4–11.8 on Ultra (round 12's bench, with other work sharing the GPU); the game caps itself at 120 fps with vSync. Discrete GPUs and 4K screens are untested. |
+| **Memory** | About 0.4–0.55 GB resident while playing (the soak test's figures, rounds 7 and 12). |
+| **Disk** | 223 MB unpacked (a build of today's `main`); the v0.1.0 zip is 137 MB. |
+| **Input** | Mouse or touchpad and keyboard; or an Xbox-style gamepad (driven only by a virtual gamepad in tests, see [known issues](#status-and-known-issues)). |
+
+Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/` (`lostandfound_save.json` and `settings.json`; v0.1.0 kept its settings in Unity's `prefs` file in the same folder, and they're brought over the first time a newer build starts). Each save swaps in whole and keeps the one before as `lostandfound_save.json.bak`, so a crash mid-save can't lose the week. A save that can't be read is set aside as `.damaged` (never deleted), and the title says so.
+
+**Reporting a problem:** the title's bottom-right corner says which build you're playing, as `v0.1.0 · 97f9974`: the version and the commit it was built from (a `+` after it means the build had changes that weren't committed; builds of `main` still say v0.1.0, as no newer version has been numbered). Put that in a bug report, with what you were doing (the day and the claimant) and the player log: on Linux `~/.config/unity3d/Nearby/Lost & Found/Player.log` (the run before is `Player-prev.log`), and on a Mac, where it hasn't been tried, Unity writes it to `~/Library/Logs/Nearby/Lost and Found/Player.log`. The log's first lines name the build too. If the save is involved, `lostandfound_save.json` from the Linux folder above helps.
+
+**macOS and Windows:** there's no download for either yet. A universal (Intel and Apple silicon) macOS app can be built from source with `Tools/unity.sh build-mac`, but it **hasn't been run on a Mac**. It isn't signed or notarised, so macOS will refuse to open it until you right-click it and choose *Open* (or run `xattr -dr com.apple.quarantine "LostAndFound.app"`). On a Mac the app is called "Lost and Found". The Windows build is wired up (`Tools/unity.sh build-windows`) but needs Unity's Windows Build Support module, which the machine this was made on doesn't have, so it has never been built.
+
 ## How to play
+
+**A case, start to finish:** ring the bell. The claimant describes what they lost, and their key claims are written onto the claim slip. Read the intake tag in the drawer or on the shelf (where it was found, when, on which train). Pick the object up, turn it over, open it, and click anything that glints. Each finding goes on the slip, and clicking a finding asks the claimant about it. An honest owner knows what's inside. A liar only knows what they could have seen. Put the object on the tray and stamp the slip.
 
 | Action | Control |
 |---|---|
@@ -70,19 +172,9 @@ It's a small deduction game about **looking closely**. There are no timers and n
 | Read the slip and what they said · pause | View · Menu |
 | Menus: move between buttons and sliders · press · move a slider | D-pad up and down · A · d-pad left and right (the cursor follows) |
 
-Pick up the mouse and it takes over again at once. There's no touch support.
-
-Both tables are in the game too: **Controls** in the pause menu and on the title shows the one for whatever you're holding. Quick taps count: a touchpad's tap-to-click, or a click on a slow frame, is never lost.
-
-**Stuck?** Press `H` (d-pad left) during a claim for a nudge from Agnes, pinned at the right of the screen. It doesn't block anything. Each press goes a step further for wherever you've got to: finding the object, examining it, asking about it, deciding. The last nudge of each step shows you: the drawer or the object glows, or a glint marks the hidden detail once a click there would find it. Nudges only cite rules you've been given, never quote a finding you haven't found, and never say which stamp to use. After 90 seconds on a claim without progress, the hint bar offers one (*Offer Agnes's nudges when stuck* in Settings turns the offer off). Every nudge on the best path through the week is listed in [docs/nudges.md](docs/nudges.md) (spoilers).
-
-*Continue* on the title picks up where you left off, mid-day included: at the next claimant, with the morning already done.
-
-**A case, start to finish:** ring the bell. The claimant describes what they lost, and their key claims are written onto the claim slip. Read the intake tag in the drawer or on the shelf (where it was found, when, on which train). Pick the object up, turn it over, open it, and click anything that glints. Each finding goes on the slip, and clicking a finding asks the claimant about it. An honest owner knows what's inside. A liar only knows what they could have seen. Whenever you read the slip, everything said in the claim (their story, your questions, their answers) is written on a card beside it, so you can compare an answer with a finding without asking again. Put the object on the tray and stamp the slip. A stamp can't be taken back, so while you hold one over the slip the hint says what it will do there (*RETURN: give the silver locket to Cecily Fairweather*); when two people claim one thing, the half of the slip you stamp decides who gets it.
+Pick up the mouse and it takes over again at once. Both tables are in the game too: **Controls** in the pause menu and on the title shows the one for whatever you're holding. Quick taps count: a touchpad's tap-to-click, or a click on a slow frame, is never lost.
 
 ### Agnes's rules
-
-They arrive through the week as notes in Agnes's handwriting, most of them in the morning. The ones you've been given so far are on her card beside the claim slip: hover it to read them, or press `R` at any time, even with something in your hands. They're also in the pause menu.
 
 1. Every stray has a tag. A real owner knows where and when they lost it.
 2. Trust the object, not the story. Liars only know what they can see. Ask about what's hidden.
@@ -92,38 +184,6 @@ They arrive through the week as notes in Agnes's handwriting, most of them in th
 6. If it comes from tomorrow, it isn't lost yet. Lock it in the Iron Drawer, even if they're the owner.
 7. Frost means they've gone on ahead. Cold things go only to the cold.
 8. My blue lamp shows what ink tries to hide.
-
-## Features
-
-### Search the desk
-
-<img src="docs/media/screenshot_drawers.jpg" alt="Drawer A open, with the wallet's intake tag swung up" width="49%"> <img src="docs/media/screenshot_inspect.jpg" alt="The brown wallet open in the hands, a discovery being written on the slip" width="49%">
-
-Six drawers, three shelves and the Iron Drawer. Every stray has a manila **intake tag** that says where it was found, when and on which train, and the porter's notes. Pick the object up and it comes to your hands under the lamp. Drag to turn it, scroll to lean in, and open its lid, latch or clasp. A magnifier glints when you're near a **hidden detail**, such as a name strip inside an umbrella, a photo of a dachshund called Biscuit, or a date stamped on the back of a photograph. Each discovery is written onto the claim slip, and the object's name in your hands shows how many of its findings you've noted (secrets aren't counted). The evening ledger records the same for every case.
-
-### Catch the liars
-
-<img src="docs/media/screenshot_liar.jpg" alt="Asking Reggie Stokes about the name strip inside the umbrella" width="49%"> <img src="docs/media/screenshot_hum.jpg" alt="The battered suitcase glowing gold in your hands as Mrs Marsh asks: Is that humming?" width="49%">
-
-Click a finding on the slip to ask about it with a neutral question, and read the answers back on the card beside the slip. Honest owners answer correctly. Liars know only what they could see from across the counter, so they bluff. The game never says "contradiction"; you compare, and the evening ledger tells you whether you were right. Some objects **hum** when their owner is at the window, which overrules even a muddled story, like 94-year-old Mrs Marsh's description of a suitcase she lost in 1934.
-
-### The uncanny, gently
-
-<img src="docs/media/screenshot_vell.jpg" alt="Mr Vell, the Grey Gentleman, at the window while you hold up a pocket watch whose hands run backwards" width="49%"> <img src="docs/media/screenshot_frost.jpg" alt="Frost creeping over the window glass as a WWI lieutenant waits" width="49%">
-
-Things come in from other times on Platform 9. A pocket watch found *tomorrow* runs backwards, and a photograph is developed on a date that hasn't happened yet: anything from tomorrow goes in the **Iron Drawer**, even if its owner is standing in front of you. When a cold visitor comes to the window, the glass frosts over. And **Mr Vell**, the Grey Gentleman, knows every detail of every object, and nothing ever hums for him.
-
-### Agnes's blue lamp
-
-<img src="docs/media/screenshot_lamp.jpg" alt="The desk lamp switched to its blue filter, revealing hidden ink on a chit" width="49%"> <img src="docs/media/screenshot_photographs.jpg" alt="A framed photograph on the desk changing" width="49%">
-
-From Thursday, Agnes's lamp has a blue filter that shows what ink tries to hide: hidden dates, forged signatures, and a note she left about Mr Vell. And on Thursday there's a ring in a velvet box. Return it to the right person and **every photograph on your desk changes**.
-
-### Choices that carry through the week
-
-<img src="docs/media/screenshot_ledger.jpg" alt="The Day Ledger marking each case, and the Ninefold Gazette's headline" width="49%"> <img src="docs/media/screenshot_title.jpg" alt="The title screen: Agnes's desk at dusk" width="49%">
-
-Every evening the **Day Ledger** marks each case against the rules and explains why, and the **Ninefold Gazette** reports what your choices did. After Friday's ending, a last page sums up the week: each day's tally, your findings and curiosities, and how many of the three endings you've reached. The ledger book on the desk keeps every evening's page, so you can look back at what you decided earlier in the week (click it, or *The week so far* in the pause menu). Items you refuse stay in storage for their real owner later in the week. Whatever you give the Grey Gentleman makes him stronger, and the station visibly loses its colour. Days can be replayed from the title screen. There are 25 optional curios (one secret per object) to find, and the title's **Curiosities** page shows which you've found and when the rest turn up. Unclaimed strays don't clutter the shelves forever: once nobody else will come for something, Gus takes it down to the basement.
 
 ## Content
 
@@ -138,27 +198,25 @@ Every evening the **Day Ledger** marks each case against the rules and explains 
 - **25 sculpted characters**, from Gus the porter to a WWI lieutenant, with per-character synthesised voices.
 - **3 endings:** *The 9:40*, *The Long Wait* and *Grey Ninefold*, each with epilogue lines that react to the week's choices.
 
-## Screenshots
+## Status and known issues
 
-| | |
-|---|---|
-| ![Title screen](docs/media/screenshot_title.jpg) | ![Drawer and intake tag](docs/media/screenshot_drawers.jpg) |
-| ![Inspecting the wallet](docs/media/screenshot_inspect.jpg) | ![Asking a liar about a hidden detail](docs/media/screenshot_liar.jpg) |
-| ![The humming suitcase](docs/media/screenshot_hum.jpg) | ![Mr Vell at the window](docs/media/screenshot_vell.jpg) |
-| ![Frost on the window](docs/media/screenshot_frost.jpg) | ![The blue lamp](docs/media/screenshot_lamp.jpg) |
-| ![A photograph changing](docs/media/screenshot_photographs.jpg) | ![The Day Ledger and the Gazette](docs/media/screenshot_ledger.jpg) |
+v0.1.0 (4 October 2026) is the complete first version: all five days, 25 cases, three endings, menus, settings, save and replay. Since then twelve rounds of improvements have landed on `main` but haven't been released: fairness fixes (two cases' evidence couldn't be reached), Agnes's nudges, the transcript beside the slip, the stamp hint, the rules card and the ledger book, the Curiosities page and the week's summary, gamepad play and keyboard menus, a crash-safe save, accessibility settings, windows of any size and shape, *Graphics fidelity*, reflections and dust in the lamp's light, and cards that open and close. Each round's plan, results and evidence are in [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md).
 
-## Play it
+The game has been played end to end by its AutoPilot (all four policies, every round), through simulated mouse and keyboard (the trailer's takes), and through the compositor's own pointer and keyboard; **it has not had broad human playtesting yet.**
 
-1. Download `LostAndFound-v0.1.0-linux-x86_64.zip` from the [latest release](https://github.com/nearbycoder/LostAndFound/releases/latest).
-2. Unzip it and run `LostAndFound.x86_64` (`chmod +x LostAndFound.x86_64` first if your unzip tool dropped the permission).
-3. On a Wayland desktop, if the window doesn't appear, run it with `SDL_VIDEODRIVER=wayland ./LostAndFound.x86_64`.
-
-The build is 64-bit Linux with Vulkan. Saves and settings live in `~/.config/unity3d/Nearby/Lost & Found/` (`lostandfound_save.json` and `settings.json`; v0.1.0 kept its settings in Unity's `prefs` file in the same folder, and they're brought over the first time this version starts). Each save swaps in whole and keeps the one before as `lostandfound_save.json.bak`, so a crash mid-save can't lose the week. A save that can't be read is set aside as `.damaged` (never deleted), and the title says so. The window opens at 1600×900, or smaller on a smaller screen so it always fits with its title bar; *Fullscreen* in Settings fills the screen. The window can be any shape: one narrower than 16:9 (4:3, or snapped to half the screen) sees the whole width of the desk, with more above and below. While another window has the focus the game draws only 10 frames a second, and *Sound when in the background* in Settings can silence it there. If the desk looks too dark on your screen (or too bright), *Brightness* in Settings lifts or lowers the scene without touching the paper and text; *Turn at the screen's edge* there stops the desk turning when the pointer rests at the side of the window. *Graphics fidelity* in Settings has four steps: **High** (the default) is the desk as designed; **Ultra** supersamples and adds 4× MSAA, sharper and finer shadows, fuller ambient occlusion, a 64-bit colour buffer and more dust in the lamp's light, for a strong graphics card; **Medium** and **Low** trade the look for frame rate on a weak one (Low has no ambient occlusion, depth of field, reflections or dust). If it runs slowly, try a lower step; *Large text* there makes the dialogue, hints, tags and notes 25% bigger, and *Plain lettering* writes the tags, the claim slip and Agnes's notes, rules and nudges in a clear book face instead of handwriting.
-
-**Reporting a problem:** the title's bottom-right corner says which build you're playing, as `v0.1.0 · ed71667`: the version and the commit it was built from (a `+` after it means the build had changes that weren't committed). Put that in a bug report, with what you were doing (the day and the claimant) and the player log: on Linux `~/.config/unity3d/Nearby/Lost & Found/Player.log` (the run before is `Player-prev.log`), and on a Mac, where it hasn't been tried, Unity writes it to `~/Library/Logs/Nearby/Lost and Found/Player.log`. The log's first lines name the build too. If the save is involved, `lostandfound_save.json` from the Linux folder above helps.
-
-**macOS and Windows:** there's no download for either yet. A universal (Intel and Apple silicon) macOS app can be built from source with `Tools/unity.sh build-mac`, but it **hasn't been run on a Mac**. It isn't signed or notarised, so macOS will refuse to open it until you right-click it and choose *Open* (or run `xattr -dr com.apple.quarantine "LostAndFound.app"`). On a Mac the app is called "Lost and Found". The Windows build is wired up (`Tools/unity.sh build-windows`) but needs Unity's Windows Build Support module, which the machine this was made on doesn't have, so it has never been built.
+Known gaps and rough edges:
+- **The download is old.** The v0.1.0 release predates every round above, and builds of `main` still call themselves v0.1.0. Numbering and releasing a new version is the owner's call.
+- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here. WebGL builds and plays in Chrome (65 MB, 60 fps on this machine's iGPU when it's quiet) but isn't released or hosted, was last rebuilt in round 10, and has only been checked in headless Chrome.
+- Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
+- **Graphics fidelity has only been timed on this machine's integrated GPU while other work shared it**; Ultra on a discrete GPU or a 4K screen is unmeasured. The reflection probe is pictured once per desk, before anyone's at the window, so the claimant and the blue lamp don't show in the brass.
+- How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view; the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations.
+- **Keyboard layouts.** Shortcuts are read by where the key sits on a US keyboard, and the prompts name the US letters. On AZERTY, `A`/`D` (turn) are the keys printed **Q**/**D**, and `Q`/`W` (turn the object) are printed **A**/**Z**. The arrow keys, the screen edges and dragging do the same jobs.
+- **The pointer at a window's side.** The game isn't told when the pointer leaves its window, so it judges from the pointer's last step. A pointer stopped on the window's very last pixel, or pushed slowly against the side of the screen in a maximised window, doesn't turn the desk; pull back a pixel, use `A`/`D` or the arrows, or play fullscreen.
+- The ledger book sits in the bottom-right corner of the counter view, partly out of frame at 16:9; a player may not notice it. Gus mentions it on Tuesday morning, and the pause menu has *The week so far*.
+- A window narrower than 16:9 shows the whole desk smaller (at half a 1080p screen, about 60% of its size in a 1600×900 window). A 16:9 window or *Fullscreen* shows it best.
+- Two weeks played back to back in one process keep the same live objects, but resident memory rose about 43 MB between them; it looks like the allocator rather than a leak, but it isn't proven.
+- Starting *A New Week* clears the curiosities you've found (the endings you've reached are kept).
+- Characters are modelled from the waist up and animated procedurally, with no rigs. The synthesised music and voices are charming but not studio quality.
 
 ## Build from source
 
@@ -210,37 +268,38 @@ All generated assets are committed, so you only need to regenerate them if you c
 | **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0 to 3 (Low to Ultra) overrides the graphics fidelity for that run only. With `-lafShowSettings` or `-lafShowControls` it opens that card over the title, and `-lafTextAudit` audits its texts; `-lafCardFrames` photographs Settings and the pause menu as they open and close, with *Reduce motion* off and on. |
 | **Fidelity bench** | `Tools/unity.sh fidelity [w] [h] [moments]` | Plays Monday's first claim and, at each named AutoPilot moment (by default the claimant at the window and the wallet in your hands), holds the game still and times every Graphics fidelity step over 400 uncapped frames, Low to Ultra and back (each step's figure is the mean of its two medians), photographing each step at the same moment. `[Fidelity]` lines with the load average in `Logs/fidelity.log`, pictures in `Screenshots/fidelity/`. `-lafUltraWithout msaa,hdr,dof,ao,shadows,cascades` leaves parts of Ultra out, to see what each costs and adds. |
 | **Menu test** | `Tools/unity.sh menutest [w] [h] [player args]` | The menus with only a virtual keyboard, then only a virtual gamepad: from the title's first item to Settings, the fidelity to Ultra (checked applied and saved) and back, `Esc`, Begin, the pause menu and its Controls card; then the pad's Menu, its d-pad and A through the same. Every step checked. Log in `Logs/menutest.log`. |
-| **Pointer test** | `Tools/unity.sh pointertest [w] [h]` | The real pointer at the window's sides: KWin's own pointer, moved through its fake-input protocol (`Tools/fakeptr.c`, which only connects to this script's private KWins), so the game hears enter, motion and leave as it would from a mouse. It rests just inside each side (the desk turns), leaves by each side briskly, at an ordinary pace and slowly and stays out (it mustn't), comes back in, and, with the window snapped against the screen's side, is flung against it (it turns). Before round 11, every exit at an ordinary pace turned the desk. Log in `Logs/pointertest.log`. |
+| **Pointer test** | `Tools/unity.sh pointertest [w] [h]` | The real pointer at the window's sides: KWin's own pointer, moved through its fake-input protocol (`Tools/fakeptr.c`, which only connects to this script's private KWins), so the game hears enter, motion and leave as it would from a mouse. It rests just inside each side (the desk turns), leaves by each side briskly, at an ordinary pace and slowly and stays out (it mustn't), comes back in, and, with the window snapped against the screen's side, is flung against it (it turns). Log in `Logs/pointertest.log`. |
 | **Real-input play** | `Tools/unity.sh realplay [until day] [w] [h]` | The filmed play's whole days (from the title, by default to Tuesday morning; `5` plays the week to the ending), with real input: the play's pointer moves, clicks, drags and key presses go to KWin's own pointer and keyboard, and the game reads them through SDL as it would a mouse and keyboard. On the first claim it also presses `H`, `Tab` and `Esc`, brings the object closer and back with the wheel, and puts it down with a right click. Passes with no fallbacks (nothing the play had to do directly because the input didn't) and every claim decided as the play meant. Nothing is recorded. Log in `Logs/realplay.log`. |
 | **Edge test** | `Tools/unity.sh edgetest [w] [h]` | Holds a virtual mouse at each side of the screen on Tuesday at the bell (slowing to a stop there, as a person does): the desk turns with *Turn at the screen's edge* on, doesn't with it off, and doesn't while another window has the focus (the headless KWin opens one once the test says it's ready), then turns again when the focus comes back. Log in `Logs/edgetest.log`. |
 | **Settings upgrade probe** | `Tools/prefs_probe.sh` (after `build-linux`) | Writes settings the way v0.1.0 did (PlayerPrefs, saved at once) in a scratch config folder, shows which file they land in, and starts this version on them to check they're brought over into `settings.json`. Also shows that `~/.config/unity3d/unknown/unknown/` is never read or written. |
 | **Small screens** | `Tools/unity.sh smallscreen <w> <h> [scale] [player args]` | A first launch on a screen of that size (a short smoke run), in a headless KWin of its own: its own D-Bus session and scratch folders, so nothing shows on the desktop and the real session's settings aren't touched. KWin reports where it put the window, and `spectacle` photographs the whole screen. `scale 2` is a HiDPI screen at 200%. `LAF_STEAL="10 20"` puts another window over the game for a while (with `-lafBackgroundTest`, to see it go quiet behind it), and `LAF_SETTINGS` starts from given settings. Needs `kwin_wayland`, `kscreen-doctor`, `spectacle` and `kdialog` (KDE Plasma). Results in `Screenshots/smallscreen/`. |
-| **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. |
+| **Filmed play** | `Tools/unity.sh film <name> [-lafDay N] [-lafUntil N] [-lafShowcase]` | Plays whole days through a simulated mouse and keyboard, the same input path a player uses, and records them. It turns each object until a hidden detail faces it and clicks it. The log ends with how many details were found by hand and how many needed the recorder's fallback, which should be none. `-lafShowcase` also works the menus from the keys, asks for nudges, reads the rules and the ledger book (for the trailer); `LAF_SETTINGS='<settings.json>'` films with those settings. |
 
 Every player run above keeps its prefs in `Logs/config/<command>/` rather than your real `~/.config/unity3d/Nearby/Lost & Found/`. Each one also runs inside a headless KWin of its own (as `smallscreen` does: its own D-Bus session, socket and scratch folders), so no test window ever opens on your desktop; `LAF_DESKTOP=1` runs it as an ordinary window instead. The script points `XDG_CONFIG_HOME` there and passes `-lafSave` for the save. Batch editor runs (builds, `test`, `run`) get `Logs/config/editor/`, which links back to the real config folder for everything except this game's own, so the editor still finds its licence. The interactive editor (`Tools/unity.sh` with no command, or `headless`) gets the same folder, so pressing Play in the editor uses a scratch save and settings too. Every one of these runs checks the real folder's hashes and timestamps before and after, and fails (`[guard] … CHANGED`) if anything in it changed, so testing can't overwrite your own save or settings.
 
 ### The trailer and README media
 
 ```sh
-Tools/unity.sh film day1 -lafUntil 1      # the title, then Monday
-Tools/unity.sh film day2 -lafDay 2        # ...one take per day, through day5
-Tools/unity.sh film grey -lafDay 4 -lafUntil 5 -lafVerdicts 4.2=return:vell,5.5=return:vell
-.venv/bin/python Tools/make_trailer.py    # -> docs/media/trailer.mp4, screenshots, teaser.webp
+S='{"values":[{"key":"quality","value":3.0}]}'   # Graphics fidelity: Ultra, as a player would set it
+LAF_SETTINGS=$S Tools/unity.sh film p_day1 -lafUntil 1 -lafShowcase    # the title, then Monday
+LAF_SETTINGS=$S Tools/unity.sh film p_day2 -lafDay 2 -lafShowcase      # ...one take per day, through p_day5
+LAF_SETTINGS=$S Tools/unity.sh film p_grey -lafDay 4 -lafUntil 5 -lafVerdicts 4.2=return:vell,5.5=return:vell -lafShowcase
+.venv/bin/python Tools/make_trailer.py --takes p_   # -> docs/media/trailer.mp4, trailer_poster.jpg, screenshots, teaser.webp
 ```
 
-Takes are frame-locked 30 fps captures without the score. `make_trailer.py stills --takes r5_` cuts only the README stills, from takes filmed under other names (`film r5_day1 -lafUntil 1` and so on), leaving the trailer's takes alone. `make_trailer.py` cuts every shot relative to event markers the recorder writes, so a re-filmed take keeps its cuts on the same moments. It then lays the game's own music under the shots and ducks it beneath the sound effects and voices.
+Takes are frame-locked 30 fps captures without the score, so Ultra films smoothly however slowly the machine renders. `make_trailer.py` cuts every shot relative to event markers the recorder writes, so a re-filmed take keeps its cuts on the same moments. It then lays the game's own music under the shots and ducks it beneath the sound effects and voices. `--takes <prefix>` picks which takes to cut from (the October 4 cut used takes named `day1` … `grey`), and `make_trailer.py stills` or `teaser` makes just those.
 
 ## Project structure
 
 ```
 Assets/Game/Scripts/      C# (one assembly, LostAndFound; editor tools in Assets/Game/Editor)
-  Core/                   content model (JSON), story state, the rules solver and validator, save game
+  Core/                   content model (JSON), story state, the rules solver and validator, save game, nudges
   Desk/                   interaction, camera, drawers, items, inspection, claim slip, stamps, gadgets, props
-  Flow/                   Game (bootstrap, restart), Director (days, cases, verdicts, the photograph sequence)
+  Flow/                   Game (bootstrap, restart), Director (days, cases, verdicts, nudges, the photograph sequence)
   People/                 procedural commuter animation
-  UI/                     code-built uGUI: dialogue, notes, ledger, title, pause, settings, ending
-  Audio/, Visuals/, Util/ mixing, materials, fonts, post-processing, tweening, input
-  Debug/                  SmokeTest, AutoPilot (plays the whole week), DemoRecorder (filmed play), HotspotAudit
+  UI/                     code-built uGUI: dialogue, notes, ledger and ledger book, title, pause, settings, menus, ending
+  Audio/, Visuals/, Util/ mixing, materials, fonts, post-processing and graphics fidelity, tweening, input, settings
+  Debug/                  SmokeTest, AutoPilot (plays the whole week), DemoRecorder (filmed play), HotspotAudit, the input tests
 Assets/Game/Tests/EditMode/  unit tests (NUnit, run with Tools/unity.sh test)
 Assets/Game/Icon/         the app icon (generated)
 Assets/Game/Resources/
@@ -250,15 +309,15 @@ Assets/Game/Resources/
   Audio/, Music/          synthesised WAVs
   Fonts/                  OFL / Apache fonts (licences in docs/licenses)
 ArtSource/                Blender build scripts (lib/laf.py helpers, lib/sdf.py sculpting), fonts, booth.blend
-Tools/                    unity.sh, texture/photo/audio/icon generators, editor test helpers, make_trailer.py, package_release.py
-docs/                     BRIEF.md (the original brief), PLAN.md (design and technical plan), IMPROVEMENTS.md, licences, media
+Tools/                    unity.sh, texture/photo/audio/icon generators, test helpers, make_trailer.py, package_release.py
+docs/                     BRIEF.md (the original brief), PLAN.md (design and technical plan), IMPROVEMENTS.md, nudges.md, licences, media
 ```
 
 ## Tech highlights
 
 - **The scene is empty.** `Boot` builds the whole game at runtime from code and the `Resources` folder: the camera rig, lights, post-processing, desk, props, UI and the director. There's no fragile scene wiring, and restarting a day just tears the game down and builds it again.
 - **Content is data.** Objects, details, hotspots, parts, claims, answers, verdicts, story flags, Gazette headlines and endings are all JSON. Model hotspots are named empties (`HS_<detail>`) and animated parts are named nodes (`Lid`, `Flap`, `Key`), so the data and the Blender models line up by name.
-- **A rules solver keeps every case fair.** `Rules.Solve` sees only what a player can learn at the desk (the tag, discoverable details, claims and answers, traits, and the rules unlocked by that point) and must derive each case's authored best verdict. The build fails validation if it can't. The same solver drives the AutoPilot.
+- **A rules solver keeps every case fair.** `Rules.Solve` sees only what a player can learn at the desk (the tag, discoverable details, claims and answers, traits, and the rules unlocked by that point) and must derive each case's authored best verdict. The build fails validation if it can't. The same solver drives the AutoPilot, and Agnes's nudges are checked against it.
 - **Hidden-detail picking** projects each hotspot to the screen and checks that it faces the camera and isn't occluded by the object itself. A magnifier glints within a radius, so discovery guides you without spoiling anything.
 - **Story state and consequences.** Verdicts set flags (`ring=thomas`, `vellItems+=1`, and so on) that move items, swap in alternate cases, rewrite later dialogue, change the photographs (each has a *before* and an *after* render), and drain the post-processing saturation for every gift to the Grey Gentleman.
 - **Sculpted, not modelled.** `ArtSource/lib/sdf.py` builds heads, hands, hair and cloth as signed distance fields, then meshes them with marching cubes, so faces, lips and ears are one continuous surface. Characters are split into parts (`Head`, `EyeL`, `BrowR`, `Mouth`, hands) and animated procedurally: breathing, blinking, glances, talking and emotes, with no rigs.
@@ -287,44 +346,6 @@ Design, code, models, textures, photographs, sound and music were all made for t
 **Engine and packages:** Unity 6000.6 with the Universal Render Pipeline, Input System, uGUI and TextMesh Pro, all under the Unity Companion License / Unity terms of service.
 
 **Tools:** Blender 4.5 (GPL; output is unrestricted), Python with NumPy, SciPy, scikit-image and Pillow (BSD/HPND-style licences), and FFmpeg (for recording and the trailer).
-
-## Status and known issues
-
-v0.1.0 is the complete first version: all five days, 25 cases, three endings, menus, settings, save and replay. It's been played end to end by the AutoPilot on every branch and, for days at a time, through simulated mouse and keyboard; it has not had broad human playtesting yet.
-
-Since v0.1.0 (not released yet; see [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)):
-- **Fairness fixes.** The lunch tin's rim was modelled as a solid slab that sealed it shut, so its sandwich and note (the evidence for Thursday's first case) couldn't be seen, and the frosted tin was stored inside the hatbox, where Wednesday's two cases couldn't pick it up. Both are fixed, along with other shelf and drawer overlaps. The new hotspot audit checks every hidden detail and every stored object, and the filmed play now finds all 53 details it looks for across the week by hand. The original takes needed the recorder's fallback 16 times.
-- Hints and the inspect bar are legible over the claim slip (6.5:1 contrast, from about 1:1).
-- Agnes's rules are on a card on the desk (hover it, or press `R` at any time), and the inspect bar and Day Ledger count your findings.
-- 42 unit tests; a macOS build target, app icon and bundle identifier; a release packaging script; a *Picture quality* setting (round 12's *Graphics fidelity*).
-- Round 2: shelves that never overflow (an umbrella stand, and Gus's basement for unclaimed strays); *Continue* resumes mid-day; the Curiosities page; a *Large text* option; gamepad support.
-- Round 4: **quick clicks and taps are never lost** (a touchpad's tap-to-click, or any click on a slow frame, used to be dropped); **a crash can't cost you the week** (saves swap in whole and keep a backup); a **Controls** card in the pause menu and on the title; editor test runs no longer touch your settings either; and the WebGL build plays at 60 fps on a real GPU and keeps its save in the browser.
-- Round 5: **what they said is written beside the slip** whenever you read it (your questions and their answers included), so an answer can be read again; the slip's own writing is no longer stuck at its smallest size on longer claims; a *Plain lettering* option for the handwriting; settings kept in `settings.json` beside the save (v0.1.0's ended up in a folder Unity shares between games); a WebGL page of the game's own; and README screenshots from the current build. A text audit now checks every text against its box during the AutoPilot. There are 70 unit tests.
-- Round 6: **the Day Ledger's Gazette stands beside the rows** instead of landing on the last of them, and the ledger fits 21:9 and 4:3 screens (at 21:9 its buttons were off the bottom of the screen); **Agnes's rules stay readable on Thursday and Friday** (the full card about 28% larger, the card beside the slip 25%); **a page summing up the week** after the ending, with the endings you've reached; the text audit now catches texts running into each other; and a check that v0.1.0 players keep their settings (they do). There are 72 unit tests.
-- Round 7: **playing on without quitting no longer leaks**: the game rebuilds itself whenever you start the day again, go back to the title or finish the week, and each time it left about a dozen materials and textures behind (resident memory grew 51 MB over 30 rebuilds; now flat). A new soak test checks this, and two whole weeks now play back to back in one process. **No progress is lost by surprise**: *Start the day again* and going back to an earlier day with *Choose a Day* ask for a second click and say what would be undone, and a replay after a finished week can be *Continue*d. Agnes's full rules card is a little larger again on Friday. There are 76 unit tests.
-- Round 8: **the window fits the screen**: on a 1366×768 laptop, a 1440×900 MacBook or a HiDPI screen at 200%, the game used to open a 1600×900 window that ran off the screen, taking the shelf arrow, the claim slip and the hints with it; it now opens the largest 16:9 window that fits. The *Fullscreen* setting, which did nothing on Wayland, now works. The Day Ledger's *Replay the day* asks before undoing the day, the buttons on the dark (ledger, ending, week summary) stay readable under the pointer, and the game goes quiet (10 fps, optionally silent) while another window has the focus. There are 86 unit tests.
-- Round 9: **the week's ledger at hand**: the ledger book on the desk (or *The week so far* in the pause menu) holds every closed day's Day Ledger page as it was that evening, Gazette included, and Gus mentions it on Tuesday. A **Brightness** setting for the dark desk, and **Turn at the screen's edge** to stop the pointer turning the desk. The title's corner names the build (version and commit), and the README says where the log is for a bug report. Every test window now opens in a private headless KWin, never on the desktop. There are 92 unit tests.
-- Round 10: **a window of any shape sees the whole desk**: one narrower than 16:9 (4:3, or snapped to half the screen) used to lose the lamp, the printer, the ledger book and half the object in your hands off its sides, and at half a 1080p screen the speech bubble sat over every claimant's face. **What a stamp will do is said before it lands** ("RETURN: give the silver locket to Cecily Fairweather"), following the half of the slip when two people claim one thing. Agnes's notes no longer open over the line before them. The text audit now also checks reading panels over each other and the bubble over faces. There are 111 unit tests.
-- Round 11: **a pointer leaving the window doesn't turn the desk**: checked at last with a real pointer (KWin's own, in the private test desktop), leaving a window by its side at an ordinary pace turned the desk every time; now it doesn't, while resting at the side still turns it. **The speech bubble never slides across a face** (a new check of every frame found it doing so at the start of most claims, for a moment), and **it's as tall as its line** instead of a box sized for five. **`Esc` closes the pause menu**, as it does every other card. And a whole week has been played with **real input**, the compositor's own pointer and keyboard rather than devices simulated inside the game: every claim decided by real clicks, drags, keys and the wheel. There are 131 unit tests.
-- Round 12: **a Graphics fidelity setting** of four steps, Low, Medium, High (the default, the desk as designed) and Ultra (supersampled, 4× MSAA, sharper shadows, fuller ambient occlusion), each pictured at the same moment and timed in `docs/media/improvements/round12/`; **the brass, glass and glaze reflect the room** (there was nothing for them to reflect) and dust drifts in the lamp's light; **every menu works from the keyboard and the pad's d-pad**, with a visible focus; and **cards open and close** instead of appearing and vanishing in a frame. There are 136 unit tests.
-- Round 3: **Agnes's nudges** for a stuck player (`H` or the d-pad's left): step by step, ending with a glint on the spot a click would find. The Linux download is **22% smaller** (111 MB zipped, from 143 MB) through compressed meshes. A WebGL build can be made and measured (`build-webgl`, not released). The test tools can no longer touch your real save or settings. There are now 53 unit tests.
-
-Known gaps and rough edges:
-- Characters are modelled from the waist up (they're always behind the counter, and every photograph hides them below the waist). Animation is procedural; there are no skeletal rigs.
-- The synthesised music and voices are charming but not studio quality.
-- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here.
-- Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
-- How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view, and the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations. Agnes's nudges now lead a stuck player to every deciding detail, but only the AutoPilot has followed them so far.
-- Two weeks played back to back in one process keep the same live objects, but the process's resident memory still rose by about 43 MB between the end of the first week and the second (Unity's own count rose 1.5 MB). It looks like the allocator or driver keeping memory rather than a leak in the game, but it isn't proven. Restarting the game resets it.
-- **Keyboard layouts.** Shortcuts are read by where the key sits on a US keyboard, and the prompts name the US letters. On a French (AZERTY) keyboard `A`/`D` (turn) are the keys printed **Q**/**D**, and `Q`/`W` (turn the object) are printed **A**/**Z**; `H`, `R`, `L` and `T` are where they're printed on AZERTY and QWERTZ, but not on Dvorak. The arrow keys, the screen edges and dragging do the same jobs. Round 8 tried to name the keys as printed on the player's keyboard, but the Linux player reported US letters under French, German and Dvorak layouts in every test here, so it couldn't be done or checked.
-- **The pointer at a window's side.** The game isn't told when the pointer leaves its window, and keeps its last position, so it judges from the pointer's last step whether it has gone (round 11; checked with KWin's own pointer, which leaving at an ordinary pace used to turn the desk). Two cases can't be told apart from a pointer leaving: one stopped on the window's very last pixel, and one pushed slowly against the side of the screen in a maximised or snapped window. Neither turns the desk; pull back a pixel, use `A`/`D` or the arrows, or play fullscreen, where the pointer can't leave. A pointer flung against the screen's side still turns it. *Turn at the screen's edge* in Settings turns edge turning off, and while another window has the focus it never turns.
-- **Real input, not real hardware.** The real-input play drives the compositor's own pointer and keyboard, so everything from KWin through SDL into the game is checked, but the events don't come from a physical mouse, touchpad or keyboard, and pointer acceleration isn't involved. In that play the turning search couldn't bring one hidden detail into view (the ring's date, which shows from about one turn in seven) and found it directly; with simulated input it happens to find it at once. The drags themselves turn the object by what they should. Once in twelve runs the play's click took up the stamp beside the one it aimed at (the retry took the right one); why isn't known.
-- The ledger book on the desk sits in the bottom-right corner of the counter view, partly out of frame at 16:9 and wider (a narrower window shows it whole): the game's picking reaches it at every window shape tried, but a player may not notice it. Gus mentions it on Tuesday morning, and the pause menu has *The week so far*.
-- **A window narrower than 16:9** shows the whole width of the desk by showing more above and below it, so at half a 1080p screen (960×1080) the desk, the people and the object in your hands are drawn at about 60% of their size in a 1600×900 window (half what that window showed before round 10, when the sides were cut off). Everything fits and reads, but a 16:9 window or *Fullscreen* shows it best.
-- **Graphics fidelity has only been timed on this machine's integrated GPU while other test sessions shared it** (it read 99% busy without this game running), so the frame times in the round 12 notes are given against High in the same run as well as alone. Ultra on a discrete GPU or a 4K screen is unmeasured. The reflection probe is pictured once per desk, before anyone's at the window, so the claimant and the blue lamp don't show in the brass. Screen-space reflections, which URP has behind an experimental switch, weren't used (see round 12's notes).
-- Starting *A New Week* clears the curiosities you've found along with the rest of the save (the endings you've reached are kept). Whether curiosities should carry over between weeks is an open design question.
-- WebGL isn't released or hosted. It builds as a 65 MB download (last rebuilt in round 10, with everything above), plays at 60 fps in Chrome on this machine's GPU (a Radeon 8060S iGPU) when the machine is quiet (43–52 fps with other work running), with the desktop's picture, and its save survives closing the browser. It's been checked in Chrome only (headless, on the real GPU), not Firefox or Safari, and nobody has played it by hand. It has a page of its own: the game fills the window at 16:9, with a loading bar, a fullscreen button, plain words if the browser has no WebGL 2, and a warning (before the 65 MB download) on phones and tablets. See [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md), round 4.
-- The trailer and the teaser loop at the top were filmed for v0.1.0, before these fixes (the trailer's umbrellas still lie on the shelf, its lunch tin was sealed, and there are no nudges). The screenshots were re-cut in round 5 from new takes of the current build (`make_trailer.py stills --takes r5_`), and the ledger's again in round 6 from the AutoPilot, for its new layout; re-cutting the trailer is the owner's call.
 
 ## License
 
