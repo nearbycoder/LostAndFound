@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en-gb">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lost &amp; Found</title>
+    <link rel="icon" type="image/png" href="TemplateData/favicon.png">
+    <link rel="stylesheet" href="TemplateData/style.css">
+  </head>
+  <body>
+    <!-- Lost & Found's own page: the canvas fills the window at 16:9, with a loading bar while the build downloads,
+         a fullscreen button, and plain words if the browser can't run it. The game reads its ?laf... test options
+         from this page's address itself. With ?lafShot, the page logs "[Shot] page_..." lines that
+         Tools/webgl_check.py turns into screenshots. -->
+    <div id="stage">
+      <canvas id="unity-canvas" tabindex="-1"></canvas>
+    </div>
+
+    <div id="loader">
+      <div class="card">
+        <h1>Lost &amp; Found</h1>
+        <p class="sub">The Lost Property Office &middot; Ninefold Junction &middot; October 1962</p>
+        <div id="bar"><div id="fill"></div></div>
+        <p id="status">Opening the office&hellip;</p>
+        <div id="note" hidden>
+          <p>Lost &amp; Found is made for a mouse and keyboard (or a gamepad). It may not play well on a phone or tablet,
+             and it's a download of about <span data-laf-size>69</span>&nbsp;MB.</p>
+          <button id="anyway" type="button">Load it anyway</button>
+        </div>
+      </div>
+    </div>
+
+    <button id="fullscreen" type="button" tabindex="-1" title="Fullscreen" aria-label="Fullscreen" hidden>&#x26F6;</button>
+
+    <script src="Build/ff81378076f4256b53bedf12218c4fd7.loader.js" onerror="window.lafLoaderFailed = true"></script>
+    <script>
+      (function () {
+        var canvas = document.getElementById("unity-canvas");
+        var stage = document.getElementById("stage");
+        var loader = document.getElementById("loader");
+        var fill = document.getElementById("fill");
+        var status = document.getElementById("status");
+        var note = document.getElementById("note");
+        var fullscreen = document.getElementById("fullscreen");
+        var shots = /[?&]lafShot\b/.test(location.search);
+        var shotAt = {};
+
+        function shot(name) {
+          if (shots && !shotAt[name]) { shotAt[name] = true; console.log("[Shot] page_" + name); }
+        }
+
+        // the largest 16:9 box that fits the window, centred
+        function fit() {
+          var w = window.innerWidth, h = window.innerHeight;
+          if (w / h > 16 / 9) w = Math.round(h * 16 / 9); else h = Math.round(w * 9 / 16);
+          stage.style.width = w + "px";
+          stage.style.height = h + "px";
+        }
+        window.addEventListener("resize", fit);
+        fit();
+
+        function fail(text) {
+          loader.hidden = false;
+          loader.classList.add("failed");
+          document.getElementById("bar").hidden = true;
+          note.hidden = true;
+          status.textContent = text;
+          shot("failed");
+        }
+
+        function hasWebGL2() {
+          try { return !!document.createElement("canvas").getContext("webgl2"); } catch (e) { return false; }
+        }
+
+        function start() {
+          note.hidden = true;
+          document.getElementById("bar").hidden = false;
+          var config = {
+            arguments: [],
+            dataUrl: "Build/4a8bbd4f3c57e7e60151aaffa234d019.data.unityweb",
+            frameworkUrl: "Build/b60e90bc62e1d34e8d31adf07f05d46d.framework.js.unityweb",
+            codeUrl: "Build/e409bcd713436c75c3431d63490b83ca.wasm.unityweb",
+            streamingAssetsUrl: "StreamingAssets",
+            companyName: "Nearby",
+            productName: "Lost _ Found",
+            productVersion: "0.1.0",
+            // the build's files have hashed names (a new build, new names), so a copy in the browser's cache is never stale
+            cacheControl: function (url) {
+              return /(^|\/)Build\/[0-9a-f]{32}\.(data|wasm|framework\.js)(\.unityweb)?$/.test(url) ? "immutable" : "no-store";
+            },
+            // the save lives in the browser's IndexedDB: the game flushes it there after every write
+            // (Plugins/WebGL/LafSyncFS.jslib), so Unity's own autoSyncPersistentDataPath stays off
+            showBanner: function (msg, type) {
+              if (type === "error") fail("Something went wrong: " + msg);
+              else console.warn(msg);
+            },
+          };
+          createUnityInstance(canvas, config, function (progress) {
+            // about 90% of the bar is the download; the rest is the game starting up
+            fill.style.width = Math.round(progress * 100) + "%";
+            status.textContent = progress < 0.9
+              ? "Opening the office… " + Math.round(progress / 0.9 * 100) + "%"
+              : "Unpacking the drawers…";
+            if (progress >= 0.3) shot("loading");
+          }).then(function (instance) {
+            loader.classList.add("done");
+            setTimeout(function () { loader.hidden = true; }, 700);
+            fullscreen.hidden = false;
+            // straight from the click, which the browser needs (Unity's SetFullscreen waits for the next click instead)
+            fullscreen.onclick = function () {
+              fullscreen.blur();
+              canvas.focus();
+              var go = canvas.requestFullscreen || canvas.webkitRequestFullscreen;
+              if (!go) { instance.SetFullscreen(1); return; }
+              var p = go.call(canvas);
+              if (p && p.catch) p.catch(function (e) { console.log("[Page] fullscreen refused: " + e); });
+            };
+            canvas.focus();
+            shot("ready");
+          }).catch(function (message) {
+            fail("The game couldn't start in this browser. " + message);
+          });
+        }
+
+        canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+        // right click puts things down in the game: no browser menu over it
+        canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+
+        if (window.lafLoaderFailed || typeof createUnityInstance !== "function") {
+          fail("The game's files didn't download. Check the connection and reload the page.");
+        } else if (!hasWebGL2()) {
+          fail("This browser can't run Lost & Found: it needs WebGL 2. Try an up-to-date Chrome, Edge or Firefox, " +
+               "with hardware acceleration switched on.");
+        } else if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+                   (window.matchMedia && matchMedia("(pointer: coarse)").matches && !matchMedia("(any-pointer: fine)").matches)) {
+          document.getElementById("bar").hidden = true;
+          status.textContent = "";
+          note.hidden = false;
+          document.getElementById("anyway").onclick = start;
+        } else {
+          start();
+        }
+      })();
+    </script>
+  </body>
+</html>
