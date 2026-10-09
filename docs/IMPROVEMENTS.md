@@ -1581,3 +1581,83 @@ with the load at each start and end in `final_checks_timeline.txt`; the rest und
   automatic choice by GPU would need testing on hardware this machine doesn't have).
 - The WebGL build wasn't rebuilt this round; it would get the fidelity setting, the menus and the card motion as they are.
 - Whether to clear the 64 helper processes earlier rounds left running (round 11's question).
+
+## Phones and tablets in the browser (9 Oct 2026)
+
+The owner opened one of the games on an iPhone and the tab crashed. Asked for: every game working on a phone, with touch
+controls shown only on mobile. Branch `web-mobile`. Load average 1–31 for the final checks and 23–27 for the measurements before (up to about 145 earlier in the day) from the other sessions throughout.
+
+### Measured before (today's `main`, the live build)
+`Tools/mobile-check.mjs` (new) plays the site in headless WebKit with Playwright's iPhone 15 and iPad Pro 11 profiles and in
+Chromium with the Pixel 7's, the desktop's texture formats hidden as a phone's GPU lacks them (this WebKit offers them).
+It reached the title on all three, but:
+- **Every texture arrived as plain RGBA.** The build had only DXT/BC7, which a phone's GPU can't read, so the player unpacked
+  all 204 (`WARNING: … format is not supported, decompressing texture`, 53 lines): 154 MB of textures at the title on the
+  iPhone profile.
+- **The load doubled the tab's memory for a few seconds.** The content process climbed to 1.5–1.9 GB (iPhone, iPad) while the
+  loader unpacked the Brotli files in JavaScript, compiled the 35 MB WebAssembly and kept a copy in IndexedDB; the same build
+  served unpacked peaked at 1.0 GB. iOS closes a tab well before that.
+- Render targets at three pixels to a point and Medium: 18 MB on the iPhone profile, 28 MB on the iPad's.
+- **Nothing but a tap worked by touch**: Begin and the morning's taps (the browser's mouse events after a tap), but no turning,
+  no rules, nudge, slip, tray or pause, no drag to turn an object and no zoom, and a phone got a "made for a mouse" warning.
+- Not a game problem, but a trap for anyone measuring: this machine's WebKit has no GStreamer audio sink and no MP4 demuxer,
+  and the tab aborts (SIGABRT, core dumped) a second after the title when the game starts its sound. The tool gives WebKit a
+  silent stand-in; Chromium's runs keep real audio.
+
+### What changed
+| | |
+|---|---|
+| **Touch** (`e3ad0e9`, `b4b13b4`) | `TouchInput` drives a virtual mouse from the page's commands, as `GamepadInput` does for the pad, so everything that reads the mouse works unchanged. A finger is the pointer: a tap clicks where it lands, touching and holding shows what's there without clicking (the tag, the slip's own focus, the hint), a drag presses where it started and turns what's in your hands, a pinch is the scroll wheel; when the finger lifts the pointer leaves the window, so nothing stays lit and no edge turns the desk. A stamp takes two taps (it can't be undone): the first brings it to the spot and the hint says what it would do there. The page's buttons stand in for keys through `InputX`: the turns (named for where they go), **Rules**, **Nudge**, **Slip**, **Tray** and **Lamp** while holding something, **Back** (put down, leave the slip, put the stamp back, close the card) and **Menu**, each shown only when it applies (the game tells the page, `TouchInput.State`). Hints, nudges, the slip and the controls card say tap, hold and pinch and name the buttons (`TouchInput.Words`). |
+| **Shown only on mobile** | On a touch-first device (coarse pointer, no fine one; an iPad that says it's a Mac counts) or after a real touch; a key, a mouse or a gamepad hides them and hands the game back. 56 px buttons (72 px for the turns), clear of the notch and home indicator (`env(safe-area-inset-*)`, and the desk itself is fitted inside the safe area), one finger each, several at once. No page scroll, zoom, double-tap zoom, selection or long-press menu. Landscape; a phone held upright is asked to turn on its side; a tablet held upright gets the buttons below the desk. The sound is woken at the end of the first touch, as iOS asks. |
+| **Memory** (`e3ad0e9`, `f82b0da`, `af746a8`) | A second build with ASTC textures, picked by the page when the GPU has no DXT; its files are also on the site gzipped, and the browser unpacks them itself as they arrive (`DecompressionStream`, Safari 16.4+), with no IndexedDB copy, instead of the loader's JavaScript Brotli; older browsers fall back to the Brotli files. Graphics fidelity starts at Low on a phone or tablet, and the canvas draws at no more than two pixels to a point. IL2CPP generates code for size (the WebAssembly went from 7.4 to 6.6 MB compressed). |
+| **When it goes wrong anyway** | If the tab was closed while loading or playing (iOS reloads it when you come back), the page says so and waits for a tap; a lost WebGL context and running out of memory get plain words instead of a dead canvas. |
+
+### After (built from `b4b13b4`)
+| Profile | Peak over a whole session, before → after | At the title | Textures at the title | Render targets |
+|---|---|---|---|---|
+| iPhone 15, landscape (WebKit) | 1542 → 1129 MB | 1508 → 958 MB | 154 → 55 MB (1 → 49 compressed) | 18.0 → 4.7 MB |
+| iPad Pro 11, landscape (WebKit) | 1908 → 1537 MB | 1856 → 1225 MB | 204 → 93 MB (1 → 49 compressed) | 28.5 → 16.0 MB |
+| iPad Pro 11, upright (WebKit) | 1700 → 1238 MB | 1571 → 1065 MB | 142 → 67 MB (1 → 49 compressed) | 15.4 → 8.2 MB |
+| Pixel 7, landscape (Chromium) | 675 → 548 MB | 599 → 415 MB | 143 → 57 MB (1 → 49 compressed) | 15.6 → 5.1 MB |
+
+Content process anonymous memory sampled each second (WebKit's web process; Chromium's renderer, with its GPU process
+alongside). This WebKit compiles shaders and keeps GL data in the content process, which Safari on iOS does in its GPU
+process, so iOS's figures should be lower; only a real phone can say how far below its limit they are. Download: 68 MB on a
+desktop (unchanged), 86 MB on a phone (the gzipped ASTC set; Brotli would be 73 MB but is what cost the memory).
+
+### How it was verified (final checks on `b4b13b4`, site built from `b4b13b4`)
+- `node Tools/mobile-check.mjs --serve Builds/Pages --device <profile> --play` on iPhone 15 landscape, iPad Pro 11 landscape
+  and upright, and Pixel 7 landscape: **23 of 23 steps each** by real touch events: Begin, the bell, Slip, Back, Rules, Back,
+  Nudge, touch and hold without a click, the left turn, drawer A, the wallet, the drag, the pinch, Tray, the green stamp,
+  the aiming tap and the stamping tap (`[Stamp] RETURN: give the brown leather wallet to Walter Bix · Tap here again to
+  stamp`), Menu and back, back to the title and Begin again, a key hiding the controls and a touch bringing them back, and
+  the sound running after the first touch. iPhone 15 upright: the rotate prompt, then the title once turned. Logs and
+  screenshots in `Logs/mobile/final/` locally; pictures in [`media/improvements/mobile/`](media/improvements/mobile/).
+- Desktop: `check-pages.mjs --serve Builds/Pages --full` in Chromium and Firefox pass, with the touch controls hidden at the
+  title and after keys, clicks and play; `mobile-check --device desktop-chromium` the same.
+- 142 EditMode tests (6 new: the touch wording, the two-tap stamp, the controls card's touch list). On the Linux build of the
+  same commit: AutoPilot `best` 24/24, *The 9:40*, 0 problems; tap test 14/14; pad test PASS. Every run printed the guard's
+  "untouched".
+
+### Found along the way
+- **A second WebGL build in one editor session deletes the first's files** once the texture subtarget really differs (they
+  share Unity's build graph: "Delete 5 artifact files that are no longer in use (like Builds/WebGL/Build)"). And
+  `EditorUserBuildSettings.webGLBuildSubtarget` alone does nothing: `BuildPlayerOptions.subtarget` defaults to "don't
+  override" and wins. `BuildScript` passes the subtarget and sets the desktop build aside.
+- At WebKit's 2–5 frames a second here, a menu tapped open a moment after closing it could be missed, and a 70 ms tap could
+  arrive as a hold; the page now judges a tap by the events' own timestamps.
+
+### Not done, and why
+- **A smaller WebAssembly.** Compiling it cost this WebKit about 11 MB per MB of code. Managed stripping at High would cut it
+  further, but the game reads URP's internals by reflection; it needs a whole week's AutoPilot in a browser to trust.
+- **Nothing was tried on a real phone or tablet.** iOS's memory limit, Safari's own audio unlock, the notch's margins, the
+  buttons' feel and the frame rate on a phone's GPU are unconfirmed (this machine's WebKit draws at 2–12 fps in software).
+
+### Needs a decision from the owner
+- The site is now 220 MB (three data files: desktop, ASTC, ASTC gzipped), well inside GitHub Pages' 1 GB; each file is under
+  100 MB, three are over 50 MB (GitHub warns).
+
+The highest point after is now in play (the iPad's while the desk is rebuilt on the way back to the title, when the old and
+new desks briefly coexist), no longer in the load. The title came up in 2.7–2.9 s from a local server (5.7–6.2 s before).
+Frame rates in WebKit here (2–17 fps) are this machine's software rendering, not a phone's; the Pixel 7 profile in
+Chromium on the real GPU held 60 fps at the title and on the desk.
