@@ -19,7 +19,7 @@
 **[Play Lost & Found in your browser →](https://nearbycoder.github.io/LostAndFound/)** (GitHub Pages, built from today's `main`)
 
 - **Browsers:** a desktop browser with WebGL 2 and hardware acceleration on. Checked in headless Chromium (Chrome for Testing 151) and headless Firefox 157 on Linux; not yet tried in Safari, on Windows or macOS, or by a person at a real window.
-- **Download:** about 69 MB the first time (the browser keeps it, so a second visit starts sooner). On this machine the title came up 7–10 s after the page was asked for, from a local server under load; over the internet it depends on your connection.
+- **Download:** about 69 MB the first time (the browser keeps it, so a second visit starts sooner). On this machine the title came up 3.5–6 s after the page was asked for from a local server (Chromium, then Firefox; up to 10 s while the machine was busier); over the internet it depends on your connection.
 - **What's different from the desktop game:** it starts at *Graphics fidelity: Medium* (Settings has all four steps); the save and settings live in this browser's storage for the site, separate from a desktop save, and clearing the site's data erases them; sound starts with your first click or key; *Fullscreen* is the browser's (Esc leaves it, so press Esc again to pause); there's no *Close the Office* or *Sound when in the background*. Mouse, keyboard and a gamepad work as on the desktop (the gamepad through the browser, untried on a real controller); there's no touch support, and phones and tablets get a warning before the download.
 - In headless Firefox the depth-of-field blur didn't run (its shaders were reported unsupported there); Chromium draws it.
 
