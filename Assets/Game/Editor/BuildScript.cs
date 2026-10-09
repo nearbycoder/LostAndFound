@@ -56,7 +56,8 @@ namespace LostAndFound.EditorTools
         /// root: build-pages.sh puts back the one and removes the other.
         /// Two builds: Builds/WebGL with the desktop's texture formats (DXT and BC7), and Builds/WebGL-astc with ASTC, which
         /// phones' and tablets' GPUs read (they have no DXT, and the player would unpack every texture to plain RGBA, four
-        /// times the memory). Only the data file differs; the page picks one by what the GPU offers. -lafNoAstc skips the second.</summary>
+        /// times the memory). Each has its own files (the code differs a little too); the page picks the set by what the GPU
+        /// offers. -lafNoAstc skips the second.</summary>
         [MenuItem("Lost & Found/Build WebGL Player")]
         public static void BuildWebGL()
         {
@@ -79,7 +80,16 @@ namespace LostAndFound.EditorTools
             ProjectSetup.Apply();
             StampCommit();
             bool ok = BuildWebGLTo("Builds/WebGL", "desktop textures");
-            if (ok && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-lafNoAstc") < 0) ok = BuildWebGLAstcTo("Builds/WebGL-astc");
+            if (ok && System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-lafNoAstc") < 0)
+            {
+                // the two builds share a build graph, and the second clears the first's files as no longer in use: set them aside
+                const string aside = "Builds/WebGL-desktop-aside";
+                FileUtil.DeleteFileOrDirectory(aside);
+                FileUtil.CopyFileOrDirectory("Builds/WebGL", aside);
+                ok = BuildWebGLAstcTo("Builds/WebGL-astc");
+                FileUtil.DeleteFileOrDirectory("Builds/WebGL");
+                FileUtil.MoveFileOrDirectory(aside, "Builds/WebGL");
+            }
             Quit(ok);
         }
 

@@ -7,7 +7,7 @@
 # The site is static: index.html at its root, a .nojekyll (so Pages serves it as it is), relative URLs only, and
 # Brotli files that Unity's loader unpacks itself (Pages can't send Content-Encoding). Nothing is pushed or deployed.
 # Unity builds it twice (BuildScript.BuildWebGL): with the desktop's texture formats, and with ASTC for phones and tablets.
-# The site has both data files (the code is the same build, so the same files) and the page loads the one the GPU reads;
+# The site has both sets of files (hashed names: what's the same is one file) and the page loads the set the GPU reads;
 # the phones' set is there gzipped as well, for the browser to unpack natively (much less memory than the loader's Brotli).
 # Then check it as it will be served:  node Tools/check-pages.mjs --serve Builds/Pages
 #
