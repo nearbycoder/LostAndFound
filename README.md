@@ -14,6 +14,15 @@
 
 </div>
 
+## Play in your browser
+
+**[Play Lost & Found in your browser →](https://nearbycoder.github.io/LostAndFound/)** (GitHub Pages, built from today's `main`)
+
+- **Browsers:** a desktop browser with WebGL 2 and hardware acceleration on. Checked in headless Chromium (Chrome for Testing 151) and headless Firefox 157 on Linux; not yet tried in Safari, on Windows or macOS, or by a person at a real window.
+- **Download:** about 69 MB the first time (the browser keeps it, so a second visit starts sooner). On this machine the title came up 7–10 s after the page was asked for, from a local server under load; over the internet it depends on your connection.
+- **What's different from the desktop game:** it starts at *Graphics fidelity: Medium* (Settings has all four steps); the save and settings live in this browser's storage for the site, separate from a desktop save, and clearing the site's data erases them; sound starts with your first click or key; *Fullscreen* is the browser's (Esc leaves it, so press Esc again to pause); there's no *Close the Office* or *Sound when in the background*. Mouse, keyboard and a gamepad work as on the desktop (the gamepad through the browser, untried on a real controller); there's no touch support, and phones and tablets get a warning before the download.
+- In headless Firefox the depth-of-field blur didn't run (its shaders were reported unsupported there); Chromium draws it.
+
 ## Trailer
 
 [![Watch the Lost & Found trailer](docs/media/trailer_poster.jpg)](docs/media/trailer.mp4)
@@ -206,7 +215,7 @@ The game has been played end to end by its AutoPilot (all four policies, every r
 
 Known gaps and rough edges:
 - **The download is old.** The v0.1.0 release predates every round above, and builds of `main` still call themselves v0.1.0. Numbering and releasing a new version is the owner's call.
-- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here. WebGL builds and plays in Chrome (65 MB, 60 fps on this machine's iGPU when it's quiet) but isn't released or hosted, was last rebuilt in round 10, and has only been checked in headless Chrome.
+- Only Linux has a release. The macOS build is untested on a Mac and unsigned; Windows needs a Unity module that isn't installed here. The browser build ([above](#play-in-your-browser)) has only been checked in headless Chromium and Firefox on Linux.
 - Gamepad support has only been driven by a virtual Input System gamepad; no physical controller (or Steam Deck) has been tried. There's no touch support or localisation.
 - **Graphics fidelity has only been timed on this machine's integrated GPU while other work shared it**; Ultra on a discrete GPU or a 4K screen is unmeasured. The reflection probe is pictured once per desk, before anyone's at the window, so the claimant and the blue lamp don't show in the brass.
 - How easy the hidden details are for a person to find hasn't been tested with people. The audit only proves each can be brought into view; the hardest (the date on the ring's ticket, under the blue lamp) is clickable from about 14% of orientations.
@@ -233,7 +242,9 @@ Tools/unity.sh                 # GUI editor
 Tools/unity.sh build-linux     # -> Builds/Linux/LostAndFound.x86_64
 Tools/unity.sh build-mac       # -> Builds/macOS/LostAndFound.app (universal, unsigned; untested on a Mac)
 Tools/unity.sh build-windows   # -> Builds/Windows/LostAndFound.exe (needs Windows Build Support installed)
-Tools/unity.sh build-webgl     # -> Builds/WebGL/ (not a release: see docs/IMPROVEMENTS.md, rounds 3 and 4)
+Tools/unity.sh build-webgl     # -> Builds/WebGL/
+Tools/build-pages.sh           # the browser build laid out as the GitHub Pages site in Builds/Pages/ (gitignored)
+node Tools/check-pages.mjs --serve Builds/Pages --full   # ...checked as Pages will serve it, in headless Chromium
 python3 Tools/package_release.py   # zip whatever's built into dist/LostAndFound-v<version>-<platform>.zip
 ```
 
@@ -264,6 +275,7 @@ All generated assets are committed, so you only need to regenerate them if you c
 | **Soak** | `Tools/unity.sh soak [cycles]` | Plays on without quitting, as someone who leaves the game open all evening does: in one process it goes round the menus' own buttons again and again (decide a claim, *Start the day again*, *Back to the title*, *Continue*, *Choose a Day*), each of which tears the game down and builds it again. After every cycle it logs memory and the live materials, meshes, textures and objects, and passes only if the last ten cycles hold steady and every choice that would lose progress asked for a second click (and only those). At the end it finishes a day and checks the Day Ledger's *Replay the day* the same way. `LAF_SOAK_SAVE=<path>` starts it from an existing save, such as a finished week. AutoPilot `-lafWeeks 2` plays two whole weeks back to back in one process. Log in `Logs/soak.log`. |
 | **Nudge tour** | `Tools/unity.sh nudgetour [speed] [w] [h] [player args]` | The AutoPilot plays the week as a stuck player: at every stage of every claim it asks for every nudge, then does what they say. It picks up what glows, works the part that lights up, turns the object until the glint appears and clicks on the glint, and asks what it's told to ask. It checks the glint only shows where a click finds the detail, and that the hint bar offers a nudge after 90 s idle. Log in `Logs/nudgetour.log`. |
 | **Hotspot audit** | `Tools/unity.sh audit` (table in `Screenshots/hotspots/coverage.txt`) | Holds every object as the inspect view does, lids shut and open, through 1,500 orientations at two zooms, and asks the game's own picking code whether each hidden detail could be clicked. Then, for every day with nothing yet returned (the fullest storage gets), it checks that every stored object has a real slot and can be hovered from its shelf or open drawer. Fails if any detail or object falls under 10%, and saves a picture of each detail that does. |
+| **The browser build, as Pages serves it** | `Tools/build-pages.sh`, then `node Tools/check-pages.mjs --serve Builds/Pages --full` (add `--browser firefox`), or `node Tools/check-pages.mjs https://nearbycoder.github.io/LostAndFound/` for the live site | Serves the site at `/LostAndFound/` with no compression headers, as GitHub Pages does, and plays it in a fresh headless browser with no npm packages (Chromium by its DevTools protocol, Firefox by WebDriver BiDi). It passes only if the game reaches its title with no console error, failed download or exception. `--full` goes on to the menus by keyboard, the browser's fullscreen, the fidelity setting surviving a reload, sound starting after the first key, a short session with keys and the mouse, and the AutoPilot's save picked up after a reload. Console, `report.json` and screenshots in `Logs/check-pages/<browser>/`. |
 | **WebGL in Chrome** | `python3 Tools/serve_webgl.py Builds/WebGL &` then `python3 Tools/webgl_check.py --url 'http://127.0.0.1:8764/?lafSmoke=smoke' --out Logs/webgl/smoke --profile Logs/webgl/profile` | Plays the WebGL build in Chrome on the real GPU (headless, ANGLE on EGL), records the console, screenshots every `[Shot]` the game logs, and lists what the page keeps in IndexedDB. In a browser the game reads its `-laf…` options from the query string (and `?lafShot` makes the page itself log screenshots of its loading and error states), so the smoke test and AutoPilot run there too (`?lafAutopilot=x&lafQuitAfter=1.2`, then `?lafAutopilot=x&lafContinue` with the same `--profile` to check the save survived). |
 | **Smoke test** | `Tools/unity.sh smoke 30 [quality]` | Frame rate (uncapped) and errors over a hands-free run; `quality` 0 to 3 (Low to Ultra) overrides the graphics fidelity for that run only. With `-lafShowSettings` or `-lafShowControls` it opens that card over the title, and `-lafTextAudit` audits its texts; `-lafCardFrames` photographs Settings and the pause menu as they open and close, with *Reduce motion* off and on. |
 | **Fidelity bench** | `Tools/unity.sh fidelity [w] [h] [moments]` | Plays Monday's first claim and, at each named AutoPilot moment (by default the claimant at the window and the wallet in your hands), holds the game still and times every Graphics fidelity step over 400 uncapped frames, Low to Ultra and back (each step's figure is the mean of its two medians), photographing each step at the same moment. `[Fidelity]` lines with the load average in `Logs/fidelity.log`, pictures in `Screenshots/fidelity/`. `-lafUltraWithout msaa,hdr,dof,ao,shadows,cascades` leaves parts of Ultra out, to see what each costs and adds. |
