@@ -1,22 +1,25 @@
 #!/usr/bin/env python3
 """Cut the feature trailer, the README stills and the teaser loop from filmed takes.
 
-Film the takes first (each plays real days through simulated mouse and keyboard, without the score):
+Film the takes first (each plays real days through simulated mouse and keyboard, without the score). The trailer's
+takes are filmed at Graphics fidelity Ultra, set in their settings as a player would, with -lafShowcase (the menus by
+the keys, Agnes's nudges, her rules and the ledger book; see DemoRecorder.Showcase.cs):
 
-    Tools/unity.sh film day1 -lafUntil 1                 # the title, then Monday (and Tuesday's morning)
-    Tools/unity.sh film day2 -lafDay 2                   # Tuesday ... one take per day
-    Tools/unity.sh film day3 -lafDay 3
-    Tools/unity.sh film day4 -lafDay 4
-    Tools/unity.sh film day5 -lafDay 5                   # Friday and the ending
-    Tools/unity.sh film grey -lafDay 4 -lafUntil 5 -lafVerdicts 4.2=return:vell,5.5=return:vell
-                                                         # Mr Vell gets the ring and the key: Grey Ninefold
+    S='{"values":[{"key":"quality","value":3.0}]}'
+    LAF_SETTINGS=$S Tools/unity.sh film p_day1 -lafUntil 1 -lafShowcase   # the title, then Monday (and Tuesday's morning)
+    LAF_SETTINGS=$S Tools/unity.sh film p_day2 -lafDay 2 -lafShowcase     # Tuesday ... one take per day
+    LAF_SETTINGS=$S Tools/unity.sh film p_day3 -lafDay 3 -lafShowcase
+    LAF_SETTINGS=$S Tools/unity.sh film p_day4 -lafDay 4 -lafShowcase
+    LAF_SETTINGS=$S Tools/unity.sh film p_day5 -lafDay 5 -lafShowcase     # Friday, the ending and the week's page
+    LAF_SETTINGS=$S Tools/unity.sh film p_grey -lafDay 4 -lafUntil 5 -lafVerdicts 4.2=return:vell,5.5=return:vell -lafShowcase
+                                                                          # Mr Vell gets the ring and the key: Grey Ninefold
 
 then:
 
-    .venv/bin/python Tools/make_trailer.py [trailer] [stills] [teaser]    (default: all three)
+    .venv/bin/python Tools/make_trailer.py --takes p_ [trailer] [stills] [teaser]    (default: all three, and the poster)
 
-`stills --takes r5_` cuts the README stills from takes filmed under other names (Recordings/r5_day1 and so on),
-leaving the takes behind the trailer as they are.
+--takes <prefix> cuts everything from Recordings/<prefix>day1 and so on (the October 4 cut used takes named day1 ...
+grey), with its work files in Recordings/_trailer_<prefix>.
 
 Every cut is anchored to an event in Recordings/<take>/markers.tsv, so re-filmed takes keep their cuts
 on the same moments. The score is laid in here from Assets/Game/Resources/Music, ducked under the
@@ -469,10 +472,11 @@ def mix(game, bed, duck_db=9.0, music_gain=0.55):
     amt = np.clip((db + 36.0) / 22.0, 0.0, 1.0)
     duck = 10 ** (-duck_db * amt / 20.0)
     out = game + bed * (duck * music_gain)[:, None]
-    # loudness: aim for about -16 dB RMS with -1 dBFS peaks (a gentle tanh limiter takes the rest)
+    # loudness: aim for about -16 dB RMS with -2.5 dBFS sample peaks (a gentle tanh limiter takes the rest), which leaves
+    # room for the peaks between samples and the AAC encode's overshoot (at -1 dBFS the true peak came out at +0.7)
     rms = math.sqrt(float(np.mean(out ** 2)) + 1e-12)
     out *= 10 ** (-16.0 / 20.0) / rms
-    ceiling = 10 ** (-1.0 / 20.0)
+    ceiling = 10 ** (-2.5 / 20.0)
     out = np.where(np.abs(out) > 0.7 * ceiling,
                    np.sign(out) * (0.7 * ceiling + 0.3 * ceiling * np.tanh((np.abs(out) - 0.7 * ceiling) / (0.3 * ceiling))),
                    out)
@@ -558,7 +562,7 @@ def still(take_name, t, name, quality=95):
     q = quality
     while True:
         im.save(out, quality=q, optimize=True, progressive=True)
-        if out.stat().st_size <= 1_400_000 or q <= 70:
+        if out.stat().st_size <= 1_000_000 or q <= 70:
             break
         q -= 4
     print(f"  {out.relative_to(ROOT)}  {out.stat().st_size / 1e6:.2f} MB  (q{q})")
@@ -641,21 +645,24 @@ def caps():
         caption_frame(head, sub, n, c[key], corner)
 
     tag("desk", "Run the Lost Property desk", "NINEFOLD JUNCTION · OCTOBER 1962", 1)
-    tag("listen", "Listen to every claim", "WHAT THEY TELL YOU IS WRITTEN ON THE CLAIM SLIP", 2)
+    tag("listen", "Listen to every claim", "THEIR CLAIMS GO ON THE SLIP, AND EVERY WORD SAID BESIDE IT", 2)
     tag("search", "Search the drawers", "AND THE SHELF. EVERY STRAY HAS A TAG: WHERE, WHEN, WHICH TRAIN", 3)
     tag("turn", "Turn it over", "IN YOUR HANDS. OPEN LIDS, LATCHES AND CLASPS", 4)
     tag("find", "Find what's hidden", "EVERY DISCOVERY GOES ON THE SLIP", 5)
     tag("liars", "Catch the liars", "THEY ONLY KNOW WHAT THEY COULD SEE", 6)
     tag("two", "Two claim one?", "LET THE OBJECT DECIDE", 7, "bl")
-    tag("stamp", "Stamp the claim", "RETURN  ·  REFUSE  ·  SEAL", 8)
-    tag("hum", "If it hums, it's home", "SOME THINGS KNOW THEIR OWNERS", 9)
-    tag("vell", "The Grey Gentleman", "GETS NOTHING. HE KNOWS EVERY DETAIL, BUT NOTHING HUMS FOR HIM", 11)
-    tag("tomorrow", "Dated tomorrow?", "THEN IT ISN'T LOST YET: SEAL IT IN THE IRON DRAWER", 12)
-    tag("frost", "Frost on the glass", "THEY'VE GONE ON AHEAD. COLD THINGS GO ONLY TO THE COLD", 13)
-    tag("lamp", "Agnes's blue lamp", "SHOWS WHAT INK TRIES TO HIDE", 14)
-    tag("rules", "A new rule each morning", "IN THE HAND OF AGNES, WHO RAN THIS DESK FOR 41 YEARS", 10)
-    tag("ledger", "The Day Ledger", "EVERY EVENING, AND THE GAZETTE REPORTS WHAT YOU CHANGED", 15, "bl")
-    tag("grey", "Choices carry", "THROUGH THE WEEK. GIVE MR VELL WHAT HE WANTS AND THE STATION GREYS", 16)
+    tag("stamp", "Stamp the claim", "RETURN  ·  REFUSE  ·  SEAL. THE HINT SAYS WHAT EACH WILL DO", 8)
+    tag("nudge", "Stuck? Ask Agnes", "PRESS H. EACH NUDGE GOES A STEP FURTHER, UP TO SHOWING YOU", 9)
+    tag("rules", "Her rules, at hand", "PRESS R AT ANY TIME. A NEW ONE MOST MORNINGS", 10)
+    tag("book", "The week so far", "EVERY EVENING'S PAGE IS KEPT IN THE LEDGER ON THE DESK", 11)
+    tag("hum", "If it hums, it's home", "SOME THINGS KNOW THEIR OWNERS", 12)
+    tag("vell", "The Grey Gentleman", "GETS NOTHING. HE KNOWS EVERY DETAIL, BUT NOTHING HUMS FOR HIM", 13)
+    tag("tomorrow", "Dated tomorrow?", "THEN IT ISN'T LOST YET: SEAL IT IN THE IRON DRAWER", 14)
+    tag("frost", "Frost on the glass", "THEY'VE GONE ON AHEAD. COLD THINGS GO ONLY TO THE COLD", 15)
+    tag("lamp", "Agnes's blue lamp", "SHOWS WHAT INK TRIES TO HIDE", 16)
+    tag("ledger", "The Day Ledger", "EVERY EVENING, AND THE GAZETTE REPORTS WHAT YOU CHANGED", 17)
+    tag("grey", "Choices carry", "THROUGH THE WEEK. GIVE MR VELL WHAT HE WANTS AND THE STATION GREYS", 18)
+    tag("fidelity", "Low to Ultra", "GRAPHICS FIDELITY IN FOUR STEPS. EVERY MENU BY MOUSE OR KEYS", 19)
     for k in ("return", "refuse", "seal"):
         c["stamp_" + k] = WORK / f"stamp_{k}.png"
         stamp_frame(k, c["stamp_" + k], angle={"return": -7, "refuse": 5, "seal": -3}[k])
@@ -694,20 +701,19 @@ def mechanics(c):
     """Monday and Tuesday: how a case plays, beat by beat."""
     d1, d2 = take("day1"), take("day2")
     S = []
-    S.append(clip("day1", d1.at("bell 1.1") - 0.2, 4.6, [ov(c["desk"])], label="desk: ring for Walter"))
-    S.append(clip("day1", d1.at("arrive 1.1") + 7.8, 4.1, [ov(c["listen"])], label="listen: claims underlined"))
+    S.append(clip("day1", d1.at("bell 1.1") - 0.2, 4.2, [ov(c["desk"])], label="desk: ring for Walter"))
+    S.append(clip("day1", d1.at("slip 1.1") + 0.6, 4.1, [ov(c["listen"])], label="listen: the slip and what was said"))
     S.append(clip("day1", d1.at("turn Cabinet") + 0.2, 5.0, [ov(c["search"])], label="search: drawer A, the tag"))
-    S.append(clip("day1", d1.at("pickup wallet_brown") + 0.1, 5.3, [ov(c["turn"])], label="turn it over, open the flap"))
+    S.append(clip("day1", d1.at("pickup wallet_brown") + 0.1, 4.8, [ov(c["turn"])], label="turn it over, open the flap"))
     S.append(clip("day1", d1.at("discover wallet_brown.photo") - 2.2, 4.0, [ov(c["find"])], label="find: Biscuit"))
     strip = d1.at("part umbrella_duck.hinge") + 0.3
     S.append(clip("day1", strip, 3.0, [ov(c["liars"])], label="liars: the name strip"))
-    S.append(clip("day1", d1.at("ask namestrip") + 1.6, 4.7, xf=0.3, label="Reggie bluffs"))
+    S.append(clip("day1", d1.at("ask namestrip") + 1.6, 4.2, xf=0.3, label="Reggie bluffs"))
     S.append(clip("day2", d2.at("arrive 2.2") + 15.2, 3.8, [ov(c["two"])], label="two claim one: the twins"))
-    S.append(clip("day2", d2.at("discover locket.note") - 1.8, 3.4, xf=0.3, label="the note in the locket"))
     # stamps: three slams, each with its imprint
-    for k, (tk, ev, kind) in enumerate([("day1", "stamp 1.1", "return"), ("day1", "stamp 1.3", "refuse"), ("day2", "stamp 2.4", "seal")]):
+    for k, (tk, ev, kind) in enumerate([("day2", "stamp 2.2", "return"), ("day1", "stamp 1.3", "refuse"), ("day2", "stamp 2.4", "seal")]):
         t = take(tk).at(ev)
-        lead = 1.8 if k == 0 else 1.0
+        lead = STAMP_LEAD if k == 0 else 1.0
         o = [ov(c["stamp_" + kind], t_in=lead - 0.32, fade_in=0.06, fade_out=0.3, pop=True)]
         # one caption held across the three cuts: it fades in on the first and out on the last
         hold = 99 if k < 2 else None
@@ -719,13 +725,35 @@ def mechanics(c):
     return S
 
 
+STAMP_LEAD = 2.4   # the first stamp's shot opens on the hint over the twins' slip ("RETURN: give the silver locket to Cecily ...")
+
+
+def at_hand(c):
+    """What's at hand when you need it: Agnes's nudges, her rules, the week's ledger."""
+    d1, d3, d4 = take("day1"), take("day3"), take("day4")
+    S = []
+    S.append(clip("day1", d1.at("nudge 1.2", nth=2) + 0.4, 2.6, [ov(c["nudge"], t_out=99)], label="nudge 3/3: Drawer B"))
+    S.append(clip("day1", d1.at("drawer Drawer_B") - 1.9, 2.0, [ov(c["nudge"], t_in=0.0, fade_in=0.01, slide=0, t_out=99)], xf=0.25,
+                  label="Drawer B"))
+    S.append(clip("day1", d1.at("nudge-shows glint") - 0.3, 3.0, [ov(c["nudge"], t_in=0.0, fade_in=0.01, slide=0)], xf=0.25,
+                  label="the glint on the scarf"))
+    # cards fill the frame: their captions come over the desk and go as the card opens, so they never sit on its words
+    S.append(clip("day4", d4.at("rules") - 1.8, 4.6, [ov(c["rules"], t_in=0.2, t_out=1.4, fade_out=0.3)], label="R: Agnes's rules"))
+    S.append(clip("day3", d3.at("ledger-book") - 1.9, 4.6, [ov(c["book"], t_in=0.2, t_out=1.4, fade_out=0.3)], label="the ledger book"))
+    return S
+
+
+def menus(c):
+    """Settings from the keys: the Graphics fidelity from Low back up to Ultra."""
+    d1 = take("day1")
+    return [clip("day1", d1.at("fidelity Low") - 0.5, 4.2, [ov(c["fidelity"])], label="Settings: Low to Ultra")]
+
+
 def uncanny(c):
     """The rules that bend: the hum, the Grey Gentleman, tomorrow, frost, the blue lamp."""
     d1, d2, d3, d4 = take("day1"), take("day2"), take("day3"), take("day4")
     S = []
     S.append(clip("day1", d1.at("pickup suitcase") - 0.1, 4.3, [ov(c["hum"])], label="the suitcase hums for Mrs Marsh"))
-    rule5 = max(t for t, e in d1.events if e == "note")   # Tuesday's rules: four, then five
-    S.append(clip("day1", rule5 + 5.1, 4.0, [ov(c["rules"])], label="Rule five, in Agnes's hand"))
     S.append(clip("day2", d2.at("arrive 2.4") + 10.0, 4.2, [ov(c["vell"])], label="Mr Vell: you have her eyes"))
     S.append(clip("day3", d3.at("discover photograph.stamp") - 2.0, 4.2, [ov(c["tomorrow"])], label="a photograph developed tomorrow"))
     S.append(clip("day3", d3.at("arrive 3.5") + 2.8, 4.3, [ov(c["frost"])], label="the window frosts: Lt Penhallow"))
@@ -737,7 +765,7 @@ def systems(c):
     """The evening, and choices that carry."""
     d1, g = take("day1"), take("grey")
     S = []
-    S.append(clip("day1", d1.at("ledger 1") + 2.4, 4.0, [ov(c["ledger"])], label="the Day Ledger and the Gazette"))
+    S.append(clip("day1", d1.at("ledger 1") - 1.6, 5.8, [ov(c["ledger"], t_in=0.2, t_out=1.0, fade_out=0.3)], label="the Day Ledger and the Gazette"))
     given = g.at("stamp 4.2")
     S.append(clip("grey", given + 2.8, 4.4, [ov(c["grey"])], label="Vell: forty-one years she waited"))
     S.append(clip("grey", g.at("arrive 4.5") + 3.1, 3.0, xf=0.35, label="Thomas: gone? to a gentleman in grey?"))
@@ -790,10 +818,12 @@ def trailer():
     first_mech = len(S)
     S += mechanics(c)
     S[first_mech]["xf"], S[first_mech]["trans"] = 0.7, "fadeblack"
+    S += at_hand(c)
     first_unc = len(S)
     S += uncanny(c)
     first_sys = len(S)
     S += systems(c)
+    S += menus(c)
     first_mont = len(S)
     S += montage(c)
     S.append(card(5.8, ("day5", take("day5").at("bell 5.1") - 2.0), [ov(c["end"], t_in=0.4, slide=0, fade_in=1.0, fade_out=0.01, t_out=99)],
@@ -832,6 +862,12 @@ def stills():
         ("screenshot_photographs", "day4", d["day4"].at("photos-begin") + 7.4),
         # the finished page: the game holds it 2.5 s once the Gazette is down, then fades for 0.8 s before "ledger-closed"
         ("screenshot_ledger", "day1", d["day1"].at("ledger-closed") - 2.0),
+        # what rounds 1-12 added, from the showcase (-lafShowcase)
+        ("screenshot_nudge", "day1", d["day1"].at("nudge-shows glint") + 0.5),
+        ("screenshot_stamp", "day2", d["day2"].at("stamp 2.2") - 1.2),
+        ("screenshot_rules", "day4", d["day4"].at("rules") + 1.5),
+        ("screenshot_ledgerbook", "day3", d["day3"].at("ledger-book") + 1.6),
+        ("screenshot_settings", "day1", d["day1"].at("settings-fidelity") + 0.8),
     ]
     WORK.mkdir(parents=True, exist_ok=True)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -855,6 +891,7 @@ if __name__ == "__main__":
         i = args.index("--takes")
         PREFIX = args[i + 1]
         del args[i:i + 2]
+        WORK = REC / f"_trailer_{PREFIX.strip('_')}"   # its own shot renders and captions, beside the other takes'
     what = args or ["trailer", "stills", "teaser"]   # or "poster" alone
     if "stills" in what:
         stills()
